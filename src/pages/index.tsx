@@ -1,18 +1,16 @@
+import { Field, Form, Formik } from "formik"
 import { withUrqlClient } from "next-urql"
+import { useRouter } from "next/router"
 import React from "react"
 import { useGetCurrentUserQuery, useLogoutMutation } from "../generated/graphql"
-// import { mappedError } from "../utils/mappedError"
+import { isSsr } from "../utils/isSsr"
 import { urqlClientOptions } from "../utils/urqlClientOptions"
-import { useRouter } from "next/router"
-import { isSsr } from "../utils/isSSR"
 
-const Index: React.FC<{}> = ({ }) => {
+const Index: React.FC<{}> = ({}) => {
 	const router = useRouter()
-	const [{ data: currentUserData, fetching: currentUserFetching }] = useGetCurrentUserQuery({ pause: isSsr() })
-	const [, logout] = useLogoutMutation() 
-
-	// const error = data?.hello && mappedError(data?.hello)
-	// const errorKeys = error && Object.keys(error)
+	const [{ data: currentUserData, fetching: currentUserFetching }] =
+		useGetCurrentUserQuery({ pause: isSsr() })
+	const [, logout] = useLogoutMutation()
 
 	let loginInfo = null
 
@@ -25,15 +23,14 @@ const Index: React.FC<{}> = ({ }) => {
 	}
 
 	return (
-		<>
-			{/* {error &&
-				errorKeys &&
-				errorKeys.map((key) => (
-					<div key={key}>
-						<div>{key}</div>
-						<div>{error[key]}</div>
-					</div>
-				))} */}
+		<div
+			style={{
+				display: "flex",
+				justifyContent: "center",
+				alignItems: "center",
+				minHeight: "100vh",
+			}}
+		>
 			<div>{loginInfo}</div>
 			<button
 				onClick={async () => {
@@ -43,7 +40,31 @@ const Index: React.FC<{}> = ({ }) => {
 			>
 				Logout
 			</button>
-		</>
+			<Formik
+				initialValues={{ id: "" }}
+				validate={(values) => {
+					let errors = {}
+					if (!/^\d+$/.test(values.id)) errors = { id: "" }
+					return errors
+				}}
+				onSubmit={(values, { setSubmitting }) => {
+					setTimeout(() => {
+						alert(JSON.stringify(values, null, 2))
+						setSubmitting(false)
+					}, 400)
+				}}
+			>
+				{({ isSubmitting, errors }) => (
+					<Form>
+						<Field name="id" placeholder="id" />
+						<button type="submit" disabled={isSubmitting}>
+							Submit
+						</button>
+						<div>{errors.id && errors.id}</div>
+					</Form>
+				)}
+			</Formik>
+		</div>
 	)
 }
 
