@@ -1,0 +1,1 @@
+export const AUTH_GOOGLE_PATH_ORIGIN = "agpo"

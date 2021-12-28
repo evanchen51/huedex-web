@@ -1,0 +1,6 @@
+mutation SetUserDisplayName($displayName: String!) {
+	setUserDisplayName(displayName: $displayName){
+		id
+		displayName
+	}
+}

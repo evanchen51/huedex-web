@@ -1,0 +1,26 @@
+query GetSinglePoll($id: Int!, $langId: Int!) {
+	getSinglePoll(id: $id, langId: $langId) {
+		pollId
+		text {
+			text
+			langId
+			originalText
+			originalLangId
+		}
+		options {
+			optionId
+			pollId
+			text {
+				text
+				langId
+				originalText
+				originalLangId
+			}
+			numOfVotes
+		}
+		posterId
+		posterDisplayName
+		numOfVotes
+		createdAt
+	}
+}
