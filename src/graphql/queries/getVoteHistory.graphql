@@ -1,0 +1,6 @@
+query GetVoteHistory {
+	getVoteHistory {
+		optionId
+		pollId
+	}
+}

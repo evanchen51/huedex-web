@@ -1,5 +1,5 @@
-query GetSinglePoll($id: String!) {
-	getSinglePoll(id: $id) {
+mutation CreatePoll($createPollInput: CreatePollInput!) {
+	createPoll(createPollInput: $createPollInput) {
 		id
 		text
 		numOfVotes

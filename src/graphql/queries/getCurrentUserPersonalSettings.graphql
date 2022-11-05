@@ -1,0 +1,6 @@
+query GetCurrentUserPersonalSettings {
+	getCurrentUserPersonalSettings {
+		userId
+		displayLanguageCode
+	}
+}

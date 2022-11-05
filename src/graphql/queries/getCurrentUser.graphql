@@ -2,6 +2,5 @@ query GetCurrentUser {
 	getCurrentUser {
 		id
 		displayName
-		primaryLangPref
 	}
 }

@@ -9,9 +9,11 @@
     "gen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@stitches/react": "^1.2.8",
     "@urql/exchange-graphcache": "^4.3.5",
     "formik": "^2.2.9",
     "graphql": "^16.0.1",
+    "lodash": "^4.17.21",
     "next": "12.0.4",
     "next-urql": "^3.3.0",
     "react": "17.0.2",
@@ -24,6 +26,7 @@
     "@graphql-codegen/typescript": "2.4.1",
     "@graphql-codegen/typescript-operations": "2.2.1",
     "@graphql-codegen/typescript-urql": "^3.4.1",
+    "@types/lodash": "^4.14.185",
     "@types/node": "^16.11.7",
     "@types/react": "^17.0.35",
     "eslint": "7.32.0",

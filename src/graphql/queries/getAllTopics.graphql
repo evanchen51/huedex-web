@@ -1,0 +1,6 @@
+query GetAllTopics {
+	getAllTopics {
+		id
+		name
+	}
+}

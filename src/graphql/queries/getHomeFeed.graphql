@@ -1,0 +1,38 @@
+query GetHomeFeed($seen: [String!]!) {
+	getHomeFeed(seen: $seen) {
+		id
+		item {
+			id
+			text
+			numOfVotes
+			sensitive
+			posterId
+			numOfChoices
+			languageCode
+			createdAt
+			updatedAt
+			poster {
+				id
+				displayName
+				private
+			}
+			topOptions {
+				id
+				text
+				numOfVotes
+				pollId
+				languageCode
+				createdAt
+				updatedAt
+			}
+			topics {
+				pollId
+				topicId
+				topic {
+					id
+					name
+				}
+			}
+		}
+	}
+}

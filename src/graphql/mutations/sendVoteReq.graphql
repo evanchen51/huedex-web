@@ -1,0 +1,3 @@
+mutation SendVoteReq($voteReq: VoteReq!) {
+	sendVoteReq(voteReq: $voteReq)
+}

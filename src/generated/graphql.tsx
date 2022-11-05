@@ -13,45 +13,70 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
-  DateTime: any;
+};
+
+export type AnonymousVote = {
+  __typename?: 'AnonymousVote';
+  option: Option;
+  optionId: Scalars['String'];
+  poll: Poll;
+  pollId: Scalars['String'];
 };
 
 export type CreatePollInput = {
   anonymous?: InputMaybe<Scalars['Boolean']>;
-  langId: Scalars['Float'];
-  newTags: Array<Scalars['String']>;
+  newTopics: Array<Scalars['String']>;
   optionTexts: Array<Scalars['String']>;
-  tagIds: Array<Scalars['Float']>;
   text: Scalars['String'];
+  topicIds: Array<Scalars['String']>;
 };
 
-export type LangPref = {
-  __typename?: 'LangPref';
-  langId: Array<Scalars['Int']>;
+export type FeedItem = {
+  __typename?: 'FeedItem';
+  id: Scalars['String'];
+  item?: Maybe<Poll>;
 };
 
-export type LangTable = {
-  __typename?: 'LangTable';
+export type FollowTopic = {
+  __typename?: 'FollowTopic';
+  follower: User;
+  followerId: Scalars['String'];
+  topic: Topic;
+  topicId: Scalars['String'];
+};
+
+export type Language = {
+  __typename?: 'Language';
   code: Scalars['String'];
-  englishName: Scalars['String'];
-  id: Scalars['Float'];
   nativeName: Scalars['String'];
 };
 
-export type MediaTable = {
-  __typename?: 'MediaTable';
-  class: Scalars['String'];
-  id: Scalars['Float'];
+export type MediaType = {
+  __typename?: 'MediaType';
+  code: Scalars['String'];
   info: Scalars['String'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createPoll: Scalars['Boolean'];
+  addLanguage: Array<Language>;
+  createPoll?: Maybe<Poll>;
   logout: Scalars['Boolean'];
+  sendFollowLanguageReq: Scalars['Boolean'];
+  sendFollowTopicReq: Scalars['Boolean'];
+  sendFollowUserReq: Scalars['Boolean'];
+  sendUnfollowLanguageReq: Scalars['Boolean'];
+  sendUnfollowUserReq: Scalars['Boolean'];
+  sendUnollowTopicReq: Scalars['Boolean'];
+  sendVoteReq: Scalars['Boolean'];
+  setUserDisplayLanguage: UserPersonalSettings;
   setUserDisplayName: User;
-  setUserLangPref: LangPref;
+};
+
+
+export type MutationAddLanguageArgs = {
+  input: NewLanguage;
+  passcode: Scalars['String'];
 };
 
 
@@ -60,219 +85,318 @@ export type MutationCreatePollArgs = {
 };
 
 
+export type MutationSendFollowLanguageReqArgs = {
+  languageCode: Scalars['String'];
+};
+
+
+export type MutationSendFollowTopicReqArgs = {
+  topicId: Scalars['String'];
+};
+
+
+export type MutationSendFollowUserReqArgs = {
+  userId: Scalars['String'];
+};
+
+
+export type MutationSendUnfollowLanguageReqArgs = {
+  languageCode: Scalars['String'];
+};
+
+
+export type MutationSendUnfollowUserReqArgs = {
+  userId: Scalars['String'];
+};
+
+
+export type MutationSendUnollowTopicReqArgs = {
+  topicId: Scalars['String'];
+};
+
+
+export type MutationSendVoteReqArgs = {
+  voteReq: VoteReq;
+};
+
+
+export type MutationSetUserDisplayLanguageArgs = {
+  displayLanguageCode: Scalars['String'];
+};
+
+
 export type MutationSetUserDisplayNameArgs = {
   displayName: Scalars['String'];
 };
 
-
-export type MutationSetUserLangPrefArgs = {
-  newLangPref: Array<Scalars['Int']>;
+export type NewLanguage = {
+  code: Scalars['String'];
+  englishName: Scalars['String'];
+  nativeName: Scalars['String'];
 };
 
 export type Option = {
   __typename?: 'Option';
+  anonymousVotes?: Maybe<Array<AnonymousVote>>;
   createdAt: Scalars['String'];
-  id: Scalars['Float'];
-  mediaTypeId?: Maybe<Scalars['Int']>;
+  id: Scalars['String'];
+  language?: Maybe<Language>;
+  languageCode: Scalars['String'];
+  mediaType?: Maybe<MediaType>;
+  mediaTypeCode?: Maybe<Scalars['String']>;
   mediaUrl?: Maybe<Scalars['String']>;
-  numOfVotes: Scalars['Float'];
-  optionText: Array<OptionText>;
-  pollId: Scalars['Float'];
-  updatedAt: Scalars['String'];
-  votes: Array<Vote>;
-};
-
-export type OptionClientFullView = {
-  __typename?: 'OptionClientFullView';
-  numOfVotes: Scalars['Float'];
-  optionId: Scalars['Float'];
-  pollId: Scalars['Float'];
-  text: Text;
-};
-
-export type OptionText = {
-  __typename?: 'OptionText';
-  createdAt: Scalars['String'];
-  langId: Scalars['Float'];
-  optionId: Scalars['Float'];
+  numOfVotes: Scalars['Int'];
+  poll?: Maybe<Poll>;
+  pollId: Scalars['String'];
   text: Scalars['String'];
   updatedAt: Scalars['String'];
+  votes?: Maybe<Array<Vote>>;
 };
 
 export type Poll = {
   __typename?: 'Poll';
-  anonymousPoster?: Maybe<User>;
-  anonymousPosterId?: Maybe<Scalars['Int']>;
+  anonymousVotes?: Maybe<Array<AnonymousVote>>;
   createdAt: Scalars['String'];
-  id: Scalars['Float'];
-  mediaTypeId?: Maybe<Scalars['Int']>;
+  id: Scalars['String'];
+  languageCode: Scalars['String'];
+  mediaType?: Maybe<MediaType>;
+  mediaTypeCode?: Maybe<Scalars['String']>;
   mediaUrl?: Maybe<Scalars['String']>;
-  nsfw: Scalars['Boolean'];
-  numOfVotes: Scalars['Float'];
-  options: Array<Option>;
-  pollText: Array<PollText>;
+  numOfChoices: Scalars['Int'];
+  numOfVotes: Scalars['Int'];
+  options?: Maybe<Array<Option>>;
   poster?: Maybe<User>;
-  posterId?: Maybe<Scalars['Int']>;
-  tags: Array<PollTag>;
-  updatedAt: Scalars['String'];
-  votes: Array<Vote>;
-};
-
-export type PollClientFullView = {
-  __typename?: 'PollClientFullView';
-  createdAt: Scalars['DateTime'];
-  numOfVotes: Scalars['Float'];
-  options: Array<OptionClientFullView>;
-  pollId: Scalars['Float'];
-  posterDisplayName?: Maybe<Scalars['String']>;
-  posterId?: Maybe<Scalars['Int']>;
-  text: Text;
-};
-
-export type PollTag = {
-  __typename?: 'PollTag';
-  createdAt: Scalars['String'];
-  id: Scalars['Float'];
-  poll: Poll;
-  pollId: Scalars['Float'];
-  tag: Tag;
-  tagId: Scalars['Float'];
-  updatedAt: Scalars['String'];
-};
-
-export type PollText = {
-  __typename?: 'PollText';
-  createdAt: Scalars['String'];
-  langId: Scalars['Float'];
-  pollId: Scalars['Float'];
+  posterId?: Maybe<Scalars['String']>;
+  sensitive: Scalars['Boolean'];
   text: Scalars['String'];
+  topOptions?: Maybe<Array<Option>>;
+  topics: Array<PollTopic>;
   updatedAt: Scalars['String'];
+  votes?: Maybe<Array<Vote>>;
+};
+
+export type PollTopic = {
+  __typename?: 'PollTopic';
+  poll?: Maybe<Poll>;
+  pollId: Scalars['String'];
+  topic?: Maybe<Topic>;
+  topicId: Scalars['String'];
 };
 
 export type Query = {
   __typename?: 'Query';
+  createPollCheck: Scalars['Boolean'];
+  getAllLanguages?: Maybe<Array<Language>>;
+  getAllTopics: Array<Topic>;
   getCurrentUser?: Maybe<User>;
-  getCurrentUserAllLangPrefs: LangPref;
-  getLangTable?: Maybe<Array<LangTable>>;
-  getSinglePoll?: Maybe<PollClientFullView>;
-  visitorFeed: Scalars['String'];
+  getCurrentUserPersonalSettings?: Maybe<UserPersonalSettings>;
+  getHomeFeed: Array<FeedItem>;
+  getSimilarPolls: Array<FeedItem>;
+  getSinglePoll?: Maybe<Poll>;
+  getVisitorFeed: Array<FeedItem>;
+  getVoteHistory: Array<Vote>;
+  test?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryGetHomeFeedArgs = {
+  seen: Array<Scalars['String']>;
+};
+
+
+export type QueryGetSimilarPollsArgs = {
+  text: Scalars['String'];
 };
 
 
 export type QueryGetSinglePollArgs = {
-  id: Scalars['Int'];
-  langId: Scalars['Int'];
+  id: Scalars['String'];
 };
 
 
-export type QueryVisitorFeedArgs = {
-  langId: Scalars['Int'];
+export type QueryGetVisitorFeedArgs = {
+  languageCodes: Array<Scalars['String']>;
 };
 
-export type Tag = {
-  __typename?: 'Tag';
-  createdAt: Scalars['String'];
-  id: Scalars['Float'];
-  polls: Array<PollTag>;
-  tagText: Array<TagText>;
-  updatedAt: Scalars['String'];
-};
-
-export type TagText = {
-  __typename?: 'TagText';
-  createdAt: Scalars['String'];
-  langId: Scalars['Float'];
-  tagId: Scalars['Float'];
-  text: Scalars['String'];
-  updatedAt: Scalars['String'];
-};
-
-export type Text = {
-  __typename?: 'Text';
-  langId: Scalars['Float'];
-  originalLangId: Scalars['Float'];
-  originalText: Scalars['String'];
-  text?: Maybe<Scalars['String']>;
+export type Topic = {
+  __typename?: 'Topic';
+  followers?: Maybe<Array<FollowTopic>>;
+  id: Scalars['String'];
+  name: Scalars['String'];
+  polls?: Maybe<Array<PollTopic>>;
 };
 
 export type User = {
   __typename?: 'User';
-  allLangPrefs: Array<UserLangPref>;
-  anonymousPolls: Array<Poll>;
-  anonymousVotes: Array<Vote>;
-  createdAt: Scalars['String'];
+  createdAt?: Maybe<Scalars['String']>;
   displayName?: Maybe<Scalars['String']>;
-  id: Scalars['Float'];
-  polls: Array<Poll>;
-  primaryLangPref?: Maybe<Scalars['Int']>;
-  updatedAt: Scalars['String'];
-  votes: Array<Vote>;
+  id: Scalars['String'];
+  personalSetting?: Maybe<UserPersonalSettings>;
+  private: Scalars['Boolean'];
 };
 
-export type UserLangPref = {
-  __typename?: 'UserLangPref';
-  langId: Scalars['Float'];
-  userId: Scalars['Float'];
+export type UserPersonalSettings = {
+  __typename?: 'UserPersonalSettings';
+  displayLanguageCode: Scalars['String'];
+  displaylanguage: Language;
+  user: User;
+  userId: Scalars['String'];
 };
 
 export type Vote = {
   __typename?: 'Vote';
-  anonymousVoter?: Maybe<User>;
-  anonymousVoterId?: Maybe<Scalars['Int']>;
-  createdAt: Scalars['String'];
-  id: Scalars['Float'];
   option: Option;
-  optionId: Scalars['Float'];
+  optionId: Scalars['String'];
   poll: Poll;
-  pollId: Scalars['Float'];
-  updatedAt: Scalars['String'];
-  voter?: Maybe<User>;
-  voterId?: Maybe<Scalars['Int']>;
+  pollId: Scalars['String'];
+  voter: User;
+  voterId: Scalars['String'];
 };
+
+export type VoteReq = {
+  numOfChoices: Scalars['Float'];
+  pollId: Scalars['String'];
+  voteState: Array<VoteState>;
+};
+
+export type VoteState = {
+  optionId: Scalars['String'];
+  state: Scalars['String'];
+};
+
+export type CreatePollMutationVariables = Exact<{
+  createPollInput: CreatePollInput;
+}>;
+
+
+export type CreatePollMutation = { __typename?: 'Mutation', createPoll?: { __typename?: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename?: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename?: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename?: 'PollTopic', pollId: string, topicId: string, topic?: { __typename?: 'Topic', id: string, name: string } | null | undefined }> } | null | undefined };
 
 export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 
 export type LogoutMutation = { __typename?: 'Mutation', logout: boolean };
 
+export type SendVoteReqMutationVariables = Exact<{
+  voteReq: VoteReq;
+}>;
+
+
+export type SendVoteReqMutation = { __typename?: 'Mutation', sendVoteReq: boolean };
+
+export type SetUserDisplayLanguageMutationVariables = Exact<{
+  displayLanguageCode: Scalars['String'];
+}>;
+
+
+export type SetUserDisplayLanguageMutation = { __typename?: 'Mutation', setUserDisplayLanguage: { __typename?: 'UserPersonalSettings', userId: string, displayLanguageCode: string } };
+
 export type SetUserDisplayNameMutationVariables = Exact<{
   displayName: Scalars['String'];
 }>;
 
 
-export type SetUserDisplayNameMutation = { __typename?: 'Mutation', setUserDisplayName: { __typename?: 'User', id: number, displayName?: string | null | undefined } };
+export type SetUserDisplayNameMutation = { __typename?: 'Mutation', setUserDisplayName: { __typename?: 'User', id: string, displayName?: string | null | undefined } };
 
-export type SetUserLangPrefMutationVariables = Exact<{
-  newLangPref: Array<Scalars['Int']> | Scalars['Int'];
-}>;
+export type CreatePollCheckQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SetUserLangPrefMutation = { __typename?: 'Mutation', setUserLangPref: { __typename?: 'LangPref', langId: Array<number> } };
+export type CreatePollCheckQuery = { __typename?: 'Query', createPollCheck: boolean };
+
+export type GetAllLanguagesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllLanguagesQuery = { __typename?: 'Query', getAllLanguages?: Array<{ __typename?: 'Language', code: string, nativeName: string }> | null | undefined };
+
+export type GetAllTopicsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllTopicsQuery = { __typename?: 'Query', getAllTopics: Array<{ __typename?: 'Topic', id: string, name: string }> };
 
 export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCurrentUserQuery = { __typename?: 'Query', getCurrentUser?: { __typename?: 'User', id: number, displayName?: string | null | undefined, primaryLangPref?: number | null | undefined } | null | undefined };
+export type GetCurrentUserQuery = { __typename?: 'Query', getCurrentUser?: { __typename?: 'User', id: string, displayName?: string | null | undefined } | null | undefined };
 
-export type GetCurrentUserAllLangPrefsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetCurrentUserAllLangPrefsQuery = { __typename?: 'Query', getCurrentUserAllLangPrefs: { __typename?: 'LangPref', langId: Array<number> } };
-
-export type GetLangTableQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetCurrentUserPersonalSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetLangTableQuery = { __typename?: 'Query', getLangTable?: Array<{ __typename?: 'LangTable', id: number, code: string, nativeName: string, englishName: string }> | null | undefined };
+export type GetCurrentUserPersonalSettingsQuery = { __typename?: 'Query', getCurrentUserPersonalSettings?: { __typename?: 'UserPersonalSettings', userId: string, displayLanguageCode: string } | null | undefined };
 
-export type GetSinglePollQueryVariables = Exact<{
-  id: Scalars['Int'];
-  langId: Scalars['Int'];
+export type GetHomeFeedQueryVariables = Exact<{
+  seen: Array<Scalars['String']> | Scalars['String'];
 }>;
 
 
-export type GetSinglePollQuery = { __typename?: 'Query', getSinglePoll?: { __typename?: 'PollClientFullView', pollId: number, posterId?: number | null | undefined, posterDisplayName?: string | null | undefined, numOfVotes: number, createdAt: any, text: { __typename?: 'Text', text?: string | null | undefined, langId: number, originalText: string, originalLangId: number }, options: Array<{ __typename?: 'OptionClientFullView', optionId: number, pollId: number, numOfVotes: number, text: { __typename?: 'Text', text?: string | null | undefined, langId: number, originalText: string, originalLangId: number } }> } | null | undefined };
+export type GetHomeFeedQuery = { __typename?: 'Query', getHomeFeed: Array<{ __typename?: 'FeedItem', id: string, item?: { __typename?: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename?: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename?: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename?: 'PollTopic', pollId: string, topicId: string, topic?: { __typename?: 'Topic', id: string, name: string } | null | undefined }> } | null | undefined }> };
+
+export type GetSimilarPollsQueryVariables = Exact<{
+  text: Scalars['String'];
+}>;
 
 
+export type GetSimilarPollsQuery = { __typename?: 'Query', getSimilarPolls: Array<{ __typename?: 'FeedItem', id: string, item?: { __typename?: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename?: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename?: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename?: 'PollTopic', pollId: string, topicId: string, topic?: { __typename?: 'Topic', id: string, name: string } | null | undefined }> } | null | undefined }> };
+
+export type GetSinglePollQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetSinglePollQuery = { __typename?: 'Query', getSinglePoll?: { __typename?: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename?: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename?: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename?: 'PollTopic', pollId: string, topicId: string, topic?: { __typename?: 'Topic', id: string, name: string } | null | undefined }> } | null | undefined };
+
+export type GetVisitorFeedQueryVariables = Exact<{
+  languageCodes: Array<Scalars['String']> | Scalars['String'];
+}>;
+
+
+export type GetVisitorFeedQuery = { __typename?: 'Query', getVisitorFeed: Array<{ __typename?: 'FeedItem', id: string, item?: { __typename?: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename?: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename?: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename?: 'PollTopic', pollId: string, topicId: string, topic?: { __typename?: 'Topic', id: string, name: string } | null | undefined }> } | null | undefined }> };
+
+export type GetVoteHistoryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetVoteHistoryQuery = { __typename?: 'Query', getVoteHistory: Array<{ __typename?: 'Vote', optionId: string, pollId: string }> };
+
+
+export const CreatePollDocument = gql`
+    mutation CreatePoll($createPollInput: CreatePollInput!) {
+  createPoll(createPollInput: $createPollInput) {
+    id
+    text
+    numOfVotes
+    sensitive
+    posterId
+    numOfChoices
+    languageCode
+    createdAt
+    updatedAt
+    poster {
+      id
+      displayName
+      private
+    }
+    topOptions {
+      id
+      text
+      numOfVotes
+      pollId
+      languageCode
+      createdAt
+      updatedAt
+    }
+    topics {
+      pollId
+      topicId
+      topic {
+        id
+        name
+      }
+    }
+  }
+}
+    `;
+
+export function useCreatePollMutation() {
+  return Urql.useMutation<CreatePollMutation, CreatePollMutationVariables>(CreatePollDocument);
+};
 export const LogoutDocument = gql`
     mutation Logout {
   logout
@@ -281,6 +405,27 @@ export const LogoutDocument = gql`
 
 export function useLogoutMutation() {
   return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
+};
+export const SendVoteReqDocument = gql`
+    mutation SendVoteReq($voteReq: VoteReq!) {
+  sendVoteReq(voteReq: $voteReq)
+}
+    `;
+
+export function useSendVoteReqMutation() {
+  return Urql.useMutation<SendVoteReqMutation, SendVoteReqMutationVariables>(SendVoteReqDocument);
+};
+export const SetUserDisplayLanguageDocument = gql`
+    mutation SetUserDisplayLanguage($displayLanguageCode: String!) {
+  setUserDisplayLanguage(displayLanguageCode: $displayLanguageCode) {
+    userId
+    displayLanguageCode
+  }
+}
+    `;
+
+export function useSetUserDisplayLanguageMutation() {
+  return Urql.useMutation<SetUserDisplayLanguageMutation, SetUserDisplayLanguageMutationVariables>(SetUserDisplayLanguageDocument);
 };
 export const SetUserDisplayNameDocument = gql`
     mutation SetUserDisplayName($displayName: String!) {
@@ -294,23 +439,44 @@ export const SetUserDisplayNameDocument = gql`
 export function useSetUserDisplayNameMutation() {
   return Urql.useMutation<SetUserDisplayNameMutation, SetUserDisplayNameMutationVariables>(SetUserDisplayNameDocument);
 };
-export const SetUserLangPrefDocument = gql`
-    mutation SetUserLangPref($newLangPref: [Int!]!) {
-  setUserLangPref(newLangPref: $newLangPref) {
-    langId
+export const CreatePollCheckDocument = gql`
+    query CreatePollCheck {
+  createPollCheck
+}
+    `;
+
+export function useCreatePollCheckQuery(options: Omit<Urql.UseQueryArgs<CreatePollCheckQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<CreatePollCheckQuery>({ query: CreatePollCheckDocument, ...options });
+};
+export const GetAllLanguagesDocument = gql`
+    query GetAllLanguages {
+  getAllLanguages {
+    code
+    nativeName
   }
 }
     `;
 
-export function useSetUserLangPrefMutation() {
-  return Urql.useMutation<SetUserLangPrefMutation, SetUserLangPrefMutationVariables>(SetUserLangPrefDocument);
+export function useGetAllLanguagesQuery(options: Omit<Urql.UseQueryArgs<GetAllLanguagesQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetAllLanguagesQuery>({ query: GetAllLanguagesDocument, ...options });
+};
+export const GetAllTopicsDocument = gql`
+    query GetAllTopics {
+  getAllTopics {
+    id
+    name
+  }
+}
+    `;
+
+export function useGetAllTopicsQuery(options: Omit<Urql.UseQueryArgs<GetAllTopicsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetAllTopicsQuery>({ query: GetAllTopicsDocument, ...options });
 };
 export const GetCurrentUserDocument = gql`
     query GetCurrentUser {
   getCurrentUser {
     id
     displayName
-    primaryLangPref
   }
 }
     `;
@@ -318,60 +484,200 @@ export const GetCurrentUserDocument = gql`
 export function useGetCurrentUserQuery(options: Omit<Urql.UseQueryArgs<GetCurrentUserQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetCurrentUserQuery>({ query: GetCurrentUserDocument, ...options });
 };
-export const GetCurrentUserAllLangPrefsDocument = gql`
-    query GetCurrentUserAllLangPrefs {
-  getCurrentUserAllLangPrefs {
-    langId
+export const GetCurrentUserPersonalSettingsDocument = gql`
+    query GetCurrentUserPersonalSettings {
+  getCurrentUserPersonalSettings {
+    userId
+    displayLanguageCode
   }
 }
     `;
 
-export function useGetCurrentUserAllLangPrefsQuery(options: Omit<Urql.UseQueryArgs<GetCurrentUserAllLangPrefsQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetCurrentUserAllLangPrefsQuery>({ query: GetCurrentUserAllLangPrefsDocument, ...options });
+export function useGetCurrentUserPersonalSettingsQuery(options: Omit<Urql.UseQueryArgs<GetCurrentUserPersonalSettingsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetCurrentUserPersonalSettingsQuery>({ query: GetCurrentUserPersonalSettingsDocument, ...options });
 };
-export const GetLangTableDocument = gql`
-    query GetLangTable {
-  getLangTable {
+export const GetHomeFeedDocument = gql`
+    query GetHomeFeed($seen: [String!]!) {
+  getHomeFeed(seen: $seen) {
     id
-    code
-    nativeName
-    englishName
+    item {
+      id
+      text
+      numOfVotes
+      sensitive
+      posterId
+      numOfChoices
+      languageCode
+      createdAt
+      updatedAt
+      poster {
+        id
+        displayName
+        private
+      }
+      topOptions {
+        id
+        text
+        numOfVotes
+        pollId
+        languageCode
+        createdAt
+        updatedAt
+      }
+      topics {
+        pollId
+        topicId
+        topic {
+          id
+          name
+        }
+      }
+    }
   }
 }
     `;
 
-export function useGetLangTableQuery(options: Omit<Urql.UseQueryArgs<GetLangTableQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetLangTableQuery>({ query: GetLangTableDocument, ...options });
+export function useGetHomeFeedQuery(options: Omit<Urql.UseQueryArgs<GetHomeFeedQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetHomeFeedQuery>({ query: GetHomeFeedDocument, ...options });
+};
+export const GetSimilarPollsDocument = gql`
+    query GetSimilarPolls($text: String!) {
+  getSimilarPolls(text: $text) {
+    id
+    item {
+      id
+      text
+      numOfVotes
+      sensitive
+      posterId
+      numOfChoices
+      languageCode
+      createdAt
+      updatedAt
+      poster {
+        id
+        displayName
+        private
+      }
+      topOptions {
+        id
+        text
+        numOfVotes
+        pollId
+        languageCode
+        createdAt
+        updatedAt
+      }
+      topics {
+        pollId
+        topicId
+        topic {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useGetSimilarPollsQuery(options: Omit<Urql.UseQueryArgs<GetSimilarPollsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetSimilarPollsQuery>({ query: GetSimilarPollsDocument, ...options });
 };
 export const GetSinglePollDocument = gql`
-    query GetSinglePoll($id: Int!, $langId: Int!) {
-  getSinglePoll(id: $id, langId: $langId) {
-    pollId
-    text {
-      text
-      langId
-      originalText
-      originalLangId
-    }
-    options {
-      optionId
-      pollId
-      text {
-        text
-        langId
-        originalText
-        originalLangId
-      }
-      numOfVotes
-    }
-    posterId
-    posterDisplayName
+    query GetSinglePoll($id: String!) {
+  getSinglePoll(id: $id) {
+    id
+    text
     numOfVotes
+    sensitive
+    posterId
+    numOfChoices
+    languageCode
     createdAt
+    updatedAt
+    poster {
+      id
+      displayName
+      private
+    }
+    topOptions {
+      id
+      text
+      numOfVotes
+      pollId
+      languageCode
+      createdAt
+      updatedAt
+    }
+    topics {
+      pollId
+      topicId
+      topic {
+        id
+        name
+      }
+    }
   }
 }
     `;
 
 export function useGetSinglePollQuery(options: Omit<Urql.UseQueryArgs<GetSinglePollQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetSinglePollQuery>({ query: GetSinglePollDocument, ...options });
+};
+export const GetVisitorFeedDocument = gql`
+    query GetVisitorFeed($languageCodes: [String!]!) {
+  getVisitorFeed(languageCodes: $languageCodes) {
+    id
+    item {
+      id
+      text
+      numOfVotes
+      sensitive
+      posterId
+      numOfChoices
+      languageCode
+      createdAt
+      updatedAt
+      poster {
+        id
+        displayName
+        private
+      }
+      topOptions {
+        id
+        text
+        numOfVotes
+        pollId
+        languageCode
+        createdAt
+        updatedAt
+      }
+      topics {
+        pollId
+        topicId
+        topic {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useGetVisitorFeedQuery(options: Omit<Urql.UseQueryArgs<GetVisitorFeedQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetVisitorFeedQuery>({ query: GetVisitorFeedDocument, ...options });
+};
+export const GetVoteHistoryDocument = gql`
+    query GetVoteHistory {
+  getVoteHistory {
+    optionId
+    pollId
+  }
+}
+    `;
+
+export function useGetVoteHistoryQuery(options: Omit<Urql.UseQueryArgs<GetVoteHistoryQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetVoteHistoryQuery>({ query: GetVoteHistoryDocument, ...options });
 };

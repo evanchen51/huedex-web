@@ -1,5 +1,0 @@
-mutation SetUserLangPref($newLangPref: [Int!]!) {
-	setUserLangPref(newLangPref: $newLangPref) {
-		langId
-	}
-}

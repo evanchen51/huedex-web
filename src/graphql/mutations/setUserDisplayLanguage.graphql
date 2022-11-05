@@ -1,0 +1,6 @@
+mutation SetUserDisplayLanguage($displayLanguageCode: String!) {
+	setUserDisplayLanguage(displayLanguageCode: $displayLanguageCode) {
+		userId
+		displayLanguageCode
+	}
+}

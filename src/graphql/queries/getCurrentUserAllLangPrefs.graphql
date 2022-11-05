@@ -1,5 +1,0 @@
-query GetCurrentUserAllLangPrefs {
-	getCurrentUserAllLangPrefs{
-		langId
-	}
-}

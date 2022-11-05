@@ -1,5 +1,5 @@
 mutation SetUserDisplayName($displayName: String!) {
-	setUserDisplayName(displayName: $displayName){
+	setUserDisplayName(displayName: $displayName) {
 		id
 		displayName
 	}

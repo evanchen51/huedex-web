@@ -1,30 +1,35 @@
 import { withUrqlClient } from "next-urql"
 import { useRouter } from "next/router"
 import React from "react"
-import { AUTH_GOOGLE_PATH_ORIGIN } from "../../constants"
-import { useGetCurrentUserQuery } from "../../generated/graphql"
-import { notBrowser } from "../../utils/notBrowser"
+import { LOCALSTORAGE_KEY_PATH_ORIGIN } from "../../constants"
+import {
+	useGetCurrentUserPersonalSettingsQuery,
+	useGetCurrentUserQuery
+} from "../../generated/graphql"
+import { noBrowser } from "../../utils/noBrowser"
 import { urqlClientOptions } from "../../utils/urqlClientOptions"
 
 const LoginSuccessRedirect: React.FC<{}> = ({}) => {
 	const router = useRouter()
-	const [{ data: currentUserData, fetching: currentUserFetching }] =
-		useGetCurrentUserQuery({ pause: notBrowser() })
-	if (!notBrowser() && !currentUserFetching) {
-		if (currentUserData?.getCurrentUser) {
-			if (!currentUserData.getCurrentUser.displayName)
-				router.replace("/login-success-redirect/new-user-settings")
-			else {
-				let url = localStorage.getItem(AUTH_GOOGLE_PATH_ORIGIN)
-				if (url) {
-					localStorage.removeItem(AUTH_GOOGLE_PATH_ORIGIN)
-					router.push(url)
-				} else router.push("/")
-			}
-		}
+	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
+		pause: noBrowser(),
+	})
+	const [{ data: settingsData, fetching: settingsFetching }] =
+		useGetCurrentUserPersonalSettingsQuery({ pause: noBrowser() || userFetching })
+	let req = ""
+	if (noBrowser() || userFetching || settingsFetching) return <>loading</>
+	if (!userData?.getCurrentUser) return <>error</>
+	if (!userData.getCurrentUser.displayName) req += ":displayname"
+	if (settingsData?.getCurrentUserPersonalSettings?.displayLanguageCode === "un") req += ":langpref"
+	if (req.length > 0) router.replace(`/login-success-redirect/new-user-settings/${req}`)
+	else {
+		let url = localStorage.getItem(LOCALSTORAGE_KEY_PATH_ORIGIN)
+		if (url) {
+			localStorage.removeItem(LOCALSTORAGE_KEY_PATH_ORIGIN)
+			router.push(url)
+		} else router.push("/")
 	}
-
-	return <></>
+	return <>loading</>
 }
 
 export default withUrqlClient(urqlClientOptions)(LoginSuccessRedirect)
