@@ -2,15 +2,14 @@ import { Field, FieldArray, Form, Formik } from "formik"
 import { withUrqlClient } from "next-urql"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import { Option } from "../components/Options"
-import { Poll, PollContainer } from "../components/Poll"
+import { Poll } from "../components/Poll"
 import { SESSIONSTORAGE_KEY_TOAST_MESSAGE } from "../constants"
 import {
 	CreatePollInput,
 	useCreatePollMutation,
 	useGetAllTopicsQuery,
 	useGetCurrentUserQuery,
-	useGetSimilarPollsQuery
+	useGetSimilarPollsQuery,
 } from "../generated/graphql"
 import { noBrowser } from "../utils/noBrowser"
 import { urqlClientOptions } from "../utils/urqlClientOptions"
@@ -25,15 +24,15 @@ const CreatePoll: React.FC<{}> = ({}) => {
 		variables: { text: createPollInput?.text as string },
 	})
 	const [, createPoll] = useCreatePollMutation()
-	const [topicOptions, setTopicOptions] = useState<{ name: string; id: string }[]>([])
+	const [topicOptions, setTopicOptions] = useState<{ id: string }[]>([])
 	const [topicInput, setTopicInput] = useState("")
 	const [previewToggle, setPreviewToggle] = useState(false)
-	const [{ data: userData, fetching: userFetching}] = useGetCurrentUserQuery({
+	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
 	})
 
-	if(noBrowser()) return <>loading</>
-	if(!userFetching && !userData?.getCurrentUser) router.push("/create-poll-check")
+	// if (noBrowser()) return <Loading />
+	if (!noBrowser() && !userFetching && !userData?.getCurrentUser) router.push("/create-poll-check")
 
 	return (
 		<>
@@ -42,7 +41,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 					initialValues={{
 						text: "",
 						optionTexts: ["", ""],
-						topicIds: [] as string[],
+						existingTopics: [] as string[],
 						newTopics: [] as string[],
 						anonymous: false,
 					}}
@@ -52,15 +51,16 @@ const CreatePoll: React.FC<{}> = ({}) => {
 							errors = { ...errors, text: "please enter your your question" }
 						if (values.text.length < 3) errors = { ...errors, text: "question too short" }
 						if (values.text.length > 3000) errors = { ...errors, text: "question too long" }
-						if (values.topicIds.length + values.newTopics.length > 5)
+						if (values.existingTopics.length + values.newTopics.length > 5)
 							errors = {
 								...errors,
-								topicIds: ["too many topics, add more later blah blah blah"],
+								existingTopics: ["too many topics, add more later blah blah blah"],
 							}
 						if (values.optionTexts.length < 2)
 							errors = { ...errors, optionTexts: ["please at least provide 2 options"] }
 						values.optionTexts.forEach((e) => {
 							if (e === "")
+								// if option blank
 								// TODO except when if you put media
 								errors = {
 									...errors,
@@ -84,6 +84,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 								<Field as="textarea" name="text" />
 							</div>
 							{errors.text && errors.text}
+
 							{/* options */}
 							<div>
 								<FieldArray name="optionTexts">
@@ -106,17 +107,18 @@ const CreatePoll: React.FC<{}> = ({}) => {
 								</FieldArray>
 							</div>
 							{errors.optionTexts && errors.optionTexts}
+
 							{/* topics */}
 							{/* new topic details & rules */}
 							<div onClick={(e) => e.stopPropagation()}>
 								topics (max 5)&nbsp;
 								{topicsData?.getAllTopics &&
 									topicsData?.getAllTopics
-										.filter((e) => values.topicIds.includes(e.id))
+										.filter((e) => values.existingTopics.includes(e.id))
 										.map((e) => (
-											<label key={e.name}>
+											<label key={e.id}>
 												<Field type="checkbox" name="topicIds" value={e.id} />
-												{e.name}
+												{e.id}
 											</label>
 										))}
 								{values.newTopics.map((e) => (
@@ -135,8 +137,14 @@ const CreatePoll: React.FC<{}> = ({}) => {
 										}
 										if (topicsData)
 											setTopicOptions(
-												topicsData.getAllTopics.filter((e_2) =>
-													e_2.name.includes(e_1.target.value)
+												topicsData.getAllTopics.filter(
+													(e_2) =>
+														e_2.id
+															.toLowerCase()
+															.includes(e_1.target.value.toLowerCase()) ||
+														e_1.target.value
+															.toLowerCase()
+															.includes(e_2.id.toLowerCase())
 												)
 											)
 									}}
@@ -144,7 +152,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 								{topicInput &&
 									topicInput.length > 1 &&
 									topicInput.length <= 20 &&
-									!topicsData?.getAllTopics.find((e) => e.name === topicInput) &&
+									!topicsData?.getAllTopics.find((e) => e.id === topicInput) &&
 									!values.newTopics.find((e) => e === topicInput) && (
 										<button
 											type="button"
@@ -158,18 +166,19 @@ const CreatePoll: React.FC<{}> = ({}) => {
 									)}
 								{topicsData?.getAllTopics &&
 									topicOptions.map((e) => (
-										<label key={e.name}>
+										<label key={e.id}>
 											<Field
 												type="checkbox"
 												name="topicIds"
 												value={e.id}
 												onClick={() => setTopicOptions([])}
 											/>
-											{e.name}
+											{e.id}
 										</label>
 									))}
 							</div>
-							{errors.topicIds && errors.topicIds}
+							{errors.existingTopics && errors.existingTopics}
+
 							{/* others */}
 							<div>
 								anonymous&nbsp;
@@ -187,20 +196,21 @@ const CreatePoll: React.FC<{}> = ({}) => {
 				</Formik>
 			</div>
 			{/* TODO numOfChoices, media, sensitive, timed poll */}
+
 			{(similarPollsData || similarPollsFetching) && getSimilarToggle ? (
 				<div>
-					<button
-						onClick={() => {
-							setGetSimilarToggle(false)
-							setPreviewToggle(false)
-						}}
-					>
-						back to edit
-					</button>
 					{similarPollsFetching && <>checking</>}
 					{similarPollsData && similarPollsData?.getSimilarPolls.length > 0 && (
 						<>
-							similar poll
+							<button
+								onClick={() => {
+									setGetSimilarToggle(false)
+									setPreviewToggle(false)
+								}}
+							>
+								back to edit
+							</button>
+							similar polls
 							{similarPollsData?.getSimilarPolls.map(
 								(e) =>
 									e.item && (
@@ -227,7 +237,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 					>
 						back to edit
 					</button>
-					<PollContainer>
+					<div>
 						<>
 							by
 							{!createPollInput.anonymous ? (
@@ -247,18 +257,18 @@ const CreatePoll: React.FC<{}> = ({}) => {
 							<>votes:0</>
 							<>
 								{createPollInput.optionTexts.map((optionText) => (
-									<Option key={optionText} state={"unvoted"}>
+									<div key={optionText}>
 										{optionText}
 										<span>{` 0%`}</span>
-									</Option>
+									</div>
 								))}
 							</>
 						</>
 						<>
 							topics:
-							{createPollInput.topicIds.map((topicId) => (
-								<div key={topicId}>
-									<b>{topicsData?.getAllTopics.find((e) => e.id === topicId)?.name}</b>
+							{createPollInput.existingTopics.map((existingTopic) => (
+								<div key={existingTopic}>
+									<b>{topicsData?.getAllTopics.find((e) => e.id === existingTopic)?.id}</b>
 								</div>
 							))}
 							{createPollInput.newTopics.map((newTopic) => (
@@ -267,7 +277,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 								</div>
 							))}
 						</>
-					</PollContainer>
+					</div>
 					<button
 						onClick={async (e) => {
 							e.currentTarget.disabled = true

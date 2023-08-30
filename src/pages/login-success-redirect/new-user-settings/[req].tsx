@@ -52,7 +52,7 @@ const NewUserSettings: React.FC<{}> = ({}) => {
 					if (url) {
 						localStorage.removeItem(LOCALSTORAGE_KEY_PATH_ORIGIN)
 						router.push(url)
-					} else router.push("/")
+					} else router.push("/home")
 				}}
 			>
 				{({ isSubmitting, errors, values, validateField }) => (

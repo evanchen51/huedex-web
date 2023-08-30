@@ -25,10 +25,10 @@ export type AnonymousVote = {
 
 export type CreatePollInput = {
   anonymous?: InputMaybe<Scalars['Boolean']>;
+  existingTopics: Array<Scalars['String']>;
   newTopics: Array<Scalars['String']>;
   optionTexts: Array<Scalars['String']>;
   text: Scalars['String'];
-  topicIds: Array<Scalars['String']>;
 };
 
 export type FeedItem = {
@@ -163,8 +163,11 @@ export type Poll = {
   mediaTypeCode?: Maybe<Scalars['String']>;
   mediaUrl?: Maybe<Scalars['String']>;
   numOfChoices: Scalars['Int'];
+  numOfOptions?: Maybe<Scalars['Int']>;
   numOfVotes: Scalars['Int'];
   options?: Maybe<Array<Option>>;
+  pollType?: Maybe<PollType>;
+  pollTypeCode?: Maybe<Scalars['String']>;
   poster?: Maybe<User>;
   posterId?: Maybe<Scalars['String']>;
   sensitive: Scalars['Boolean'];
@@ -183,6 +186,12 @@ export type PollTopic = {
   topicId: Scalars['String'];
 };
 
+export type PollType = {
+  __typename?: 'PollType';
+  code: Scalars['String'];
+  info: Scalars['String'];
+};
+
 export type Query = {
   __typename?: 'Query';
   createPollCheck: Scalars['Boolean'];
@@ -193,6 +202,11 @@ export type Query = {
   getHomeFeed: Array<FeedItem>;
   getSimilarPolls: Array<FeedItem>;
   getSinglePoll?: Maybe<Poll>;
+  getTopicNewPolls: Array<FeedItem>;
+  getTopicTopPolls: Array<FeedItem>;
+  getUser?: Maybe<User>;
+  getUserPostedPolls: Array<FeedItem>;
+  getUserVotedPolls: Array<FeedItem>;
   getVisitorFeed: Array<FeedItem>;
   getVoteHistory: Array<Vote>;
   test?: Maybe<Scalars['String']>;
@@ -214,6 +228,35 @@ export type QueryGetSinglePollArgs = {
 };
 
 
+export type QueryGetTopicNewPollsArgs = {
+  cursorId?: InputMaybe<Scalars['String']>;
+  topicId: Scalars['String'];
+};
+
+
+export type QueryGetTopicTopPollsArgs = {
+  cursorId?: InputMaybe<Scalars['String']>;
+  topicId: Scalars['String'];
+};
+
+
+export type QueryGetUserArgs = {
+  id: Scalars['String'];
+};
+
+
+export type QueryGetUserPostedPollsArgs = {
+  cursorId?: InputMaybe<Scalars['String']>;
+  userId: Scalars['String'];
+};
+
+
+export type QueryGetUserVotedPollsArgs = {
+  cursorId?: InputMaybe<Scalars['String']>;
+  userId: Scalars['String'];
+};
+
+
 export type QueryGetVisitorFeedArgs = {
   languageCodes: Array<Scalars['String']>;
 };
@@ -222,7 +265,6 @@ export type Topic = {
   __typename?: 'Topic';
   followers?: Maybe<Array<FollowTopic>>;
   id: Scalars['String'];
-  name: Scalars['String'];
   polls?: Maybe<Array<PollTopic>>;
 };
 
@@ -237,7 +279,7 @@ export type User = {
 
 export type UserPersonalSettings = {
   __typename?: 'UserPersonalSettings';
-  displayLanguageCode: Scalars['String'];
+  displayLanguageCode?: Maybe<Scalars['String']>;
   displaylanguage: Language;
   user: User;
   userId: Scalars['String'];
@@ -269,12 +311,7 @@ export type CreatePollMutationVariables = Exact<{
 }>;
 
 
-export type CreatePollMutation = { __typename?: 'Mutation', createPoll?: { __typename?: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename?: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename?: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename?: 'PollTopic', pollId: string, topicId: string, topic?: { __typename?: 'Topic', id: string, name: string } | null | undefined }> } | null | undefined };
-
-export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-export type LogoutMutation = { __typename?: 'Mutation', logout: boolean };
+export type CreatePollMutation = { __typename?: 'Mutation', createPoll?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined };
 
 export type SendVoteReqMutationVariables = Exact<{
   voteReq: VoteReq;
@@ -288,7 +325,7 @@ export type SetUserDisplayLanguageMutationVariables = Exact<{
 }>;
 
 
-export type SetUserDisplayLanguageMutation = { __typename?: 'Mutation', setUserDisplayLanguage: { __typename?: 'UserPersonalSettings', userId: string, displayLanguageCode: string } };
+export type SetUserDisplayLanguageMutation = { __typename?: 'Mutation', setUserDisplayLanguage: { __typename?: 'UserPersonalSettings', userId: string, displayLanguageCode?: string | null | undefined } };
 
 export type SetUserDisplayNameMutationVariables = Exact<{
   displayName: Scalars['String'];
@@ -305,60 +342,107 @@ export type CreatePollCheckQuery = { __typename?: 'Query', createPollCheck: bool
 export type GetAllLanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllLanguagesQuery = { __typename?: 'Query', getAllLanguages?: Array<{ __typename?: 'Language', code: string, nativeName: string }> | null | undefined };
+export type GetAllLanguagesQuery = { __typename?: 'Query', getAllLanguages?: Array<{ __typename: 'Language', code: string, nativeName: string }> | null | undefined };
+
+export type GetAllOptionsQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetAllOptionsQuery = { __typename?: 'Query', getSinglePoll?: { __typename: 'Poll', id: string, options?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined } | null | undefined };
 
 export type GetAllTopicsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllTopicsQuery = { __typename?: 'Query', getAllTopics: Array<{ __typename?: 'Topic', id: string, name: string }> };
+export type GetAllTopicsQuery = { __typename?: 'Query', getAllTopics: Array<{ __typename: 'Topic', id: string }> };
 
 export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCurrentUserQuery = { __typename?: 'Query', getCurrentUser?: { __typename?: 'User', id: string, displayName?: string | null | undefined } | null | undefined };
+export type GetCurrentUserQuery = { __typename?: 'Query', getCurrentUser?: { __typename: 'User', id: string, displayName?: string | null | undefined } | null | undefined };
 
 export type GetCurrentUserPersonalSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCurrentUserPersonalSettingsQuery = { __typename?: 'Query', getCurrentUserPersonalSettings?: { __typename?: 'UserPersonalSettings', userId: string, displayLanguageCode: string } | null | undefined };
+export type GetCurrentUserPersonalSettingsQuery = { __typename?: 'Query', getCurrentUserPersonalSettings?: { __typename: 'UserPersonalSettings', userId: string, displayLanguageCode?: string | null | undefined } | null | undefined };
 
 export type GetHomeFeedQueryVariables = Exact<{
   seen: Array<Scalars['String']> | Scalars['String'];
 }>;
 
 
-export type GetHomeFeedQuery = { __typename?: 'Query', getHomeFeed: Array<{ __typename?: 'FeedItem', id: string, item?: { __typename?: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename?: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename?: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename?: 'PollTopic', pollId: string, topicId: string, topic?: { __typename?: 'Topic', id: string, name: string } | null | undefined }> } | null | undefined }> };
+export type GetHomeFeedQuery = { __typename?: 'Query', getHomeFeed: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
 
 export type GetSimilarPollsQueryVariables = Exact<{
   text: Scalars['String'];
 }>;
 
 
-export type GetSimilarPollsQuery = { __typename?: 'Query', getSimilarPolls: Array<{ __typename?: 'FeedItem', id: string, item?: { __typename?: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename?: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename?: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename?: 'PollTopic', pollId: string, topicId: string, topic?: { __typename?: 'Topic', id: string, name: string } | null | undefined }> } | null | undefined }> };
+export type GetSimilarPollsQuery = { __typename?: 'Query', getSimilarPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
 
 export type GetSinglePollQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
 
 
-export type GetSinglePollQuery = { __typename?: 'Query', getSinglePoll?: { __typename?: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename?: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename?: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename?: 'PollTopic', pollId: string, topicId: string, topic?: { __typename?: 'Topic', id: string, name: string } | null | undefined }> } | null | undefined };
+export type GetSinglePollQuery = { __typename?: 'Query', getSinglePoll?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined };
+
+export type GetTopicNewPollsQueryVariables = Exact<{
+  topicId: Scalars['String'];
+  cursorId?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type GetTopicNewPollsQuery = { __typename?: 'Query', getTopicNewPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
+
+export type GetTopicTopPollsQueryVariables = Exact<{
+  topicId: Scalars['String'];
+  cursorId?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type GetTopicTopPollsQuery = { __typename?: 'Query', getTopicTopPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
+
+export type GetUserQueryVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type GetUserQuery = { __typename?: 'Query', getUser?: { __typename: 'User', id: string, displayName?: string | null | undefined } | null | undefined };
+
+export type GetUserPostedPollsQueryVariables = Exact<{
+  userId: Scalars['String'];
+  cursorId?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type GetUserPostedPollsQuery = { __typename?: 'Query', getUserPostedPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
+
+export type GetUserVotedPollsQueryVariables = Exact<{
+  userId: Scalars['String'];
+  cursorId?: InputMaybe<Scalars['String']>;
+}>;
+
+
+export type GetUserVotedPollsQuery = { __typename?: 'Query', getUserVotedPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
 
 export type GetVisitorFeedQueryVariables = Exact<{
   languageCodes: Array<Scalars['String']> | Scalars['String'];
 }>;
 
 
-export type GetVisitorFeedQuery = { __typename?: 'Query', getVisitorFeed: Array<{ __typename?: 'FeedItem', id: string, item?: { __typename?: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename?: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename?: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename?: 'PollTopic', pollId: string, topicId: string, topic?: { __typename?: 'Topic', id: string, name: string } | null | undefined }> } | null | undefined }> };
+export type GetVisitorFeedQuery = { __typename?: 'Query', getVisitorFeed: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
 
 export type GetVoteHistoryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetVoteHistoryQuery = { __typename?: 'Query', getVoteHistory: Array<{ __typename?: 'Vote', optionId: string, pollId: string }> };
+export type GetVoteHistoryQuery = { __typename?: 'Query', getVoteHistory: Array<{ __typename: 'Vote', optionId: string, pollId: string }> };
 
 
 export const CreatePollDocument = gql`
     mutation CreatePoll($createPollInput: CreatePollInput!) {
   createPoll(createPollInput: $createPollInput) {
+    __typename
     id
     text
     numOfVotes
@@ -369,11 +453,13 @@ export const CreatePollDocument = gql`
     createdAt
     updatedAt
     poster {
+      __typename
       id
       displayName
       private
     }
     topOptions {
+      __typename
       id
       text
       numOfVotes
@@ -383,12 +469,9 @@ export const CreatePollDocument = gql`
       updatedAt
     }
     topics {
+      __typename
       pollId
       topicId
-      topic {
-        id
-        name
-      }
     }
   }
 }
@@ -396,15 +479,6 @@ export const CreatePollDocument = gql`
 
 export function useCreatePollMutation() {
   return Urql.useMutation<CreatePollMutation, CreatePollMutationVariables>(CreatePollDocument);
-};
-export const LogoutDocument = gql`
-    mutation Logout {
-  logout
-}
-    `;
-
-export function useLogoutMutation() {
-  return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
 };
 export const SendVoteReqDocument = gql`
     mutation SendVoteReq($voteReq: VoteReq!) {
@@ -451,6 +525,7 @@ export function useCreatePollCheckQuery(options: Omit<Urql.UseQueryArgs<CreatePo
 export const GetAllLanguagesDocument = gql`
     query GetAllLanguages {
   getAllLanguages {
+    __typename
     code
     nativeName
   }
@@ -460,11 +535,33 @@ export const GetAllLanguagesDocument = gql`
 export function useGetAllLanguagesQuery(options: Omit<Urql.UseQueryArgs<GetAllLanguagesQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetAllLanguagesQuery>({ query: GetAllLanguagesDocument, ...options });
 };
+export const GetAllOptionsDocument = gql`
+    query GetAllOptions($id: String!) {
+  getSinglePoll(id: $id) {
+    __typename
+    id
+    options {
+      __typename
+      id
+      text
+      numOfVotes
+      pollId
+      languageCode
+      createdAt
+      updatedAt
+    }
+  }
+}
+    `;
+
+export function useGetAllOptionsQuery(options: Omit<Urql.UseQueryArgs<GetAllOptionsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetAllOptionsQuery>({ query: GetAllOptionsDocument, ...options });
+};
 export const GetAllTopicsDocument = gql`
     query GetAllTopics {
   getAllTopics {
+    __typename
     id
-    name
   }
 }
     `;
@@ -475,6 +572,7 @@ export function useGetAllTopicsQuery(options: Omit<Urql.UseQueryArgs<GetAllTopic
 export const GetCurrentUserDocument = gql`
     query GetCurrentUser {
   getCurrentUser {
+    __typename
     id
     displayName
   }
@@ -487,6 +585,7 @@ export function useGetCurrentUserQuery(options: Omit<Urql.UseQueryArgs<GetCurren
 export const GetCurrentUserPersonalSettingsDocument = gql`
     query GetCurrentUserPersonalSettings {
   getCurrentUserPersonalSettings {
+    __typename
     userId
     displayLanguageCode
   }
@@ -499,8 +598,10 @@ export function useGetCurrentUserPersonalSettingsQuery(options: Omit<Urql.UseQue
 export const GetHomeFeedDocument = gql`
     query GetHomeFeed($seen: [String!]!) {
   getHomeFeed(seen: $seen) {
+    __typename
     id
     item {
+      __typename
       id
       text
       numOfVotes
@@ -511,11 +612,13 @@ export const GetHomeFeedDocument = gql`
       createdAt
       updatedAt
       poster {
+        __typename
         id
         displayName
         private
       }
       topOptions {
+        __typename
         id
         text
         numOfVotes
@@ -524,13 +627,11 @@ export const GetHomeFeedDocument = gql`
         createdAt
         updatedAt
       }
+      numOfOptions
       topics {
+        __typename
         pollId
         topicId
-        topic {
-          id
-          name
-        }
       }
     }
   }
@@ -543,8 +644,10 @@ export function useGetHomeFeedQuery(options: Omit<Urql.UseQueryArgs<GetHomeFeedQ
 export const GetSimilarPollsDocument = gql`
     query GetSimilarPolls($text: String!) {
   getSimilarPolls(text: $text) {
+    __typename
     id
     item {
+      __typename
       id
       text
       numOfVotes
@@ -555,11 +658,13 @@ export const GetSimilarPollsDocument = gql`
       createdAt
       updatedAt
       poster {
+        __typename
         id
         displayName
         private
       }
       topOptions {
+        __typename
         id
         text
         numOfVotes
@@ -569,12 +674,9 @@ export const GetSimilarPollsDocument = gql`
         updatedAt
       }
       topics {
+        __typename
         pollId
         topicId
-        topic {
-          id
-          name
-        }
       }
     }
   }
@@ -587,6 +689,7 @@ export function useGetSimilarPollsQuery(options: Omit<Urql.UseQueryArgs<GetSimil
 export const GetSinglePollDocument = gql`
     query GetSinglePoll($id: String!) {
   getSinglePoll(id: $id) {
+    __typename
     id
     text
     numOfVotes
@@ -597,11 +700,13 @@ export const GetSinglePollDocument = gql`
     createdAt
     updatedAt
     poster {
+      __typename
       id
       displayName
       private
     }
     topOptions {
+      __typename
       id
       text
       numOfVotes
@@ -610,13 +715,11 @@ export const GetSinglePollDocument = gql`
       createdAt
       updatedAt
     }
+    numOfOptions
     topics {
+      __typename
       pollId
       topicId
-      topic {
-        id
-        name
-      }
     }
   }
 }
@@ -625,11 +728,13 @@ export const GetSinglePollDocument = gql`
 export function useGetSinglePollQuery(options: Omit<Urql.UseQueryArgs<GetSinglePollQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetSinglePollQuery>({ query: GetSinglePollDocument, ...options });
 };
-export const GetVisitorFeedDocument = gql`
-    query GetVisitorFeed($languageCodes: [String!]!) {
-  getVisitorFeed(languageCodes: $languageCodes) {
+export const GetTopicNewPollsDocument = gql`
+    query GetTopicNewPolls($topicId: String!, $cursorId: String) {
+  getTopicNewPolls(topicId: $topicId, cursorId: $cursorId) {
+    __typename
     id
     item {
+      __typename
       id
       text
       numOfVotes
@@ -640,11 +745,210 @@ export const GetVisitorFeedDocument = gql`
       createdAt
       updatedAt
       poster {
+        __typename
         id
         displayName
         private
       }
       topOptions {
+        __typename
+        id
+        text
+        numOfVotes
+        pollId
+        languageCode
+        createdAt
+        updatedAt
+      }
+      numOfOptions
+      topics {
+        __typename
+        pollId
+        topicId
+      }
+    }
+  }
+}
+    `;
+
+export function useGetTopicNewPollsQuery(options: Omit<Urql.UseQueryArgs<GetTopicNewPollsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetTopicNewPollsQuery>({ query: GetTopicNewPollsDocument, ...options });
+};
+export const GetTopicTopPollsDocument = gql`
+    query GetTopicTopPolls($topicId: String!, $cursorId: String) {
+  getTopicTopPolls(topicId: $topicId, cursorId: $cursorId) {
+    __typename
+    id
+    item {
+      __typename
+      id
+      text
+      numOfVotes
+      sensitive
+      posterId
+      numOfChoices
+      languageCode
+      createdAt
+      updatedAt
+      poster {
+        __typename
+        id
+        displayName
+        private
+      }
+      topOptions {
+        __typename
+        id
+        text
+        numOfVotes
+        pollId
+        languageCode
+        createdAt
+        updatedAt
+      }
+      numOfOptions
+      topics {
+        __typename
+        pollId
+        topicId
+      }
+    }
+  }
+}
+    `;
+
+export function useGetTopicTopPollsQuery(options: Omit<Urql.UseQueryArgs<GetTopicTopPollsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetTopicTopPollsQuery>({ query: GetTopicTopPollsDocument, ...options });
+};
+export const GetUserDocument = gql`
+    query GetUser($id: String!) {
+  getUser(id: $id) {
+    __typename
+    id
+    displayName
+  }
+}
+    `;
+
+export function useGetUserQuery(options: Omit<Urql.UseQueryArgs<GetUserQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetUserQuery>({ query: GetUserDocument, ...options });
+};
+export const GetUserPostedPollsDocument = gql`
+    query GetUserPostedPolls($userId: String!, $cursorId: String) {
+  getUserPostedPolls(userId: $userId, cursorId: $cursorId) {
+    __typename
+    id
+    item {
+      __typename
+      id
+      text
+      numOfVotes
+      sensitive
+      posterId
+      numOfChoices
+      languageCode
+      createdAt
+      updatedAt
+      poster {
+        __typename
+        id
+        displayName
+        private
+      }
+      topOptions {
+        __typename
+        id
+        text
+        numOfVotes
+        pollId
+        languageCode
+        createdAt
+        updatedAt
+      }
+      numOfOptions
+      topics {
+        __typename
+        pollId
+        topicId
+      }
+    }
+  }
+}
+    `;
+
+export function useGetUserPostedPollsQuery(options: Omit<Urql.UseQueryArgs<GetUserPostedPollsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetUserPostedPollsQuery>({ query: GetUserPostedPollsDocument, ...options });
+};
+export const GetUserVotedPollsDocument = gql`
+    query GetUserVotedPolls($userId: String!, $cursorId: String) {
+  getUserVotedPolls(userId: $userId, cursorId: $cursorId) {
+    __typename
+    id
+    item {
+      __typename
+      id
+      text
+      numOfVotes
+      sensitive
+      posterId
+      numOfChoices
+      languageCode
+      createdAt
+      updatedAt
+      poster {
+        __typename
+        id
+        displayName
+        private
+      }
+      topOptions {
+        __typename
+        id
+        text
+        numOfVotes
+        pollId
+        languageCode
+        createdAt
+        updatedAt
+      }
+      numOfOptions
+      topics {
+        __typename
+        pollId
+        topicId
+      }
+    }
+  }
+}
+    `;
+
+export function useGetUserVotedPollsQuery(options: Omit<Urql.UseQueryArgs<GetUserVotedPollsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<GetUserVotedPollsQuery>({ query: GetUserVotedPollsDocument, ...options });
+};
+export const GetVisitorFeedDocument = gql`
+    query GetVisitorFeed($languageCodes: [String!]!) {
+  getVisitorFeed(languageCodes: $languageCodes) {
+    __typename
+    id
+    item {
+      __typename
+      id
+      text
+      numOfVotes
+      sensitive
+      posterId
+      numOfChoices
+      languageCode
+      createdAt
+      updatedAt
+      poster {
+        __typename
+        id
+        displayName
+        private
+      }
+      topOptions {
+        __typename
         id
         text
         numOfVotes
@@ -654,12 +958,9 @@ export const GetVisitorFeedDocument = gql`
         updatedAt
       }
       topics {
+        __typename
         pollId
         topicId
-        topic {
-          id
-          name
-        }
       }
     }
   }
@@ -672,6 +973,7 @@ export function useGetVisitorFeedQuery(options: Omit<Urql.UseQueryArgs<GetVisito
 export const GetVoteHistoryDocument = gql`
     query GetVoteHistory {
   getVoteHistory {
+    __typename
     optionId
     pollId
   }

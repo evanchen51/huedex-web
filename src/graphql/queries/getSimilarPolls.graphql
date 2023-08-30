@@ -1,7 +1,9 @@
 query GetSimilarPolls($text: String!) {
 	getSimilarPolls(text: $text) {
+		__typename
 		id
 		item {
+			__typename
 			id
 			text
 			numOfVotes
@@ -12,11 +14,13 @@ query GetSimilarPolls($text: String!) {
 			createdAt
 			updatedAt
 			poster {
+				__typename
 				id
 				displayName
 				private
 			}
 			topOptions {
+				__typename
 				id
 				text
 				numOfVotes
@@ -26,12 +30,9 @@ query GetSimilarPolls($text: String!) {
 				updatedAt
 			}
 			topics {
+				__typename
 				pollId
 				topicId
-				topic {
-					id
-					name
-				}
 			}
 		}
 	}

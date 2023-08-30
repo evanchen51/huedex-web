@@ -1,7 +1,9 @@
 query GetHomeFeed($seen: [String!]!) {
 	getHomeFeed(seen: $seen) {
+		__typename
 		id
 		item {
+			__typename
 			id
 			text
 			numOfVotes
@@ -12,11 +14,13 @@ query GetHomeFeed($seen: [String!]!) {
 			createdAt
 			updatedAt
 			poster {
+				__typename
 				id
 				displayName
 				private
 			}
 			topOptions {
+				__typename
 				id
 				text
 				numOfVotes
@@ -25,13 +29,11 @@ query GetHomeFeed($seen: [String!]!) {
 				createdAt
 				updatedAt
 			}
+			numOfOptions
 			topics {
+				__typename
 				pollId
 				topicId
-				topic {
-					id
-					name
-				}
 			}
 		}
 	}

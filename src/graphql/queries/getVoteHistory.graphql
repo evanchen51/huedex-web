@@ -1,6 +1,13 @@
 query GetVoteHistory {
 	getVoteHistory {
+		__typename
 		optionId
 		pollId
 	}
 }
+# query GetVoteHistory($path: String!) {
+# 	getVoteHistory(path: $path) {
+# 		optionId
+# 		pollId
+# 	}
+# }

@@ -1,0 +1,16 @@
+query GetAllOptions($id: String!) {
+	getSinglePoll(id: $id) {
+		__typename
+		id
+		options {
+			__typename
+			id
+			text
+			numOfVotes
+			pollId
+			languageCode
+			createdAt
+			updatedAt
+		}
+	}
+}

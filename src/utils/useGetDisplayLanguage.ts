@@ -11,7 +11,11 @@ export const useGetDisplayLanguage = () => {
 	const [res, setRes] = useState(DEFAULT_LANGUAGE)
 	useEffect(() => {
 		if (settingsFetching) return
-		if (!settingsFetching && settingsData?.getCurrentUserPersonalSettings) {
+		if (
+			!settingsFetching &&
+			settingsData?.getCurrentUserPersonalSettings &&
+			settingsData?.getCurrentUserPersonalSettings.displayLanguageCode
+		) {
 			setRes(settingsData?.getCurrentUserPersonalSettings.displayLanguageCode)
 			return
 		}

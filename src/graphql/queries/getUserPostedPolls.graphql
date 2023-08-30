@@ -1,5 +1,5 @@
-query GetVisitorFeed($languageCodes: [String!]!) {
-	getVisitorFeed(languageCodes: $languageCodes) {
+query GetUserPostedPolls($userId: String!, $cursorId: String) {
+	getUserPostedPolls(userId: $userId, cursorId: $cursorId) {
 		__typename
 		id
 		item {
@@ -29,6 +29,7 @@ query GetVisitorFeed($languageCodes: [String!]!) {
 				createdAt
 				updatedAt
 			}
+			numOfOptions
 			topics {
 				__typename
 				pollId

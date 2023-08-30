@@ -1,5 +1,6 @@
 query GetSinglePoll($id: String!) {
 	getSinglePoll(id: $id) {
+		__typename
 		id
 		text
 		numOfVotes
@@ -10,11 +11,13 @@ query GetSinglePoll($id: String!) {
 		createdAt
 		updatedAt
 		poster {
+			__typename
 			id
 			displayName
 			private
 		}
 		topOptions {
+			__typename
 			id
 			text
 			numOfVotes
@@ -23,13 +26,11 @@ query GetSinglePoll($id: String!) {
 			createdAt
 			updatedAt
 		}
+		numOfOptions
 		topics {
+			__typename
 			pollId
 			topicId
-			topic {
-				id
-				name
-			}
 		}
 	}
 }

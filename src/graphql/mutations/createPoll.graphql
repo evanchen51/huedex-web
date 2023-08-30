@@ -1,5 +1,6 @@
 mutation CreatePoll($createPollInput: CreatePollInput!) {
 	createPoll(createPollInput: $createPollInput) {
+		__typename
 		id
 		text
 		numOfVotes
@@ -10,11 +11,13 @@ mutation CreatePoll($createPollInput: CreatePollInput!) {
 		createdAt
 		updatedAt
 		poster {
+			__typename
 			id
 			displayName
 			private
 		}
 		topOptions {
+			__typename
 			id
 			text
 			numOfVotes
@@ -24,12 +27,9 @@ mutation CreatePoll($createPollInput: CreatePollInput!) {
 			updatedAt
 		}
 		topics {
+			__typename
 			pollId
 			topicId
-			topic {
-				id
-				name
-			}
 		}
 	}
 }

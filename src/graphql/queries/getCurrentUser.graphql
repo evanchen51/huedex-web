@@ -1,5 +1,6 @@
 query GetCurrentUser {
 	getCurrentUser {
+		__typename
 		id
 		displayName
 	}

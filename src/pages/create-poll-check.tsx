@@ -4,14 +4,15 @@ import React from "react"
 import { useCreatePollCheckQuery } from "../generated/graphql"
 import { noBrowser } from "../utils/noBrowser"
 import { urqlClientOptions } from "../utils/urqlClientOptions"
+import LoadingScreen from "../components/LoadingScreen"
 
 const CreatePollCheck: React.FC<{}> = ({}) => {
 	const router = useRouter()
 	const [{ data: data, fetching: fetching }] = useCreatePollCheckQuery({ pause: noBrowser() })
-	if (noBrowser() || fetching) return <>loading</>
+	if (noBrowser() || fetching) return <LoadingScreen />
 	if (!data) return <>error</>
 	else router.push("/create-poll")
-	return <>loading</>
+	return <LoadingScreen />
 }
 
 export default withUrqlClient(urqlClientOptions)(CreatePollCheck)
