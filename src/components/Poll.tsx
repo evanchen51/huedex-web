@@ -1,23 +1,14 @@
-import { withUrqlClient } from "next-urql"
 import Link from "next/link"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { Poll as PollType } from "../generated/graphql"
-import { urqlClientOptions } from "../utils/urqlClientOptions"
 import Options from "./Options"
 import { OptionsForVisitors } from "./OptionsForVisitors"
+import PollNumOfVotes from "./PollNumOfVotes"
 
 const Poll: React.FC<{
 	poll: PollType
 	visitor?: React.Dispatch<React.SetStateAction<boolean | string>>
 }> = ({ poll, visitor }) => {
-	const [voteState, setVoteState] = useState(false)
-	const [numOfVotes, setNumOfVotes] = useState<number>(0)
-	useEffect(() => {
-		console.log(voteState)
-	}, [voteState])
-	useEffect(() => {
-		setNumOfVotes(poll.numOfVotes)
-	}, [poll.numOfVotes])
 	return (
 		<div className="flex flex-col">
 			{poll.topics && poll.topics.length > 0 && (
@@ -27,21 +18,10 @@ const Poll: React.FC<{
 							<div
 								key={topic.topicId}
 								className="mr-2 rounded-xl bg-foreground px-3 py-1 text-xs text-background"
-								// onMouseEnter={(e) => {
-								// 	e.currentTarget.style.backgroundColor = colors["background"]
-								// 	e.currentTarget.style.color = colors["foreground"]
-								// }}
-								// onMouseLeave={(e) => {
-								// 	e.currentTarget.style.backgroundColor = colors["foreground"]
-								// 	e.currentTarget.style.color = colors["background"]
-								// }}
 							>
 								<Link
 									href="/topic/[id]"
 									as={`/topic/${topic.topicId.replace(" ", "%20")}`}
-									// rel="noopener noreferrer"
-									// target="_blank"
-									// passHref
 								>
 									<div className="">{topic.topicId}</div>
 								</Link>
@@ -81,9 +61,6 @@ const Poll: React.FC<{
 										<Link
 											href="/user/[id]"
 											as={`/user/${poll.posterId}`}
-											// rel="noopener noreferrer"
-											// target="_blank"
-											// passHref
 										>
 											<span
 												className="text-foreground"
@@ -115,17 +92,13 @@ const Poll: React.FC<{
 							</div>
 						</div>
 					</div>
-					<div className="ml-1 mt-12 text-sm tracking-wider text-secondary">
-						{numOfVotes} vote{numOfVotes === 1 ? "" : "s"}
-					</div>
-					<div className="pointer-events-none h-max w-full shrink-0 overflow-x-scroll pt-0 pb-4 opacity-0">
+					<PollNumOfVotes poll={poll} />
+					{/* <div className="pointer-events-none h-max w-full shrink-0 overflow-x-scroll pt-0 pb-4 opacity-0">
 						{visitor ? (
 							<OptionsForVisitors poll={poll} toggle={visitor} />
 						) : (
 							<Options
 								poll={poll}
-								setParentVoteState={setVoteState}
-								setParentNumOfVotes={setNumOfVotes}
 							/>
 						)}
 					</div>
@@ -136,12 +109,10 @@ const Poll: React.FC<{
 						) : (
 							<Options
 								poll={poll}
-								setParentVoteState={setVoteState}
-								setParentNumOfVotes={setNumOfVotes}
 							/>
 						)}
 						<div className="h-1 w-[50vw] shrink-0" />
-					</div>
+					</div> */}
 				</div>
 			</div>
 			<div className="mt-9 h-[0.5px] w-[80%] max-w-[80vw] self-center bg-secondary" />
@@ -149,4 +120,5 @@ const Poll: React.FC<{
 	)
 }
 
-export default withUrqlClient(urqlClientOptions, { ssr: true })(Poll)
+export default Poll
+// export default withUrqlClient(urqlClientOptions, { ssr: true })(Poll)

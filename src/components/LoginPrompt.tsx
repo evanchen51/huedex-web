@@ -11,7 +11,7 @@ export const LoginPrompt: React.FC<{
 	useEffect(() => console.log(state), [state])
 	return (
 		<div
-			className="absolute z-50 h-screen w-screen"
+			className="absolute z-[100] h-screen w-screen"
 			onClick={() => {
 				toggle("exit")
 				setTimeout(() => {
@@ -48,37 +48,18 @@ export const LoginPrompt: React.FC<{
 						</svg>
 					</button>
 					<div className="mb-6 flex w-full flex-row items-start justify-center self-center">
-						{/* <svg
-							className="h-7 fill-accent "
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 448 512"
-						>
-							<path d="M448 296c0 66.3-53.7 120-120 120h-8c-17.7 0-32-14.3-32-32s14.3-32 32-32h8c30.9 0 56-25.1 56-56v-8H320c-35.3 0-64-28.7-64-64V160c0-35.3 28.7-64 64-64h64c35.3 0 64 28.7 64 64v32 32 72zm-256 0c0 66.3-53.7 120-120 120H64c-17.7 0-32-14.3-32-32s14.3-32 32-32h8c30.9 0 56-25.1 56-56v-8H64c-35.3 0-64-28.7-64-64V160c0-35.3 28.7-64 64-64h64c35.3 0 64 28.7 64 64v32 32 72z" />
-						</svg> */}
 						<div className="px-4 font-bold tracking-wider text-background">{message}</div>
-						{/* <svg
-							className="h-7 fill-accent"
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 448 512"
-						>
-							<path d="M448 296c0 66.3-53.7 120-120 120h-8c-17.7 0-32-14.3-32-32s14.3-32 32-32h8c30.9 0 56-25.1 56-56v-8H320c-35.3 0-64-28.7-64-64V160c0-35.3 28.7-64 64-64h64c35.3 0 64 28.7 64 64v32 32 72zm-256 0c0 66.3-53.7 120-120 120H64c-17.7 0-32-14.3-32-32s14.3-32 32-32h8c30.9 0 56-25.1 56-56v-8H64c-35.3 0-64-28.7-64-64V160c0-35.3 28.7-64 64-64h64c35.3 0 64 28.7 64 64v32 32 72z" />
-						</svg> */}
 					</div>
 					<div className="flex flex-col items-center">
 						<button
 							className="mb-3 flex w-fit flex-row items-center justify-center self-center rounded-full border-[0.5px] border-background px-5 py-3.5"
-							onClick={
-								() =>
-									// toggle((prev) => {
-									{
-										localStorage.setItem(
-											LOCALSTORAGE_KEY_PATH_ORIGIN,
-											typeof state === "string" ? `/poll/${state}` : router.pathname
-										)
-										location.href = "http://localhost:4000/auth/google"
-									}
-								// return false
-							}
+							onClick={() => {
+								localStorage.setItem(
+									LOCALSTORAGE_KEY_PATH_ORIGIN,
+									typeof state === "string" ? `/poll/${state}` : router.pathname
+								)
+								location.href = "http://localhost:4000/auth/google"
+							}}
 						>
 							<svg
 								className="mr-4 h-3.5 fill-background"

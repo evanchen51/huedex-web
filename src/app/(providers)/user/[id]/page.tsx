@@ -2,82 +2,92 @@ import { withUrqlClient } from "next-urql"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useRef, useState } from "react"
-import LoadingScreen from "../../components/LoadingScreen"
-import LoadingSpinner from "../../components/LoadingSpinner"
-import { LoginPrompt } from "../../components/LoginPrompt"
-import Poll from "../../components/Poll"
+import LoadingScreen from "../../../../components/LoadingScreen"
+import { LoginPrompt } from "../../../../components/LoginPrompt"
+import Poll from "../../../../components/Poll"
 import {
 	FeedItem,
 	useGetCurrentUserQuery,
-	useGetTopicNewPollsQuery,
-	useGetTopicTopPollsQuery,
-} from "../../generated/graphql"
-import { colors } from "../../utils/colors"
-import { noBrowser } from "../../utils/noBrowser"
-import { urqlClientOptions } from "../../utils/urqlClientOptions"
-import Header from "../../components/Header"
+	useGetUserPostedPollsQuery,
+	useGetUserQuery,
+	useGetUserVotedPollsQuery,
+} from "../../../../generated/graphql"
+import { colors } from "../../../../utils/colors"
+import { noBrowser } from "../../../../utils/noBrowser"
+import { urqlClientOptions } from "../../../../utils/urqlClientOptions"
+import LoadingSpinner from "../../../../components/LoadingSpinner"
+import Header from "../../../../components/Header"
 
-const TopicPage: React.FC<{}> = ({}) => {
+const UserPage: React.FC<{}> = ({}) => {
 	const router = useRouter()
 	const [loginPromptToggle, setLoginPromptToggle] = useState<boolean | string>(false)
-	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
+	const [{ data: currentUserData, fetching: currentUserFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
 	})
-	const [feed, setFeed] = useState<Record<string, FeedItem[]>>({ top: [], new: [] })
-	const [feedDeduper, setFeedDeduper] = useState<Record<string, Record<string, boolean>>>({
-		top: {},
-		new: {},
+	const [{ data: userData }] = useGetUserQuery({
+		variables: { id: router.query.id as string },
 	})
-	const [tabToggle, setTabToggle] = useState<string>("top")
+	const [feed, setFeed] = useState<Record<string, FeedItem[]>>({ voted: [], posted: [] })
+	const [feedDeduper, setFeedDeduper] = useState<Record<string, Record<string, boolean>>>({
+		voted: {},
+		posted: {},
+	})
+	const [tabToggle, setTabToggle] = useState<string>("voted")
 	const [cursorId, setCursorId] = useState<string | null>(null)
 	// const [{ data: feedData, fetching: feedFetching, operation: feedOperation }] =
-	const [{ data: topData, fetching: topFetching }] = useGetTopicTopPollsQuery({
-		variables: { topicId: (router.query.id as string).replace("%20", " "), cursorId },
+	const [{ data: votedData, fetching: votedFetching }] = useGetUserVotedPollsQuery({
+		variables: { userId: router.query.id as string, cursorId },
 	})
-	const [{ data: newData, fetching: newFetching }] = useGetTopicNewPollsQuery({
-		variables: { topicId: (router.query.id as string).replace("%20", " "), cursorId },
-		pause: tabToggle !== "new",
+	const [{ data: postedData, fetching: postedFetching }] = useGetUserPostedPollsQuery({
+		variables: { userId: router.query.id as string, cursorId },
+		pause: tabToggle !== "posted",
 	})
 
 	useEffect(() => {
-		if (!topData || topData?.getTopicTopPolls.length === 0) return
+		if (!votedData || votedData?.getUserVotedPolls.length === 0) return
 		// console.log(feedOperation)
 		setFeed((prev) => ({
 			...prev,
-			top: [
-				...prev["top"],
-				...topData.getTopicTopPolls.filter((e) =>
-					feedDeduper["top"][e.id]
+			voted: [
+				...prev["voted"],
+				...votedData.getUserVotedPolls.filter((e) =>
+					feedDeduper["voted"][e.id]
 						? false
-						: (setFeedDeduper((prev) => ({ ...prev, top: { ...prev["top"], [e.id]: true } })),
+						: (setFeedDeduper((prev) => ({
+								...prev,
+								voted: { ...prev["voted"], [e.id]: true },
+						  })),
 						  true)
 				),
 			],
 		}))
-	}, [topData, topData?.getTopicTopPolls])
+	}, [votedData, votedData?.getUserVotedPolls])
 	useEffect(() => {
-		if (!newData || newData?.getTopicNewPolls.length === 0) return
+		if (!postedData || postedData?.getUserPostedPolls.length === 0) return
 		// console.log(feedOperation)
 		setFeed((prev) => ({
 			...prev,
-			new: [
-				...prev["new"],
-				...newData.getTopicNewPolls.filter((e) =>
-					feedDeduper["new"][e.id]
+			posted: [
+				...prev["posted"],
+				...postedData.getUserPostedPolls.filter((e) =>
+					feedDeduper["posted"][e.id]
 						? false
-						: (setFeedDeduper((prev) => ({ ...prev, new: { ...prev["new"], [e.id]: true } })),
+						: (setFeedDeduper((prev) => ({
+								...prev,
+								posted: { ...prev["posted"], [e.id]: true },
+						  })),
 						  true)
 				),
 			],
 		}))
-	}, [newData, newData?.getTopicNewPolls])
+	}, [postedData, postedData?.getUserPostedPolls])
 	const loadObserver = useRef<IntersectionObserver>()
 	const loadPointRef = useCallback(
 		(node) => {
-			if (topFetching || newFetching) return
+			if (votedFetching || postedFetching) return
 			if (
-				(tabToggle === "top" && topData?.getTopicTopPolls.length === 0) ||
-				(tabToggle === "new" && newData?.getTopicNewPolls.length === 0)
+				(tabToggle === "voted" && votedData?.getUserVotedPolls.length === 0) ||
+				(tabToggle === "posted" && postedData?.getUserPostedPolls.length === 0)
 			)
 				return
 			if (loadObserver.current) loadObserver.current.disconnect()
@@ -91,18 +101,18 @@ const TopicPage: React.FC<{}> = ({}) => {
 		},
 		[
 			feed,
-			topData?.getTopicTopPolls.length,
-			topFetching,
-			newData?.getTopicNewPolls.length,
-			newFetching,
+			votedData?.getUserVotedPolls.length,
+			votedFetching,
+			postedData?.getUserPostedPolls.length,
+			postedFetching,
 		]
 	)
 
-	if (noBrowser() || userFetching) return <LoadingScreen />
+	if (noBrowser() || currentUserFetching) return <LoadingScreen />
 
 	return (
 		<div className="h-screen">
-			{!userData?.getCurrentUser && loginPromptToggle && (
+			{!currentUserData?.getCurrentUser && loginPromptToggle && (
 				<LoginPrompt
 					message={"login/join to vote"}
 					state={loginPromptToggle}
@@ -110,43 +120,45 @@ const TopicPage: React.FC<{}> = ({}) => {
 				/>
 			)}
 			<Header />
-			<div className="pointer-events-none h-16 w-1" />
+			<div className="pointer-events-none h-16 w-full" />
 			<div className="pointer-events-none sticky top-0 z-[60] flex w-full flex-row items-center justify-center">
 				<div className="flex w-full max-w-[640px] flex-row items-center justify-center pt-8 font-normal">
 					{/* <div className="tracking-wider text-foreground">topic:</div> */}
-					<div className="rounded-full bg-foreground px-3 py-1 text-sm text-background">
-						<div className="">{(router.query.id as string).replace("%20", " ")}</div>
+					<div className="text-md ml-2 text-foreground">
+						<div className="">{userData?.getUser?.displayName || "..."}</div>
 					</div>
 				</div>
 			</div>
 			<div className="mx-auto mt-6 flex w-[240px] max-w-[75vw] flex-row items-center justify-center tracking-wider text-foreground">
 				<div
 					className="mr-32 flex cursor-pointer flex-col items-center"
-					style={{ color: tabToggle === "top" ? colors["foreground"] : colors["secondary"] }}
+					style={{ color: tabToggle === "voted" ? colors["foreground"] : colors["secondary"] }}
 					onClick={() => {
-						setTabToggle("top")
+						setTabToggle("voted")
 					}}
 				>
-					top
+					voted
 					<div
 						className="mt-1 h-1 w-1 rounded-xl bg-foreground"
 						style={{
-							visibility: tabToggle === "top" ? "visible" : "hidden",
+							visibility: tabToggle === "voted" ? "visible" : "hidden",
 						}}
 					/>
 				</div>
 				<div
 					className="flex cursor-pointer flex-col items-center"
-					style={{ color: tabToggle === "new" ? colors["foreground"] : colors["secondary"] }}
+					style={{
+						color: tabToggle === "posted" ? colors["foreground"] : colors["secondary"],
+					}}
 					onClick={() => {
-						setTabToggle("new")
+						setTabToggle("posted")
 					}}
 				>
-					new
+					posted
 					<div
 						className="mt-1 h-1 w-1 rounded-xl bg-foreground"
 						style={{
-							visibility: tabToggle === "new" ? "visible" : "hidden",
+							visibility: tabToggle === "posted" ? "visible" : "hidden",
 						}}
 					/>
 				</div>
@@ -155,8 +167,8 @@ const TopicPage: React.FC<{}> = ({}) => {
 				<div className="mb-36 mt-[-12px] w-full max-w-[640px]">
 					{!feed[tabToggle] || feed[tabToggle].length === 0 ? (
 						<div className="mt-20 flex w-full flex-col items-center">
-							{(tabToggle === "top" && topFetching) ||
-							(tabToggle === "new" && newFetching) ? (
+							{(tabToggle === "voted" && votedFetching) ||
+							(tabToggle === "posted" && postedFetching) ? (
 								<LoadingSpinner />
 							) : (
 								<div className="text-sm tracking-wider text-secondary">
@@ -166,7 +178,7 @@ const TopicPage: React.FC<{}> = ({}) => {
 						</div>
 					) : (
 						feed[tabToggle].map((e, i, a) =>
-							userData?.getCurrentUser
+							currentUserData?.getCurrentUser
 								? e.item &&
 								  (i !== a.length - 3 ? (
 										<div className="mt-16">
@@ -241,4 +253,4 @@ const TopicPage: React.FC<{}> = ({}) => {
 	)
 }
 
-export default withUrqlClient(urqlClientOptions, { ssr: true })(TopicPage)
+export default withUrqlClient(urqlClientOptions, { ssr: true })(UserPage)

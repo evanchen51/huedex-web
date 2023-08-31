@@ -1,3 +1,5 @@
+"use client"
+
 // import isEqual from "lodash/isEqual"
 import { withUrqlClient } from "next-urql"
 import React, { useEffect, useRef, useState } from "react"
@@ -11,17 +13,14 @@ import { colors } from "../utils/colors"
 import { noBrowser } from "../utils/noBrowser"
 import { urqlClientOptions } from "../utils/urqlClientOptions"
 import LoadingSpinner from "./LoadingSpinner"
-import { useVoteHandler } from "../utils/useVoteHandler"
 
 const Options: React.FC<{
 	poll: PollType
-	setParentVoteState: React.Dispatch<React.SetStateAction<boolean>>
-	setParentNumOfVotes: React.Dispatch<React.SetStateAction<number>>
-}> = ({ poll: pollInit, setParentVoteState, setParentNumOfVotes }) => {
+	// setParentVoteState: React.Dispatch<React.SetStateAction<boolean>>
+	// setParentNumOfVotes: React.Dispatch<React.SetStateAction<number>>
+}> = ({ poll: pollInit }) => {
 	// const router = useRouter()
 	// const [path, setPath] = useState(router.asPath)
-	const vote = useVoteHandler()
-	console.log(vote)
 	const [poll, setPoll] = useState(pollInit)
 	const [optionNumOfVotes, setOptionNumOfVotes] = useState<Record<string, number>>()
 	const [pollNumOfVotes, setPollNumOfVotes] = useState<number>()
@@ -51,7 +50,7 @@ const Options: React.FC<{
 	useEffect(() => {
 		setOptionNumOfVotes(poll.options?.reduce((res, e) => ({ ...res, [e.id]: e.numOfVotes }), {}))
 		setPollNumOfVotes(poll.numOfVotes)
-		setParentNumOfVotes(poll.numOfVotes)
+		// setParentNumOfVotes(poll.numOfVotes)
 	}, [poll.numOfVotes, poll.options])
 	useEffect(() => {
 		// console.log([historyFetching, historyData, poll.id, startedVoting, path])
@@ -59,7 +58,7 @@ const Options: React.FC<{
 		if (!historyData || !poll || !poll.options) return
 		const thisPoll = historyData.getVoteHistory.filter((e) => e.pollId === poll.id)
 		if (!startedVoting) {
-			setParentVoteState(true)
+			// setParentVoteState(true)
 			setOptionState(() => ({
 				...poll?.options?.reduce((res, e) => (e ? { ...res, [e.id]: "unvoted" } : res), {}),
 				...thisPoll.reduce(
@@ -157,9 +156,9 @@ const Options: React.FC<{
 												optionState?.[option.id] === "voted"
 													? "translateY(0px)"
 													: "translateY(1px)"
-											setParentVoteState(
-												optionState?.[option.id] === "voted" ? false : true
-											)
+											// setParentVoteState(
+											// 	optionState?.[option.id] === "voted" ? false : true
+											// )
 										}}
 									>
 										<div className="overflow-hidden rounded">
@@ -217,7 +216,7 @@ const Options: React.FC<{
 																		: { [option.id]: 0 }
 																)
 																setPollNumOfVotes((prev) => (prev ? prev - 1 : 0))
-																setParentNumOfVotes((prev) => (prev ? prev - 1 : 0))
+																// setParentNumOfVotes((prev) => (prev ? prev - 1 : 0))
 															} else {
 																setOptionNumOfVotes((prev) =>
 																	prev
@@ -228,7 +227,7 @@ const Options: React.FC<{
 																		: { [option.id]: 1 }
 																)
 																setPollNumOfVotes((prev) => (prev ? prev + 1 : 1))
-																setParentNumOfVotes((prev) => (prev ? prev + 1 : 1))
+																// setParentNumOfVotes((prev) => (prev ? prev + 1 : 1))
 															}
 															state = {
 																...prev,

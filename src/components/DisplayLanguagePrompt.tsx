@@ -1,14 +1,23 @@
+"use client"
+
 import React, { useEffect, useState } from "react"
+import { useMutation, useQuery } from "urql"
 import { LOCALSTORAGE_KEY_FALLBACK_LANGUAGE } from "../constants"
 import { displayLanguage } from "../displayTexts"
-import { useGetAllLanguagesQuery, useSetUserDisplayLanguageMutation } from "../generated/graphql"
+import {
+	GetAllLanguagesDocument,
+	GetAllLanguagesQuery,
+	SetUserDisplayLanguageDocument,
+} from "../generated/graphql"
 
 export const DisplayLanguagePrompt: React.FC<{
 	state: string | boolean
 	toggle: React.Dispatch<React.SetStateAction<boolean | string>>
 }> = ({ state, toggle }) => {
-	const [{ data: languagesData }] = useGetAllLanguagesQuery({})
-	const [, setUserDisplayLanguage] = useSetUserDisplayLanguageMutation()
+	const [{ data: languagesData }] = useQuery<GetAllLanguagesQuery>({
+		query: GetAllLanguagesDocument,
+	})
+	const [, setUserDisplayLanguage] = useMutation(SetUserDisplayLanguageDocument)
 	const fbl = localStorage.getItem(LOCALSTORAGE_KEY_FALLBACK_LANGUAGE)
 	const [choice, setChoice] = useState("")
 	useEffect(() => {

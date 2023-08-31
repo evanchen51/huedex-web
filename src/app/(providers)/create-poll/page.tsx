@@ -2,17 +2,17 @@ import { Field, FieldArray, Form, Formik } from "formik"
 import { withUrqlClient } from "next-urql"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
-import { Poll } from "../components/Poll"
-import { SESSIONSTORAGE_KEY_TOAST_MESSAGE } from "../constants"
+import { Poll } from "../../../components/Poll"
+import { SESSIONSTORAGE_KEY_TOAST_MESSAGE } from "../../../constants"
 import {
 	CreatePollInput,
 	useCreatePollMutation,
 	useGetAllTopicsQuery,
 	useGetCurrentUserQuery,
 	useGetSimilarPollsQuery,
-} from "../generated/graphql"
-import { noBrowser } from "../utils/noBrowser"
-import { urqlClientOptions } from "../utils/urqlClientOptions"
+} from "../../../generated/graphql"
+import { noBrowser } from "../../../utils/noBrowser"
+import { urqlClientOptions } from "../../../utils/urqlClientOptions"
 
 const CreatePoll: React.FC<{}> = ({}) => {
 	const router = useRouter()

@@ -1,13 +1,17 @@
+"use client"
+
 import Link from "next/link"
 import React, { useState } from "react"
-import { useGetCurrentUserQuery } from "../generated/graphql"
+import { GetCurrentUserDocument, GetCurrentUserQuery } from "../generated/graphql"
 import { colors } from "../utils/colors"
 import { noBrowser } from "../utils/noBrowser"
+import { useQuery } from "@urql/next"
 
 const Header: React.FC<{ page?: string }> = ({ page }) => {
 	const [menuToggle, setMenuToggle] = useState("closed")
-	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
-		pause: noBrowser(),
+	const [{ data: userData, fetching: userFetching }] = useQuery<GetCurrentUserQuery>({
+		query: GetCurrentUserDocument,
+		// pause: noBrowser(),
 	})
 	return (
 		<div
@@ -40,15 +44,6 @@ const Header: React.FC<{ page?: string }> = ({ page }) => {
 					onClick={() => {
 						if (menuToggle === "closed") {
 							setMenuToggle("open")
-							// document.addEventListener("mousedown", (e) => {
-							// 	e.preventDefault();
-							// 	e.stopPropagation()
-							// 	e.stopImmediatePropagation()
-							// 	setMenuToggle("exit")
-							// 	setTimeout(() => {
-							// 		setMenuToggle("closed")
-							// 	}, 300)
-							// })
 							return
 						}
 						if (menuToggle === "open") {

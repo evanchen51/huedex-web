@@ -1,14 +1,13 @@
 import { withUrqlClient } from "next-urql"
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
-import { LoginPrompt } from "../components/LoginPrompt"
-import Poll from "../components/Poll"
-import { EN } from "../displayTexts"
-import { useGetCurrentUserQuery, useGetVisitorFeedQuery } from "../generated/graphql"
-import { convertBrowserLanguage } from "../utils/convertBrowserLanguage"
-import { noBrowser } from "../utils/noBrowser"
-import { urqlClientOptions } from "../utils/urqlClientOptions"
-import LoadingScreen from "../components/LoadingScreen"
+import LoadingScreen from "../../../components/LoadingScreen"
+import { LoginPrompt } from "../../../components/LoginPrompt"
+import Poll from "../../../components/Poll"
+import { EN } from "../../../displayTexts"
+import { useGetCurrentUserQuery, useGetVisitorFeedQuery } from "../../../generated/graphql"
+import { convertBrowserLanguage } from "../../../utils/convertBrowserLanguage"
+import { noBrowser } from "../../../utils/noBrowser"
 
 const Visitor: React.FC<{}> = ({}) => {
 	const router = useRouter()
@@ -56,4 +55,5 @@ const Visitor: React.FC<{}> = ({}) => {
 	)
 }
 
-export default withUrqlClient(urqlClientOptions)(Visitor)
+export default Visitor
+// export default withUrqlClient(urqlClientOptions)(Visitor)

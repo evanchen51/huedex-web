@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState } from "react"
 import { LOCALSTORAGE_KEY_FALLBACK_LANGUAGE } from "../constants"
 import { useGetCurrentUserPersonalSettingsQuery } from "../generated/graphql"
