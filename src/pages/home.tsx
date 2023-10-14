@@ -3,14 +3,14 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { DisplayLanguagePrompt } from "../components/DisplayLanguagePrompt"
+import Header from "../components/Header"
 import LoadingScreen from "../components/LoadingScreen"
 import Poll from "../components/Poll"
 import { FeedItem, useGetCurrentUserQuery, useGetHomeFeedQuery } from "../generated/graphql"
 import { noBrowser } from "../utils/noBrowser"
-import { urqlClientOptions } from "../utils/urqlClientOptions"
+import { urqlClientOptions } from "../utils/urqlClient"
 import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 import { usePreserveScroll } from "../utils/usePreserveScroll"
-import Header from "../components/Header"
 
 const Home: React.FC<{}> = ({}) => {
 	const router = useRouter()
@@ -19,6 +19,7 @@ const Home: React.FC<{}> = ({}) => {
 	})
 	const [feed, setFeed] = useState<FeedItem[]>([])
 	const [seen, setSeen] = useState<string[]>([])
+	const [feedDeduper, setFeedDeduper] = useState<Record<string, boolean>>({})
 	const isBack = usePreserveScroll()
 	const [{ data: feedData, fetching: feedFetching }] = useGetHomeFeedQuery({
 		variables: { seen },
@@ -26,17 +27,23 @@ const Home: React.FC<{}> = ({}) => {
 		requestPolicy: "network-only",
 	})
 
-	const LANGUAGE = useGetDisplayLanguage()
+	// const { imageFullViewControl } = useImageFullViewer()
+
 	const [displayLanguagePrompt, setDisplayLanguagePromptToggle] = useState<boolean | string>(false)
-	useEffect(() => {
-		if (!LANGUAGE || LANGUAGE === "un") setDisplayLanguagePromptToggle(true)
-		// console.log(LANGUAGE)
-	}, [LANGUAGE])
+	useGetDisplayLanguage(setDisplayLanguagePromptToggle)
 
 	useEffect(() => {
 		if (!feedData || feedData?.getHomeFeed.length === 0) return
-		setFeed((prev) => [...prev, ...feedData.getHomeFeed])
-	}, [feedData, feedData?.getHomeFeed])
+		setFeed((prev) => [
+			...prev,
+			...feedData.getHomeFeed.filter((e) =>
+				feedDeduper[e.id]
+					? false
+					: (setFeedDeduper((prev) => ({ ...prev, [e.id]: true })), true)
+			),
+		])
+	}, [feedFetching, feedData, feedData?.getHomeFeed])
+
 	const loadObserver = useRef<IntersectionObserver>()
 	const loadPointRef = useCallback(
 		(node) => {
@@ -62,33 +69,22 @@ const Home: React.FC<{}> = ({}) => {
 				state={displayLanguagePrompt}
 				toggle={setDisplayLanguagePromptToggle}
 			/>
-			<Header page={"Home"}/>
+			<Header home={true} />
+			{/* <ImageFullView control={imageFullViewControl} /> */}
 			<div className="flex max-w-full flex-col items-center overflow-x-hidden">
-				<div className="mb-36 mt-12 w-full max-w-[640px]">
+				<div className="mb-36 mt-16 w-full max-w-[560px]">
 					{feed.map(
 						(e, i, a) =>
 							e.item &&
-							(i !== a.length - 3 ? (
-								<div className="mt-16" key={e.id}>
-									<Link
-										href="/poll/[id]"
-										as={`/poll/${e.id}`}
-										// rel="noopener noreferrer"
-										// target="_blank"
-										// passHref
-									>
+							(i !== a.length - 2 ? (
+								<div className="mt-12" key={e.id}>
+									<Link href="/poll/[id]" as={`/poll/${e.id}`}>
 										<Poll poll={{ ...e.item, options: e.item.topOptions }} />
 									</Link>
 								</div>
 							) : (
-								<div className="mt-16" key={e.id} ref={loadPointRef}>
-									<Link
-										href="/poll/[id]"
-										as={`/poll/${e.id}`}
-										// rel="noopener noreferrer"
-										// target="_blank"
-										// passHref
-									>
+								<div className="mt-12" key={e.id} ref={loadPointRef}>
+									<Link href="/poll/[id]" as={`/poll/${e.id}`}>
 										<Poll poll={{ ...e.item, options: e.item.topOptions }} />
 									</Link>
 								</div>

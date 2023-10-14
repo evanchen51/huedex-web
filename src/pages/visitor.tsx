@@ -1,52 +1,58 @@
 import { withUrqlClient } from "next-urql"
+import Link from "next/link"
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
+import Header from "../components/Header"
+import LoadingScreen from "../components/LoadingScreen"
 import { LoginPrompt } from "../components/LoginPrompt"
 import Poll from "../components/Poll"
 import { EN } from "../displayTexts"
 import { useGetCurrentUserQuery, useGetVisitorFeedQuery } from "../generated/graphql"
 import { convertBrowserLanguage } from "../utils/convertBrowserLanguage"
 import { noBrowser } from "../utils/noBrowser"
-import { urqlClientOptions } from "../utils/urqlClientOptions"
-import LoadingScreen from "../components/LoadingScreen"
+import { urqlClientOptions } from "../utils/urqlClient"
+import { useVoteHandler } from "../utils/useVoteHandler"
 
 const Visitor: React.FC<{}> = ({}) => {
 	const router = useRouter()
+
+	const { loginPromptControl } = useVoteHandler()
+
 	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
 	})
+
 	const [feedVariable, setFeedVariable] = useState([EN])
 	const [{ data: feedData }] = useGetVisitorFeedQuery({
-		variables: { languageCodes: feedVariable },
-		pause: noBrowser() || !feedVariable,
+		variables: { languageCodes: feedVariable || [EN] },
+		// pause: !feedVariable,
+		// pause: noBrowser() || !feedVariable,
 	})
-	const [loginPromptToggle, setLoginPromptToggle] = useState<boolean | string>(true)
+
 	useEffect(() => {
 		if (noBrowser()) return
 		setFeedVariable(convertBrowserLanguage(navigator.languages))
-	}, [])
+	}, [noBrowser()])
 
 	if (noBrowser() || userFetching) return <LoadingScreen />
 	if (userData?.getCurrentUser && !userFetching) router.replace("/home")
 
 	return (
 		<div className="relative">
-			<LoginPrompt
-				message={"join/login now to vote!"}
-				state={loginPromptToggle}
-				toggle={setLoginPromptToggle}
-			/>
-			<div className="flex flex-col items-center overflow-scroll">
-				<div className="flex w-[100%] flex-col items-center pb-36 pt-24">
+			<LoginPrompt message={"Login/Join to vote"} control={loginPromptControl} />
+			<Header home={true} visitor={true} />
+			<div className="flex max-w-full flex-col items-center overflow-x-hidden">
+				<div className="mb-36 mt-16 w-full max-w-[560px]">
 					{feedData?.getVisitorFeed.map(
 						(e) =>
 							e.item && (
-								<div className="w-[100%] pb-12" key={e.id}>
-									<Poll
-										key={e.item.id}
-										poll={{ ...e.item, options: e.item.topOptions }}
-										visitor={setLoginPromptToggle}
-									/>
+								<div className="mt-12" key={e.id}>
+									<Link href="/poll/[id]" as={`/poll/${e.id}`}>
+										<Poll
+											key={e.item.id}
+											poll={{ ...e.item, options: e.item.topOptions }}
+										/>
+									</Link>
 								</div>
 							)
 					)}
@@ -56,4 +62,4 @@ const Visitor: React.FC<{}> = ({}) => {
 	)
 }
 
-export default withUrqlClient(urqlClientOptions)(Visitor)
+export default withUrqlClient(urqlClientOptions, { ssr: true })(Visitor)

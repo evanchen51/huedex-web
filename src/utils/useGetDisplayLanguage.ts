@@ -5,7 +5,9 @@ import { DEFAULT_LANGUAGE, displayLanguage } from "./../displayTexts"
 import { convertBrowserLanguage } from "./convertBrowserLanguage"
 import { noBrowser } from "./noBrowser"
 
-export const useGetDisplayLanguage = () => {
+export const useGetDisplayLanguage = (
+	settingPromptToggle?: (value: React.SetStateAction<string | boolean>) => void
+) => {
 	const [{ data: settingsData, fetching: settingsFetching }] =
 		useGetCurrentUserPersonalSettingsQuery({ pause: noBrowser() })
 	const [res, setRes] = useState(DEFAULT_LANGUAGE)
@@ -18,6 +20,15 @@ export const useGetDisplayLanguage = () => {
 		) {
 			setRes(settingsData?.getCurrentUserPersonalSettings.displayLanguageCode)
 			return
+		}
+		if (
+			!settingsFetching &&
+			settingsData?.getCurrentUserPersonalSettings &&
+			!settingsData?.getCurrentUserPersonalSettings.displayLanguageCode &&
+			settingPromptToggle
+		) {
+			settingPromptToggle(true)
+			setRes("")
 		}
 		const local = localStorage.getItem(LOCALSTORAGE_KEY_FALLBACK_LANGUAGE)
 		if (local) {

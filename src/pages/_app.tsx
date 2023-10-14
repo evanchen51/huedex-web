@@ -1,18 +1,22 @@
-import Toast from "../components/Toast"
+import { withUrqlClient } from "next-urql"
+import { urqlClientOptions } from "../utils/urqlClient"
+import { ImageFullViewProvider } from "../utils/useImageFullViewer"
 import { usePreserveScroll } from "../utils/usePreserveScroll"
 import { VoteContextProvider } from "../utils/useVoteHandler"
 import "./../styles/globals.css"
+import { useRouter } from "next/router"
 
-function MyApp({ Component, pageProps }: any) {
+function App({ Component, pageProps }: any) {
 	usePreserveScroll()
+	const router = useRouter()
 	return (
-		<>
-			<VoteContextProvider>
-				<Component {...pageProps} />
-				<Toast />
-			</VoteContextProvider>
-		</>
+		<VoteContextProvider>
+			<ImageFullViewProvider>
+				<Component {...pageProps} key={router.asPath} />
+			</ImageFullViewProvider>
+		</VoteContextProvider>
 	)
 }
 
-export default MyApp
+// export default App
+export default withUrqlClient(urqlClientOptions)(App)

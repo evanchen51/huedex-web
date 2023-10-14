@@ -2,41 +2,40 @@ import { withUrqlClient } from "next-urql"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useRef, useState } from "react"
-import LoadingScreen from "../../components/LoadingScreen"
+import Header from "../../components/Header"
 import LoadingSpinner from "../../components/LoadingSpinner"
 import { LoginPrompt } from "../../components/LoginPrompt"
 import Poll from "../../components/Poll"
 import {
 	FeedItem,
-	useGetCurrentUserQuery,
 	useGetTopicNewPollsQuery,
 	useGetTopicTopPollsQuery,
 } from "../../generated/graphql"
 import { colors } from "../../utils/colors"
-import { noBrowser } from "../../utils/noBrowser"
-import { urqlClientOptions } from "../../utils/urqlClientOptions"
-import Header from "../../components/Header"
+import { urqlClientOptions } from "../../utils/urqlClient"
+import { useVoteHandler } from "../../utils/useVoteHandler"
 
 const TopicPage: React.FC<{}> = ({}) => {
 	const router = useRouter()
-	const [loginPromptToggle, setLoginPromptToggle] = useState<boolean | string>(false)
-	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
-		pause: noBrowser(),
-	})
+
+	const { loginPromptControl } = useVoteHandler()
+
 	const [feed, setFeed] = useState<Record<string, FeedItem[]>>({ top: [], new: [] })
 	const [feedDeduper, setFeedDeduper] = useState<Record<string, Record<string, boolean>>>({
 		top: {},
 		new: {},
 	})
-	const [tabToggle, setTabToggle] = useState<string>("top")
 	const [cursorId, setCursorId] = useState<string | null>(null)
+
+	const [tabToggle, setTabToggle] = useState<string>("top")
+
 	// const [{ data: feedData, fetching: feedFetching, operation: feedOperation }] =
 	const [{ data: topData, fetching: topFetching }] = useGetTopicTopPollsQuery({
-		variables: { topicId: (router.query.id as string).replace("%20", " "), cursorId },
+		variables: { topicId: (router.query.id as string).replace("-", " "), cursorId },
 	})
 	const [{ data: newData, fetching: newFetching }] = useGetTopicNewPollsQuery({
-		variables: { topicId: (router.query.id as string).replace("%20", " "), cursorId },
-		pause: tabToggle !== "new",
+		variables: { topicId: (router.query.id as string).replace("-", " "), cursorId },
+		// pause: tabToggle !== "new",
 	})
 
 	useEffect(() => {
@@ -55,6 +54,7 @@ const TopicPage: React.FC<{}> = ({}) => {
 			],
 		}))
 	}, [topData, topData?.getTopicTopPolls])
+
 	useEffect(() => {
 		if (!newData || newData?.getTopicNewPolls.length === 0) return
 		// console.log(feedOperation)
@@ -71,6 +71,7 @@ const TopicPage: React.FC<{}> = ({}) => {
 			],
 		}))
 	}, [newData, newData?.getTopicNewPolls])
+
 	const loadObserver = useRef<IntersectionObserver>()
 	const loadPointRef = useCallback(
 		(node) => {
@@ -98,28 +99,22 @@ const TopicPage: React.FC<{}> = ({}) => {
 		]
 	)
 
-	if (noBrowser() || userFetching) return <LoadingScreen />
+	// if (noBrowser() || userFetching) return <LoadingScreen />
 
 	return (
 		<div className="h-screen">
-			{!userData?.getCurrentUser && loginPromptToggle && (
-				<LoginPrompt
-					message={"login/join to vote"}
-					state={loginPromptToggle}
-					toggle={setLoginPromptToggle}
-				/>
-			)}
+			<LoginPrompt message={"Login/Join to vote"} control={loginPromptControl} />
 			<Header />
-			<div className="pointer-events-none h-16 w-1" />
-			<div className="pointer-events-none sticky top-0 z-[60] flex w-full flex-row items-center justify-center">
-				<div className="flex w-full max-w-[640px] flex-row items-center justify-center pt-8 font-normal">
+			<div className="pointer-events-none h-20 w-1" />
+			<div className="flex w-full flex-row items-center justify-center">
+				<div className="flex w-full max-w-[560px] flex-row items-center justify-center pt-7 font-normal">
 					{/* <div className="tracking-wider text-foreground">topic:</div> */}
-					<div className="rounded-full bg-foreground px-3 py-1 text-sm text-background">
-						<div className="">{(router.query.id as string).replace("%20", " ")}</div>
+					<div className="relative flex h-9 items-center rounded-full bg-foreground px-4 py-1.5 text-sm text-background">
+						{(router.query.id as string).replace("-", " ")}
 					</div>
 				</div>
 			</div>
-			<div className="mx-auto mt-6 flex w-[240px] max-w-[75vw] flex-row items-center justify-center tracking-wider text-foreground">
+			<div className="mx-auto mt-9 flex w-[240px] max-w-[75vw] flex-row items-center justify-center tracking-wider text-foreground">
 				<div
 					className="mr-32 flex cursor-pointer flex-col items-center"
 					style={{ color: tabToggle === "top" ? colors["foreground"] : colors["secondary"] }}
@@ -152,7 +147,7 @@ const TopicPage: React.FC<{}> = ({}) => {
 				</div>
 			</div>
 			<div className="flex h-max max-w-full flex-col items-center overflow-x-hidden">
-				<div className="mb-36 mt-[-12px] w-full max-w-[640px]">
+				<div className="mb-36 mt-[-12px] w-full max-w-[560px]">
 					{!feed[tabToggle] || feed[tabToggle].length === 0 ? (
 						<div className="mt-20 flex w-full flex-col items-center">
 							{(tabToggle === "top" && topFetching) ||
@@ -165,74 +160,28 @@ const TopicPage: React.FC<{}> = ({}) => {
 							)}
 						</div>
 					) : (
-						feed[tabToggle].map((e, i, a) =>
-							userData?.getCurrentUser
-								? e.item &&
-								  (i !== a.length - 3 ? (
-										<div className="mt-16">
-											<Link
-												href="/poll/[id]"
-												as={`/poll/${e.id}`}
-												// rel="noopener noreferrer"
-												// target="_blank"
-												// passHref
-											>
-												<Poll
-													key={e.item.id}
-													poll={{ ...e.item, options: e.item.topOptions }}
-												/>
-											</Link>
-										</div>
-								  ) : (
-										<div ref={loadPointRef} className="mt-16">
-											<Link
-												href="/poll/[id]"
-												as={`/poll/${e.id}`}
-												// rel="noopener noreferrer"
-												// target="_blank"
-												// passHref
-											>
-												<Poll
-													key={e.item.id}
-													poll={{ ...e.item, options: e.item.topOptions }}
-												/>
-											</Link>
-										</div>
-								  ))
-								: e.item &&
-								  (i !== a.length - 3 ? (
-										<div className="mt-16">
-											<Link
-												href="/poll/[id]"
-												as={`/poll/${e.id}`}
-												// rel="noopener noreferrer"
-												// target="_blank"
-												// passHref
-											>
-												<Poll
-													key={e.item.id}
-													poll={{ ...e.item, options: e.item.topOptions }}
-													visitor={setLoginPromptToggle}
-												/>
-											</Link>
-										</div>
-								  ) : (
-										<div ref={loadPointRef} className="mt-16">
-											<Link
-												href="/poll/[id]"
-												as={`/poll/${e.id}`}
-												// rel="noopener noreferrer"
-												// target="_blank"
-												// passHref
-											>
-												<Poll
-													key={e.item.id}
-													poll={{ ...e.item, options: e.item.topOptions }}
-													visitor={setLoginPromptToggle}
-												/>
-											</Link>
-										</div>
-								  ))
+						feed[tabToggle].map(
+							(e, i, a) =>
+								e.item &&
+								(i !== a.length - 3 ? (
+									<div className="mt-12">
+										<Link href="/poll/[id]" as={`/poll/${e.id}`}>
+											<Poll
+												key={e.item.id}
+												poll={{ ...e.item, options: e.item.topOptions }}
+											/>
+										</Link>
+									</div>
+								) : (
+									<div className="mt-12" ref={loadPointRef}>
+										<Link href="/poll/[id]" as={`/poll/${e.id}`}>
+											<Poll
+												key={e.item.id}
+												poll={{ ...e.item, options: e.item.topOptions }}
+											/>
+										</Link>
+									</div>
+								))
 						)
 					)}
 				</div>

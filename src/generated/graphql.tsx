@@ -26,8 +26,9 @@ export type AnonymousVote = {
 export type CreatePollInput = {
   anonymous?: InputMaybe<Scalars['Boolean']>;
   existingTopics: Array<Scalars['String']>;
+  media?: InputMaybe<MediaInput>;
   newTopics: Array<Scalars['String']>;
-  optionTexts: Array<Scalars['String']>;
+  options: Array<OptionInput>;
   text: Scalars['String'];
 };
 
@@ -51,16 +52,24 @@ export type Language = {
   nativeName: Scalars['String'];
 };
 
+export type MediaInput = {
+  URL: Scalars['String'];
+  type: Scalars['String'];
+};
+
 export type MediaType = {
   __typename?: 'MediaType';
   code: Scalars['String'];
-  info: Scalars['String'];
+  description: Scalars['String'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
   addLanguage: Array<Language>;
+  addMediaType: Array<MediaType>;
   createPoll?: Maybe<Poll>;
+  deletePoll: Scalars['Boolean'];
+  getS3URLs?: Maybe<Array<Scalars['String']>>;
   logout: Scalars['Boolean'];
   sendFollowLanguageReq: Scalars['Boolean'];
   sendFollowTopicReq: Scalars['Boolean'];
@@ -80,8 +89,24 @@ export type MutationAddLanguageArgs = {
 };
 
 
+export type MutationAddMediaTypeArgs = {
+  input: NewMediaType;
+  passcode: Scalars['String'];
+};
+
+
 export type MutationCreatePollArgs = {
   createPollInput: CreatePollInput;
+};
+
+
+export type MutationDeletePollArgs = {
+  id: Scalars['String'];
+};
+
+
+export type MutationGetS3UrLsArgs = {
+  numOfReq: Scalars['Int'];
 };
 
 
@@ -135,6 +160,11 @@ export type NewLanguage = {
   nativeName: Scalars['String'];
 };
 
+export type NewMediaType = {
+  code: Scalars['String'];
+  description: Scalars['String'];
+};
+
 export type Option = {
   __typename?: 'Option';
   anonymousVotes?: Maybe<Array<AnonymousVote>>;
@@ -144,7 +174,7 @@ export type Option = {
   languageCode: Scalars['String'];
   mediaType?: Maybe<MediaType>;
   mediaTypeCode?: Maybe<Scalars['String']>;
-  mediaUrl?: Maybe<Scalars['String']>;
+  mediaURL?: Maybe<Scalars['String']>;
   numOfVotes: Scalars['Int'];
   poll?: Maybe<Poll>;
   pollId: Scalars['String'];
@@ -153,15 +183,21 @@ export type Option = {
   votes?: Maybe<Array<Vote>>;
 };
 
+export type OptionInput = {
+  media?: InputMaybe<MediaInput>;
+  text: Scalars['String'];
+};
+
 export type Poll = {
   __typename?: 'Poll';
   anonymousVotes?: Maybe<Array<AnonymousVote>>;
   createdAt: Scalars['String'];
+  featured?: Maybe<Scalars['Boolean']>;
   id: Scalars['String'];
   languageCode: Scalars['String'];
   mediaType?: Maybe<MediaType>;
   mediaTypeCode?: Maybe<Scalars['String']>;
-  mediaUrl?: Maybe<Scalars['String']>;
+  mediaURL?: Maybe<Scalars['String']>;
   numOfChoices: Scalars['Int'];
   numOfOptions?: Maybe<Scalars['Int']>;
   numOfVotes: Scalars['Int'];
@@ -313,6 +349,20 @@ export type CreatePollMutationVariables = Exact<{
 
 export type CreatePollMutation = { __typename?: 'Mutation', createPoll?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined };
 
+export type DeletePollMutationVariables = Exact<{
+  id: Scalars['String'];
+}>;
+
+
+export type DeletePollMutation = { __typename?: 'Mutation', deletePoll: boolean };
+
+export type GetS3UrLsMutationVariables = Exact<{
+  numOfReq: Scalars['Int'];
+}>;
+
+
+export type GetS3UrLsMutation = { __typename?: 'Mutation', getS3URLs?: Array<string> | null | undefined };
+
 export type SendVoteReqMutationVariables = Exact<{
   voteReq: VoteReq;
 }>;
@@ -349,7 +399,7 @@ export type GetAllOptionsQueryVariables = Exact<{
 }>;
 
 
-export type GetAllOptionsQuery = { __typename?: 'Query', getSinglePoll?: { __typename: 'Poll', id: string, options?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined } | null | undefined };
+export type GetAllOptionsQuery = { __typename?: 'Query', getSinglePoll?: { __typename: 'Poll', id: string, options?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string }> | null | undefined } | null | undefined };
 
 export type GetAllTopicsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -371,21 +421,21 @@ export type GetHomeFeedQueryVariables = Exact<{
 }>;
 
 
-export type GetHomeFeedQuery = { __typename?: 'Query', getHomeFeed: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
+export type GetHomeFeedQuery = { __typename?: 'Query', getHomeFeed: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, featured?: boolean | null | undefined, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
 
 export type GetSimilarPollsQueryVariables = Exact<{
   text: Scalars['String'];
 }>;
 
 
-export type GetSimilarPollsQuery = { __typename?: 'Query', getSimilarPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
+export type GetSimilarPollsQuery = { __typename?: 'Query', getSimilarPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, featured?: boolean | null | undefined, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
 
 export type GetSinglePollQueryVariables = Exact<{
   id: Scalars['String'];
 }>;
 
 
-export type GetSinglePollQuery = { __typename?: 'Query', getSinglePoll?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined };
+export type GetSinglePollQuery = { __typename?: 'Query', getSinglePoll?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, featured?: boolean | null | undefined, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined };
 
 export type GetTopicNewPollsQueryVariables = Exact<{
   topicId: Scalars['String'];
@@ -393,7 +443,7 @@ export type GetTopicNewPollsQueryVariables = Exact<{
 }>;
 
 
-export type GetTopicNewPollsQuery = { __typename?: 'Query', getTopicNewPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
+export type GetTopicNewPollsQuery = { __typename?: 'Query', getTopicNewPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, featured?: boolean | null | undefined, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
 
 export type GetTopicTopPollsQueryVariables = Exact<{
   topicId: Scalars['String'];
@@ -401,7 +451,7 @@ export type GetTopicTopPollsQueryVariables = Exact<{
 }>;
 
 
-export type GetTopicTopPollsQuery = { __typename?: 'Query', getTopicTopPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
+export type GetTopicTopPollsQuery = { __typename?: 'Query', getTopicTopPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, featured?: boolean | null | undefined, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
 
 export type GetUserQueryVariables = Exact<{
   id: Scalars['String'];
@@ -416,7 +466,7 @@ export type GetUserPostedPollsQueryVariables = Exact<{
 }>;
 
 
-export type GetUserPostedPollsQuery = { __typename?: 'Query', getUserPostedPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
+export type GetUserPostedPollsQuery = { __typename?: 'Query', getUserPostedPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, featured?: boolean | null | undefined, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
 
 export type GetUserVotedPollsQueryVariables = Exact<{
   userId: Scalars['String'];
@@ -424,14 +474,14 @@ export type GetUserVotedPollsQueryVariables = Exact<{
 }>;
 
 
-export type GetUserVotedPollsQuery = { __typename?: 'Query', getUserVotedPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
+export type GetUserVotedPollsQuery = { __typename?: 'Query', getUserVotedPolls: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, featured?: boolean | null | undefined, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
 
 export type GetVisitorFeedQueryVariables = Exact<{
   languageCodes: Array<Scalars['String']> | Scalars['String'];
 }>;
 
 
-export type GetVisitorFeedQuery = { __typename?: 'Query', getVisitorFeed: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, createdAt: string, updatedAt: string, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
+export type GetVisitorFeedQuery = { __typename?: 'Query', getVisitorFeed: Array<{ __typename: 'FeedItem', id: string, item?: { __typename: 'Poll', id: string, text: string, numOfVotes: number, featured?: boolean | null | undefined, sensitive: boolean, posterId?: string | null | undefined, numOfChoices: number, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string, numOfOptions?: number | null | undefined, poster?: { __typename: 'User', id: string, displayName?: string | null | undefined, private: boolean } | null | undefined, topOptions?: Array<{ __typename: 'Option', id: string, text: string, numOfVotes: number, pollId: string, languageCode: string, mediaTypeCode?: string | null | undefined, mediaURL?: string | null | undefined, createdAt: string, updatedAt: string }> | null | undefined, topics: Array<{ __typename: 'PollTopic', pollId: string, topicId: string }> } | null | undefined }> };
 
 export type GetVoteHistoryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -479,6 +529,24 @@ export const CreatePollDocument = gql`
 
 export function useCreatePollMutation() {
   return Urql.useMutation<CreatePollMutation, CreatePollMutationVariables>(CreatePollDocument);
+};
+export const DeletePollDocument = gql`
+    mutation DeletePoll($id: String!) {
+  deletePoll(id: $id)
+}
+    `;
+
+export function useDeletePollMutation() {
+  return Urql.useMutation<DeletePollMutation, DeletePollMutationVariables>(DeletePollDocument);
+};
+export const GetS3UrLsDocument = gql`
+    mutation GetS3URLs($numOfReq: Int!) {
+  getS3URLs(numOfReq: $numOfReq)
+}
+    `;
+
+export function useGetS3UrLsMutation() {
+  return Urql.useMutation<GetS3UrLsMutation, GetS3UrLsMutationVariables>(GetS3UrLsDocument);
 };
 export const SendVoteReqDocument = gql`
     mutation SendVoteReq($voteReq: VoteReq!) {
@@ -547,6 +615,8 @@ export const GetAllOptionsDocument = gql`
       numOfVotes
       pollId
       languageCode
+      mediaTypeCode
+      mediaURL
       createdAt
       updatedAt
     }
@@ -605,10 +675,13 @@ export const GetHomeFeedDocument = gql`
       id
       text
       numOfVotes
+      featured
       sensitive
       posterId
       numOfChoices
       languageCode
+      mediaTypeCode
+      mediaURL
       createdAt
       updatedAt
       poster {
@@ -624,6 +697,8 @@ export const GetHomeFeedDocument = gql`
         numOfVotes
         pollId
         languageCode
+        mediaTypeCode
+        mediaURL
         createdAt
         updatedAt
       }
@@ -651,10 +726,13 @@ export const GetSimilarPollsDocument = gql`
       id
       text
       numOfVotes
+      featured
       sensitive
       posterId
       numOfChoices
       languageCode
+      mediaTypeCode
+      mediaURL
       createdAt
       updatedAt
       poster {
@@ -670,6 +748,8 @@ export const GetSimilarPollsDocument = gql`
         numOfVotes
         pollId
         languageCode
+        mediaTypeCode
+        mediaURL
         createdAt
         updatedAt
       }
@@ -693,10 +773,13 @@ export const GetSinglePollDocument = gql`
     id
     text
     numOfVotes
+    featured
     sensitive
     posterId
     numOfChoices
     languageCode
+    mediaTypeCode
+    mediaURL
     createdAt
     updatedAt
     poster {
@@ -712,6 +795,8 @@ export const GetSinglePollDocument = gql`
       numOfVotes
       pollId
       languageCode
+      mediaTypeCode
+      mediaURL
       createdAt
       updatedAt
     }
@@ -738,10 +823,13 @@ export const GetTopicNewPollsDocument = gql`
       id
       text
       numOfVotes
+      featured
       sensitive
       posterId
       numOfChoices
       languageCode
+      mediaTypeCode
+      mediaURL
       createdAt
       updatedAt
       poster {
@@ -757,6 +845,8 @@ export const GetTopicNewPollsDocument = gql`
         numOfVotes
         pollId
         languageCode
+        mediaTypeCode
+        mediaURL
         createdAt
         updatedAt
       }
@@ -784,10 +874,13 @@ export const GetTopicTopPollsDocument = gql`
       id
       text
       numOfVotes
+      featured
       sensitive
       posterId
       numOfChoices
       languageCode
+      mediaTypeCode
+      mediaURL
       createdAt
       updatedAt
       poster {
@@ -803,6 +896,8 @@ export const GetTopicTopPollsDocument = gql`
         numOfVotes
         pollId
         languageCode
+        mediaTypeCode
+        mediaURL
         createdAt
         updatedAt
       }
@@ -843,10 +938,13 @@ export const GetUserPostedPollsDocument = gql`
       id
       text
       numOfVotes
+      featured
       sensitive
       posterId
       numOfChoices
       languageCode
+      mediaTypeCode
+      mediaURL
       createdAt
       updatedAt
       poster {
@@ -862,6 +960,8 @@ export const GetUserPostedPollsDocument = gql`
         numOfVotes
         pollId
         languageCode
+        mediaTypeCode
+        mediaURL
         createdAt
         updatedAt
       }
@@ -889,10 +989,13 @@ export const GetUserVotedPollsDocument = gql`
       id
       text
       numOfVotes
+      featured
       sensitive
       posterId
       numOfChoices
       languageCode
+      mediaTypeCode
+      mediaURL
       createdAt
       updatedAt
       poster {
@@ -908,6 +1011,8 @@ export const GetUserVotedPollsDocument = gql`
         numOfVotes
         pollId
         languageCode
+        mediaTypeCode
+        mediaURL
         createdAt
         updatedAt
       }
@@ -935,10 +1040,13 @@ export const GetVisitorFeedDocument = gql`
       id
       text
       numOfVotes
+      featured
       sensitive
       posterId
       numOfChoices
       languageCode
+      mediaTypeCode
+      mediaURL
       createdAt
       updatedAt
       poster {
@@ -954,9 +1062,12 @@ export const GetVisitorFeedDocument = gql`
         numOfVotes
         pollId
         languageCode
+        mediaTypeCode
+        mediaURL
         createdAt
         updatedAt
       }
+      numOfOptions
       topics {
         __typename
         pollId

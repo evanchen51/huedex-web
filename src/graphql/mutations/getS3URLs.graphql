@@ -1,0 +1,3 @@
+mutation GetS3URLs($numOfReq: Int!) {
+	getS3URLs(numOfReq: $numOfReq)
+}

@@ -7,10 +7,13 @@ query GetVisitorFeed($languageCodes: [String!]!) {
 			id
 			text
 			numOfVotes
+			featured
 			sensitive
 			posterId
 			numOfChoices
 			languageCode
+			mediaTypeCode
+			mediaURL
 			createdAt
 			updatedAt
 			poster {
@@ -26,9 +29,12 @@ query GetVisitorFeed($languageCodes: [String!]!) {
 				numOfVotes
 				pollId
 				languageCode
+				mediaTypeCode
+				mediaURL
 				createdAt
 				updatedAt
 			}
+			numOfOptions
 			topics {
 				__typename
 				pollId

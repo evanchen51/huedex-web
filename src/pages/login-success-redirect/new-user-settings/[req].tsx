@@ -7,9 +7,9 @@ import { displayLanguage } from "../../../displayTexts"
 import {
 	useGetAllLanguagesQuery,
 	useSetUserDisplayLanguageMutation,
-	useSetUserDisplayNameMutation
+	useSetUserDisplayNameMutation,
 } from "../../../generated/graphql"
-import { urqlClientOptions } from "../../../utils/urqlClientOptions"
+import { urqlClientOptions } from "../../../utils/urqlClient"
 
 const NewUserSettings: React.FC<{}> = ({}) => {
 	const router = useRouter()

@@ -9,6 +9,8 @@ query GetAllOptions($id: String!) {
 			numOfVotes
 			pollId
 			languageCode
+			mediaTypeCode
+			mediaURL
 			createdAt
 			updatedAt
 		}

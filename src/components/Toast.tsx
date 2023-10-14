@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { SESSIONSTORAGE_KEY_TOAST_MESSAGE } from "../constants"
 
-const Toast: React.FC<{ toggle?: boolean }> = ({ toggle }) => {
+const Toast: React.FC<{ toggle?: boolean }> = ({ children, toggle }) => {
 	const [message, setMessage] = useState<null | string>(null)
 	useEffect(() => {
 		if (toggle) {
@@ -14,7 +14,12 @@ const Toast: React.FC<{ toggle?: boolean }> = ({ toggle }) => {
 		if (message) setTimeout(() => setMessage(null), 3000)
 	}, [message])
 
-	return <>{message && message}</>
+	return (
+		<>
+			{children}
+			{message && message}
+		</>
+	)
 }
 
 Toast.defaultProps = { toggle: true }

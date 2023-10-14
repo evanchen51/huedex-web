@@ -4,9 +4,11 @@ import { LOCALSTORAGE_KEY_PATH_ORIGIN } from "../constants"
 
 export const LoginPrompt: React.FC<{
 	message: string
-	state: string | boolean
-	toggle: React.Dispatch<React.SetStateAction<boolean | string>>
-}> = ({ message, state, toggle }) => {
+	control: {
+		state: string | boolean
+		toggle: React.Dispatch<React.SetStateAction<boolean | string>>
+	}
+}> = ({ message, control: { state, toggle } }) => {
 	const router = useRouter()
 	useEffect(() => console.log(state), [state])
 	return (
@@ -48,21 +50,7 @@ export const LoginPrompt: React.FC<{
 						</svg>
 					</button>
 					<div className="mb-6 flex w-full flex-row items-start justify-center self-center">
-						{/* <svg
-							className="h-7 fill-accent "
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 448 512"
-						>
-							<path d="M448 296c0 66.3-53.7 120-120 120h-8c-17.7 0-32-14.3-32-32s14.3-32 32-32h8c30.9 0 56-25.1 56-56v-8H320c-35.3 0-64-28.7-64-64V160c0-35.3 28.7-64 64-64h64c35.3 0 64 28.7 64 64v32 32 72zm-256 0c0 66.3-53.7 120-120 120H64c-17.7 0-32-14.3-32-32s14.3-32 32-32h8c30.9 0 56-25.1 56-56v-8H64c-35.3 0-64-28.7-64-64V160c0-35.3 28.7-64 64-64h64c35.3 0 64 28.7 64 64v32 32 72z" />
-						</svg> */}
 						<div className="px-4 font-bold tracking-wider text-background">{message}</div>
-						{/* <svg
-							className="h-7 fill-accent"
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 448 512"
-						>
-							<path d="M448 296c0 66.3-53.7 120-120 120h-8c-17.7 0-32-14.3-32-32s14.3-32 32-32h8c30.9 0 56-25.1 56-56v-8H320c-35.3 0-64-28.7-64-64V160c0-35.3 28.7-64 64-64h64c35.3 0 64 28.7 64 64v32 32 72zm-256 0c0 66.3-53.7 120-120 120H64c-17.7 0-32-14.3-32-32s14.3-32 32-32h8c30.9 0 56-25.1 56-56v-8H64c-35.3 0-64-28.7-64-64V160c0-35.3 28.7-64 64-64h64c35.3 0 64 28.7 64 64v32 32 72z" />
-						</svg> */}
 					</div>
 					<div className="flex flex-col items-center">
 						<button
@@ -73,7 +61,7 @@ export const LoginPrompt: React.FC<{
 									{
 										localStorage.setItem(
 											LOCALSTORAGE_KEY_PATH_ORIGIN,
-											typeof state === "string" ? `/poll/${state}` : router.pathname
+											typeof state === "string" && router.asPath === "/" ? `/poll/${state}` : router.asPath
 										)
 										location.href = "http://localhost:4000/auth/google"
 									}

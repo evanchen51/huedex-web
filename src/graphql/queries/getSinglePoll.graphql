@@ -4,10 +4,13 @@ query GetSinglePoll($id: String!) {
 		id
 		text
 		numOfVotes
+		featured
 		sensitive
 		posterId
 		numOfChoices
 		languageCode
+		mediaTypeCode
+		mediaURL
 		createdAt
 		updatedAt
 		poster {
@@ -23,6 +26,8 @@ query GetSinglePoll($id: String!) {
 			numOfVotes
 			pollId
 			languageCode
+			mediaTypeCode
+			mediaURL
 			createdAt
 			updatedAt
 		}

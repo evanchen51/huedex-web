@@ -1,0 +1,3 @@
+mutation DeletePoll($id: String!) {
+	deletePoll(id: $id)
+}

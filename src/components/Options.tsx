@@ -1,376 +1,239 @@
 // import isEqual from "lodash/isEqual"
 import { withUrqlClient } from "next-urql"
-import React, { useEffect, useRef, useState } from "react"
-import {
-	Poll as PollType,
-	useGetAllOptionsQuery,
-	useGetVoteHistoryQuery,
-	useSendVoteReqMutation,
-} from "../generated/graphql"
+import Image from "next/image"
+import React from "react"
+import { IMAGE } from "../constants"
+import { Option as OptionType, Poll as PollType } from "../generated/graphql"
 import { colors } from "../utils/colors"
-import { noBrowser } from "../utils/noBrowser"
-import { urqlClientOptions } from "../utils/urqlClientOptions"
-import LoadingSpinner from "./LoadingSpinner"
+import { urqlClientOptions } from "../utils/urqlClient"
+import { useImageFullViewer } from "../utils/useImageFullViewer"
 import { useVoteHandler } from "../utils/useVoteHandler"
+import LoadingSpinner from "./LoadingSpinner"
 
 const Options: React.FC<{
 	poll: PollType
-	setParentVoteState: React.Dispatch<React.SetStateAction<boolean>>
-	setParentNumOfVotes: React.Dispatch<React.SetStateAction<number>>
-}> = ({ poll: pollInit, setParentVoteState, setParentNumOfVotes }) => {
-	// const router = useRouter()
-	// const [path, setPath] = useState(router.asPath)
-	const vote = useVoteHandler()
-	console.log(vote)
-	const [poll, setPoll] = useState(pollInit)
-	const [optionNumOfVotes, setOptionNumOfVotes] = useState<Record<string, number>>()
-	const [pollNumOfVotes, setPollNumOfVotes] = useState<number>()
-	const [{ data: historyData, fetching: historyFetching }] = useGetVoteHistoryQuery({
-		pause: noBrowser(),
-		requestPolicy: "network-only",
-	})
-	const [optionState, setOptionState] = useState<Record<string, "voted" | "unvoted">>(
-		poll.options
-			? poll.options.reduce((res, e) => (e ? { ...res, [e.id]: "unvoted" } : res), {})
-			: {}
-	)
-	const [allOptionsToggle, setAllOptionsToggle] = useState(false)
-	const [{ data: allOptions, fetching: allOptionsFetching }] = useGetAllOptionsQuery({
-		pause: !allOptionsToggle,
-		variables: { id: poll.id },
-	})
-	const [, sendVoteReq] = useSendVoteReqMutation()
-	const [startedVoting, setStartedVoting] = useState<boolean>(false)
-	const voteDebouncer: { current: NodeJS.Timeout | null } = useRef(null)
-	// useEffect(() => {
-	// 	setPath(router.asPath)
-	// }, [router, noBrowser()])
-	useEffect(() => {
-		setPoll(pollInit)
-	}, [pollInit, noBrowser()])
-	useEffect(() => {
-		setOptionNumOfVotes(poll.options?.reduce((res, e) => ({ ...res, [e.id]: e.numOfVotes }), {}))
-		setPollNumOfVotes(poll.numOfVotes)
-		setParentNumOfVotes(poll.numOfVotes)
-	}, [poll.numOfVotes, poll.options])
-	useEffect(() => {
-		// console.log([historyFetching, historyData, poll.id, startedVoting, path])
-		if (historyFetching) return
-		if (!historyData || !poll || !poll.options) return
-		const thisPoll = historyData.getVoteHistory.filter((e) => e.pollId === poll.id)
-		if (!startedVoting) {
-			setParentVoteState(true)
-			setOptionState(() => ({
-				...poll?.options?.reduce((res, e) => (e ? { ...res, [e.id]: "unvoted" } : res), {}),
-				...thisPoll.reduce(
-					(res, e) => ({
-						...res,
-						[e.optionId]: "voted",
-					}),
-					{}
-				),
-			}))
-		}
-	}, [
-		historyFetching,
-		historyData,
-		historyData?.getVoteHistory,
-		poll.id,
-		startedVoting,
-		// path,
-		noBrowser(),
-	])
-	useEffect(() => {
-		if (!allOptionsToggle || allOptionsFetching || !allOptions) return
-		setPoll((prev) => ({ ...prev, options: allOptions.getSinglePoll?.options }))
-		console.log(allOptions)
-	}, [allOptionsToggle, allOptions, allOptionsFetching])
+	allOptionsToggle: boolean
+	setAllOptionsToggle: React.Dispatch<React.SetStateAction<boolean>>
+	displayMode?: boolean
+}> = ({ poll, allOptionsToggle, setAllOptionsToggle, displayMode }) => {
+	const { voteHandler, sessionState, initState } = useVoteHandler()
+	const { onImageFullView } = useImageFullViewer()
+	// const optionHeight = poll.options?.reduce((r:string,e) => {
+	// 	if (e.text.length > 60) return ""
+	// 	return ""
+	// },"72px")
+
 	return (
 		<div className="flex flex-col">
 			<div
-				className="flex w-max cursor-default flex-row bg-background pt-5 pb-5 pr-8"
+				className="flex w-max cursor-default flex-row bg-background pt-5 pb-5 pl-1 pr-3"
 				onClick={(e) => {
 					e.preventDefault()
 					e.stopPropagation()
 					e.nativeEvent.stopImmediatePropagation()
 				}}
 			>
-				{/* {[0, 1].map((col) => (
-				<div className="flex flex-col px-0 pt-0 pb-0" key={poll.id + "col" + col}> */}
 				{poll.options
 					?.sort((a, b) => b.numOfVotes - a.numOfVotes)
-					.map((option, i, a) => (
-						// i % 2 === col &&
-						<div
-							key={option.id}
-							className="mr-5 h-max w-52 border-r border-[#EEEEEE] pr-5"
-							style={{
-								borderRightWidth:
-									i === a.length - 1 &&
-									poll.numOfOptions &&
-									poll.options?.length &&
-									poll.numOfOptions <= poll.options?.length
-										? "0px"
-										: "1px",
-							}}
-						>
-							<div className="mx-2.5 text-sm text-foreground">{option.text}</div>
-							<div className="relative mt-5">
-								<div
-									className="relative overflow-hidden rounded-md border-[rgba(0,0,0,0.3)] px-[3px] pb-[3.5px] pt-[2.5px] duration-[200ms] ease-in-out"
-									style={{
-										backgroundColor:
-											optionState?.[option.id] === "voted" ? colors["accent"] : "",
-										boxShadow:
-											optionState?.[option.id] === "voted"
-												? `0px 0px 8px ${colors["accent"]}80, 0px 0px 3px 1px ${colors["accent"]}B0`
-												: "inset 0px 1px 2.5px 1px rgba(0,0,0,0.15)",
-										// borderWidth:
-										// 	optionState?.[option.id] === "voted" ? "" : "0.5px",
-									}}
-								>
+					.reduce((r, e) => {
+						const voted = initState[e.id] || false
+						return !voted ? [...r, e] : [e, ...r]
+					}, [] as OptionType[])
+					.map((option) => {
+						const voted = sessionState[poll.id]?.options[option.id]?.state === "voted"
+						const numOfVotes = sessionState[poll.id]?.options[option.id]?.numOfVotes
+						return (
+							<div key={option.id} className="mr-2 flex h-max w-max flex-row items-center">
+								<div className="mr-2 flex w-[176px] flex-col rounded-b-[48px] rounded-t-[48px] border border-secondary border-opacity-50 px-4 pt-5 pb-2">
 									<div
-										className="duration-[50ms] ease-in-out"
+										className={
+											"relative z-20 flex w-full cursor-pointer flex-col rounded-full bg-background px-5 py-4 font-normal text-foreground transition"
+										}
 										style={{
-											transform:
-												optionState?.[option.id] === "voted"
-													? "translateY(1px)"
-													: "translateY(0px)",
+											boxShadow: voted
+												? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
+												: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)",
+										}}
+										onClick={async (e) => {
+											if (displayMode) return
+											e.preventDefault()
+											e.stopPropagation()
+											e.nativeEvent.stopImmediatePropagation()
+											voteHandler(poll.id, option.id)
 										}}
 										onMouseEnter={(e) => {
-											e.currentTarget.style.transform =
-												optionState?.[option.id] === "voted"
-													? "translateY(2px)"
-													: "translateY(1px)"
-										}}
-										onMouseLeave={(e) => {
-											e.currentTarget.style.transform =
-												optionState?.[option.id] === "voted"
-													? "translateY(1px)"
-													: "translateY(0px)"
+											e.currentTarget.style.boxShadow = voted
+												? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(212, 212, 212), inset 2px 2px 8px 2px rgb(212, 212, 212)"
+												: "-6px -6px 8px 2px rgb(252, 252, 252), inset 4px 4px 6px 0px rgb(252, 252, 252), 6px 6px 8px 2px rgb(233, 233, 233), inset -2px -2px 6px 0px rgb(233, 233, 233)"
+											e.currentTarget.style.transform = "scale(0.98)"
 										}}
 										onMouseDown={(e) => {
-											e.currentTarget.style.transform = "translateY(4px)"
+											if (displayMode) return
+											e.currentTarget.style.boxShadow =
+												"6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(200, 200, 200), inset 2px 2px 6px 0px rgb(200, 200, 200)"
+											e.currentTarget.style.transform = "scale(0.96)"
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.boxShadow = voted
+												? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
+												: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
+											e.currentTarget.style.transform = "scale(1)"
 										}}
 										onMouseUp={(e) => {
-											e.currentTarget.style.transform =
-												optionState?.[option.id] === "voted"
-													? "translateY(0px)"
-													: "translateY(1px)"
-											setParentVoteState(
-												optionState?.[option.id] === "voted" ? false : true
-											)
+											if (displayMode) return
+											e.currentTarget.style.boxShadow = voted
+												? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
+												: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
+											e.currentTarget.style.transform = "scale(1)"
 										}}
 									>
-										<div className="overflow-hidden rounded">
+										<div className="mx-2">
+											<div className="mt-0 flex w-full flex-row items-center justify-between text-xs tracking-wider">
+												{console.log(option.text, "numOfVotes", numOfVotes)}
+												{typeof numOfVotes === "number" ? (
+													<span>{`${((x: number) =>
+														Number.isInteger(x) ? x.toFixed(0) : x)(
+														parseFloat(
+															(
+																((typeof numOfVotes === "number"
+																	? numOfVotes
+																	: option.numOfVotes) === 0
+																	? 0
+																	: (typeof numOfVotes === "number"
+																			? numOfVotes
+																			: option.numOfVotes) /
+																	  (typeof sessionState[poll.id]?.numOfVotes ===
+																	  "number"
+																			? sessionState[poll.id]?.numOfVotes || 0
+																			: poll?.numOfVotes || 0)) * 100
+															).toFixed(1)
+														)
+													)} %`}</span>
+												) : (
+													<span>{`0 %`}</span>
+												)}
+												<span>
+													{`(${
+														typeof numOfVotes === "number"
+															? numOfVotes
+															: option.numOfVotes
+													} vote${numOfVotes && numOfVotes === 1 ? "" : "s"})`}
+												</span>
+											</div>
 											<div
 												className={
-													"relative z-20 flex cursor-pointer flex-col bg-background py-1 font-normal text-foreground"
+													"mb-1 mt-2 h-1 origin-left rounded-full duration-[200ms] ease-in-out"
 												}
-												onClick={async (e) => {
-													e.preventDefault()
-													e.stopPropagation()
-													e.nativeEvent.stopImmediatePropagation()
-													if (!startedVoting) setStartedVoting(true)
-													let state: Record<string, "voted" | "unvoted">
-													if (
-														poll.numOfChoices === 1 &&
-														optionState &&
-														(!optionState[option.id] ||
-															optionState[option.id] === "unvoted") &&
-														Object.entries(optionState).find((e) => e[1] === "voted")
-													) {
-														setOptionState((prev) => {
-															setOptionNumOfVotes((prev) =>
-																prev
-																	? {
-																			...prev,
-																			[option.id]: prev[option.id] + 1,
-																	  }
-																	: { [option.id]: 1 }
-															)
-															if (!prev) return { [option.id]: "voted" }
-															const voted = Object.entries(prev).find(
-																(e) => e[1] === "voted"
-															)
-															if (!voted) return { [option.id]: "voted" }
-															setOptionNumOfVotes((prev) => ({
-																...prev,
-																[voted[0]]: prev![voted[0]] - 1,
-															}))
-															state = {
-																...prev,
-																[option.id]: "voted",
-																[voted[0]]: "unvoted",
-															}
-															return state
-														})
-													} else {
-														setOptionState((prev) => {
-															if (prev && prev[option.id] === "voted") {
-																setOptionNumOfVotes((prev) =>
-																	prev
-																		? {
-																				...prev,
-																				[option.id]: prev[option.id] - 1,
-																		  }
-																		: { [option.id]: 0 }
-																)
-																setPollNumOfVotes((prev) => (prev ? prev - 1 : 0))
-																setParentNumOfVotes((prev) => (prev ? prev - 1 : 0))
-															} else {
-																setOptionNumOfVotes((prev) =>
-																	prev
-																		? {
-																				...prev,
-																				[option.id]: prev[option.id] + 1,
-																		  }
-																		: { [option.id]: 1 }
-																)
-																setPollNumOfVotes((prev) => (prev ? prev + 1 : 1))
-																setParentNumOfVotes((prev) => (prev ? prev + 1 : 1))
-															}
-															state = {
-																...prev,
-																[option.id]:
-																	prev && prev[option.id] === "voted"
-																		? "unvoted"
-																		: "voted",
-															}
-															return state
-														})
-													}
-													if (voteDebouncer.current)
-														clearTimeout(voteDebouncer.current)
-													const req = (state: Record<string, "voted" | "unvoted">) => {
-														sendVoteReq({
-															voteReq: {
-																pollId: poll.id,
-																numOfChoices: poll.numOfChoices,
-																voteState: Object.entries(state).map((e) => ({
-																	optionId: e[0],
-																	state: e[1],
-																})),
-															},
-														})
-														voteDebouncer.current = null
-													}
-													const unloadReq = () => {
-														if (voteDebouncer.current) req(state)
-													}
-													voteDebouncer.current = setTimeout(() => {
-														req(state)
-														window.removeEventListener("beforeunload", unloadReq)
-													}, 1000)
-													window.addEventListener("beforeunload", unloadReq)
-												}}
-											>
-												<div className="mx-2.5 mt-0.5 flex flex-row items-center justify-between text-xs tracking-wider">
-													{optionNumOfVotes && optionNumOfVotes[option.id] ? (
-														<span>{`${((x: number) =>
-															Number.isInteger(x) ? x.toFixed(0) : x)(
-															parseFloat(
-																(
-																	(optionNumOfVotes[option.id] /
-																		(pollNumOfVotes || 0)) *
-																	100
-																).toFixed(1)
-															)
-														)} %`}</span>
-													) : (
-														<span>{`0 %`}</span>
-													)}
-													<span>
-														{`(${
-															optionNumOfVotes && optionNumOfVotes[option.id]
-														} vote${
-															optionNumOfVotes && optionNumOfVotes[option.id] === 1
-																? ""
-																: "s"
-														})`}
-													</span>
-												</div>
-												<div
-													className={
-														"mx-2.5 mb-1 mt-1.5 h-1 w-[calc(100%-20px)] origin-left rounded-sm duration-[200ms] ease-in-out"
-													}
-													style={{
-														transform: `scaleX(${
-															optionNumOfVotes && optionNumOfVotes[option.id]
-																? optionNumOfVotes[option.id] /
-																  (pollNumOfVotes || 0)
-																: 0
-														})`,
-														backgroundColor:
-															optionState?.[option.id] === "voted"
-																? colors["accent"]
-																: colors["secondary"],
-													}}
-												/>
-											</div>
-										</div>
-										<div
-											className={
-												"absolute top-[-0.5px] left-[-0.5px] z-10 h-[calc(100%+4px)] w-[calc(100%+1px)] rounded-[0%_0%_2%_2%_/_0%_0%_10%_10%] rounded-t-[4px] border-[0.3px] bg-[#E9E9E9]"
-											}
-											style={{
-												boxShadow:
-													optionState?.[option.id] === "voted"
-														? "inset 0px 0px 3px 2px rgba(180,30,80,1)"
-														: "inset 0px 0px 2px 1px rgba(0,0,0,0.1)",
-												borderColor:
-													optionState?.[option.id] === "voted"
-														? "rgba(200,40,80,1)"
+												style={{
+													width: `calc(${
+														((typeof numOfVotes === "number"
+															? numOfVotes
+															: option.numOfVotes) === 0
+															? 0
+															: (typeof numOfVotes === "number"
+																	? numOfVotes
+																	: option.numOfVotes) /
+															  (typeof sessionState[poll.id]?.numOfVotes ===
+															  "number"
+																	? sessionState[poll.id]?.numOfVotes || 0
+																	: poll?.numOfVotes || 0)) * 100
+													}%)`,
+													backgroundColor: voted
+														? colors["foreground"]
 														: colors["secondary"],
-											}}
-										/>
+												}}
+											/>
+											{console.log(
+												option.text,
+												"meter",
+												((typeof numOfVotes === "number"
+													? numOfVotes
+													: option.numOfVotes) === 0
+													? 0
+													: (typeof numOfVotes === "number"
+															? numOfVotes
+															: option.numOfVotes) /
+													  (typeof sessionState[poll.id]?.numOfVotes === "number"
+															? sessionState[poll.id]?.numOfVotes || 0
+															: poll?.numOfVotes || 0)) * 100
+											)}
+										</div>
 									</div>
-								</div>
-								<div
-									className="pointer-events-none absolute top-[0px] left-[0px] z-30 h-[calc(100%)] w-[calc(100%)] rounded-md"
-									style={{
-										boxShadow:
-											optionState?.[option.id] === "voted"
-												? `inset 0px 2px 10px 1px ${colors["accent"]}80`
-												: "",
-									}}
-								/>
-							</div>
-						</div>
-					))}
-				{/* </div>
-			))} */}
-				{poll.numOfOptions &&
-					poll.options?.length &&
-					poll.numOfOptions > poll.options?.length && (
-						<div
-							className="flex cursor-pointer flex-row items-center self-center text-xs tracking-wider text-secondary"
-							onClick={() => {
-								setAllOptionsToggle(true)
-								// e.currentTarget.style.visibility = "hidden"
-							}}
-						>
-							{allOptionsToggle ? (
-								<LoadingSpinner />
-							) : (
-								<div className="flex flex-row items-center">
-									<div>
-										See All<p>Options</p>
-									</div>
-									<svg
-										className="ml-2 h-4 fill-secondary"
-										xmlns="http://www.w3.org/2000/svg"
-										viewBox="0 0 448 512"
+									{option.mediaTypeCode &&
+										option.mediaTypeCode === IMAGE &&
+										option.mediaURL && (
+											<div className="item-center mt-6 flex w-full justify-center">
+												<div
+													className="relative h-[156px] w-[156px] cursor-pointer overflow-hidden rounded-xl"
+													onClick={() => {
+														if (option.mediaURL) onImageFullView(option.mediaURL)
+													}}
+												>
+													{/* <div className="relative h-52 w-52 overflow-hidden rounded-xl sm:h-[216px] sm:w-[216px]"> */}
+													<Image
+														src={option.mediaURL}
+														alt={""}
+														fill={true}
+														className="object-cover	"
+													/>
+												</div>
+											</div>
+										)}
+									<div
+										className="mx-3.5 mt-7 mb-5 flex max-w-full items-center justify-center text-sm text-foreground"
+										style={{
+											// height:
+											// 	a.find((e) => e.mediaTypeCode && e.mediaTypeCode === IMAGE) &&
+											// 	!option.mediaURL
+											// 		? "156px"
+											// 		: "100%",
+										}}
 									>
-										<path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" />
-									</svg>
+										{option.text}
+									</div>
 								</div>
-							)}
-						</div>
-					)}
+								{/* {(i === a.length - 1 ||
+									(poll.numOfOptions &&
+										poll.options?.length &&
+										poll.numOfOptions > poll.options?.length)) && (
+									<div className="h-24 w-[0.5px] bg-secondary" />
+									)} */}
+							</div>
+						)
+					})}
+				{poll.numOfOptions && poll.options && poll.numOfOptions > poll.options?.length && (
+					<div
+						className="mt-2 flex w-[168px] cursor-pointer flex-row pl-3 text-sm tracking-wider text-foreground"
+						onClick={() => {
+							setAllOptionsToggle(true)
+							// e.currentTarget.style.visibility = "hidden"
+						}}
+					>
+						{allOptionsToggle ? (
+							<LoadingSpinner />
+						) : (
+							<div className="ml-1 flex flex-row pr-9">
+								<div className="">
+									See All ({poll.numOfOptions})
+									<p className="mt-1 flex flex-row border-b-[0.5px] border-secondary pb-2.5">
+										Options
+										<svg
+											className="ml-1.5 mt-[5px] h-3 fill-foreground"
+											xmlns="http://www.w3.org/2000/svg"
+											viewBox="0 0 448 512"
+										>
+											<path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" />
+										</svg>
+									</p>
+								</div>
+							</div>
+						)}
+					</div>
+				)}
 			</div>
 		</div>
 	)
 }
 
+// export default Options
 export default withUrqlClient(urqlClientOptions, { ssr: true })(Options)

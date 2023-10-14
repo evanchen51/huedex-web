@@ -3,7 +3,7 @@ import { useRouter } from "next/router"
 import React from "react"
 import { useCreatePollCheckQuery } from "../generated/graphql"
 import { noBrowser } from "../utils/noBrowser"
-import { urqlClientOptions } from "../utils/urqlClientOptions"
+import { urqlClientOptions } from "../utils/urqlClient"
 import LoadingScreen from "../components/LoadingScreen"
 
 const CreatePollCheck: React.FC<{}> = ({}) => {

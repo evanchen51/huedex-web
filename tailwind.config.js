@@ -2,7 +2,17 @@
 module.exports = {
 	content: ["./src/pages/**/*.{js,ts,jsx,tsx}", "./src/components/**/*.{js,ts,jsx,tsx}"],
 	theme: {
-		extend: {},
+		extend: {
+			colors: {
+				// foreground: "#FCFCFC",
+				// background: "#333333",
+				foreground: "#222222",
+				background: "#F7F7F7",
+				secondary: "#BBBBBB",
+				accent: "#FF5E85",
+				negative: "#ef4444",
+			},
+		},
 		// screens: {
 		// 	xl: { max: "1279px" },
 		// 	// => @media (max-width: 1279px) { ... }
@@ -16,17 +26,9 @@ module.exports = {
 		// 	sm: { max: "639px" },
 		// 	// => @media (max-width: 639px) { ... }
 		// },
-		colors: {
-			// foreground: "#FCFCFC",
-			// background: "#333333",
-			foreground: "#222222",
-			background: "#FCFCFC",
-			secondary: "#BBBBBB",
-			accent: "#FF5E85",
-		},
 		fontFamily: {
 			// sans: ["Avenir Next", "sans-serif"],
-			sans: ["Helvetica", "sans-serif"],
+			sans: ["Asap", "sans-serif"],
 		},
 	},
 	plugins: [],

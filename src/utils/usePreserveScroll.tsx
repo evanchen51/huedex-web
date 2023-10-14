@@ -34,7 +34,7 @@ export const usePreserveScroll = () => {
 					})
 					setTimeout(() => {
 						clearInterval(scroll)
-					}, 300)
+					}, 500)
 				}, 10)
 			}
 

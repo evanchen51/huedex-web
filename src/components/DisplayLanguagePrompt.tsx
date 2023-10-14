@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react"
 import { LOCALSTORAGE_KEY_FALLBACK_LANGUAGE } from "../constants"
-import { displayLanguage } from "../displayTexts"
+import { d, displayLanguage } from "../displayTexts"
 import { useGetAllLanguagesQuery, useSetUserDisplayLanguageMutation } from "../generated/graphql"
+import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 
 export const DisplayLanguagePrompt: React.FC<{
 	state: string | boolean
 	toggle: React.Dispatch<React.SetStateAction<boolean | string>>
 }> = ({ state, toggle }) => {
+	const L = useGetDisplayLanguage()
 	const [{ data: languagesData }] = useGetAllLanguagesQuery({})
 	const [, setUserDisplayLanguage] = useSetUserDisplayLanguageMutation()
 	const fbl = localStorage.getItem(LOCALSTORAGE_KEY_FALLBACK_LANGUAGE)
@@ -38,7 +40,7 @@ export const DisplayLanguagePrompt: React.FC<{
 						transform: !state || state === "exit" ? "translateY(160%)" : "translateY(0)",
 					}}
 				>
-					<div className="mb-2 flex w-full flex-row items-center justify-start self-center">
+					<div className="mb-3.5 flex w-full flex-row items-center justify-start self-center">
 						<button
 							className=""
 							onClick={() => {
@@ -51,15 +53,15 @@ export const DisplayLanguagePrompt: React.FC<{
 							}}
 						>
 							<svg
-								className="mr-8 h-4 fill-secondary "
+								className="mr-5 mt-[1px] h-4 fill-secondary "
 								xmlns="http://www.w3.org/2000/svg"
 								viewBox="0 0 384 512"
 							>
 								<path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
 							</svg>
 						</button>
-						<div className="mr-2 tracking-wider text-secondary opacity-60">
-							Change Display Language?
+						<div className="mr-2 tracking-wider text-secondary opacity-60 text-sm">
+							{d(L,"Change Display Language?")}
 						</div>
 						<svg
 							className="h-4 fill-secondary opacity-60"

@@ -5,7 +5,7 @@ import LoadingScreen from "../../components/LoadingScreen"
 import { LOCALSTORAGE_KEY_PATH_ORIGIN } from "../../constants"
 import { useGetCurrentUserQuery } from "../../generated/graphql"
 import { noBrowser } from "../../utils/noBrowser"
-import { urqlClientOptions } from "../../utils/urqlClientOptions"
+import { urqlClientOptions } from "../../utils/urqlClient"
 
 const LoginSuccessRedirect: React.FC<{}> = ({}) => {
 	const router = useRouter()
@@ -27,7 +27,7 @@ const LoginSuccessRedirect: React.FC<{}> = ({}) => {
 		if (url) {
 			localStorage.removeItem(LOCALSTORAGE_KEY_PATH_ORIGIN)
 			router.push(url)
-		} else router.push("/home")
+		} else router.push("/")
 	}
 	return <LoadingScreen />
 }

@@ -2,7 +2,7 @@
 import { fetchExchange } from "urql"
 // import { pipe, tap } from "wonka"
 import { devtoolsExchange } from "@urql/devtools"
-import { cacheExchange } from "@urql/exchange-graphcache"
+import { Cache, QueryInput, cacheExchange } from "@urql/exchange-graphcache"
 import { noBrowser } from "./noBrowser"
 
 // const errorExchange: Exchange =
@@ -22,6 +22,15 @@ import { noBrowser } from "./noBrowser"
 // 			})
 // 		)
 // 	}
+
+export function urqlQueryCacheUpdateFunction<Result, Query>(
+	cache: Cache,
+	queryInput: QueryInput,
+	result: any,
+	updateFunction: (r: Result, q: Query) => Query
+) {
+	return cache.updateQuery(queryInput, (data) => updateFunction(result, data as any) as any)
+}
 
 export const urqlClientOptions = (ssrExchange: any, ctx: any) => {
 	let cookie = ""
@@ -100,3 +109,5 @@ export const urqlClientOptions = (ssrExchange: any, ctx: any) => {
 		],
 	}
 }
+
+

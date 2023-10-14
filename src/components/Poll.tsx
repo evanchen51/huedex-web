@@ -1,112 +1,178 @@
 import { withUrqlClient } from "next-urql"
+import Image from "next/image"
 import Link from "next/link"
 import React, { useEffect, useState } from "react"
-import { Poll as PollType } from "../generated/graphql"
-import { urqlClientOptions } from "../utils/urqlClientOptions"
+import { IMAGE } from "../constants"
+import { d } from "../displayTexts"
+import { Poll as PollType, useGetAllOptionsQuery } from "../generated/graphql"
+import { colors } from "../utils/colors"
+import { urqlClientOptions } from "../utils/urqlClient"
+import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
+import { useVoteHandler } from "../utils/useVoteHandler"
 import Options from "./Options"
-import { OptionsForVisitors } from "./OptionsForVisitors"
 
 const Poll: React.FC<{
 	poll: PollType
-	visitor?: React.Dispatch<React.SetStateAction<boolean | string>>
-}> = ({ poll, visitor }) => {
-	const [voteState, setVoteState] = useState(false)
-	const [numOfVotes, setNumOfVotes] = useState<number>(0)
+	displayMode?: boolean
+	fullViewMode?: boolean
+}> = ({ poll, displayMode, fullViewMode }) => {
+	const L = useGetDisplayLanguage()
+	const { sessionState, sessionStateUpdater } = useVoteHandler()
+
+	const [allOptionsToggle, setAllOptionsToggle] = useState(false)
+	const [{ data: allOptionsData, fetching: allOptionsFetching }] = useGetAllOptionsQuery({
+		pause: !allOptionsToggle || displayMode,
+		variables: { id: poll.id },
+	})
+
 	useEffect(() => {
-		console.log(voteState)
-	}, [voteState])
+		// if (displayMode) return
+		sessionStateUpdater(poll)
+	}, [])
+
 	useEffect(() => {
-		setNumOfVotes(poll.numOfVotes)
-	}, [poll.numOfVotes])
+		if (!allOptionsToggle) return
+		if (allOptionsFetching) return
+		if (!allOptionsData) return
+		sessionStateUpdater({ ...poll, options: allOptionsData.getSinglePoll?.options })
+	}, [allOptionsToggle, allOptionsData, allOptionsFetching])
+
 	return (
-		<div className="flex flex-col">
-			{poll.topics && poll.topics.length > 0 && (
-				<div className="relative mt-6 mb-9 flex w-full flex-row items-center px-[30px]">
-					<div className="flex flex-row">
+		<div
+			className="relative flex flex-col bg-background"
+			// style={{ pointerEvents: displayMode ? "none" : "auto" }}
+		>
+			{poll.topics && poll.topics.length > 0 ? (
+				<div className="relative mt-6 mb-2 flex w-full flex-row items-center px-[30px]">
+					<div className="flex grow flex-row overflow-x-scroll pr-6">
 						{poll.topics?.map((topic) => (
 							<div
 								key={topic.topicId}
-								className="mr-2 rounded-xl bg-foreground px-3 py-1 text-xs text-background"
-								// onMouseEnter={(e) => {
-								// 	e.currentTarget.style.backgroundColor = colors["background"]
-								// 	e.currentTarget.style.color = colors["foreground"]
-								// }}
-								// onMouseLeave={(e) => {
-								// 	e.currentTarget.style.backgroundColor = colors["foreground"]
-								// 	e.currentTarget.style.color = colors["background"]
-								// }}
+								className="mr-2 flex h-9 cursor-pointer flex-row items-center rounded-full bg-foreground px-4 py-1.5 text-sm text-background"
 							>
-								<Link
-									href="/topic/[id]"
-									as={`/topic/${topic.topicId.replace(" ", "%20")}`}
-									// rel="noopener noreferrer"
-									// target="_blank"
-									// passHref
-								>
+								{displayMode ? (
 									<div className="">{topic.topicId}</div>
-								</Link>
+								) : (
+									<Link
+										href="/topic/[id]"
+										as={`/topic/${topic.topicId.replace(" ", "-")}`}
+									>
+										<div className="">{topic.topicId}</div>
+									</Link>
+								)}
 							</div>
 						))}
 					</div>
-					{/* <div
-					className="translate-y-2 text-accent ml-auto font-sm"
-					style={{
-						opacity: voteState ? "1" : "0",
-					}}
-				>
-					Voted
-				</div> */}
+					{poll.featured && (
+						<div
+							className="flex shrink-0 flex-row items-center pl-1"
+							style={{ boxShadow: `2px 0px 12px 24px ${colors["background"]}` }}
+						>
+							<div className="box-border flex h-9 flex-row items-center rounded-full border border-foreground bg-background px-4 py-1.5 text-sm text-foreground">
+								{d(L, "FEATURED")}
+							</div>
+						</div>
+					)}
 				</div>
+			) : (
+				poll.featured && (
+					<div className="relative mt-6 mb-2 flex w-full flex-row items-center px-[30px]">
+						<div
+							className="ml-auto flex shrink-0 flex-row items-center pl-1"
+							style={{ boxShadow: `2px 0px 12px 24px ${colors["background"]}` }}
+						>
+							<div className="box-border flex h-9 flex-row items-center rounded-full border border-foreground bg-background px-4 py-1.5 text-sm text-foreground">
+								{d(L, "FEATURED")}
+							</div>
+						</div>
+					</div>
+				)
 			)}
 			<div className="h-max w-full px-4 py-2">
 				<div
-					className="relative flex h-max w-full flex-col rounded-lg border-foreground px-4 py-2 duration-300"
+					className="relative flex h-max w-full flex-col rounded-lg px-4 py-2 duration-300"
 					// style={{
 					// 	border: voteState ? `1px solid ${colors["accent"]}` : "1px solid transparent",
 					// }}
 				>
-					<div className="flex grow flex-col px-6">
+					<div
+						className="flex grow flex-col rounded-[24px] pb-6"
+						// style={{
+						// 	boxShadow:
+						// 		"inset -4px -4px 6px 2px rgb(256, 256, 256), inset 4px 4px 6px 2px rgb(216, 216, 216)",
+						// }}
+					>
+						{poll.mediaTypeCode && poll.mediaTypeCode === IMAGE && poll.mediaURL && (
+							<div className="item-center mb-6 flex w-full justify-center">
+								<div className="relative h-[200px] w-full overflow-hidden rounded-xl sm:h-[400px] sm:w-full">
+									<Image
+										src={poll.mediaURL}
+										alt={""}
+										fill={true}
+										className="object-cover	"
+										// onClick={(e) => {
+										// 	e.preventDefault()
+										// 	e.stopPropagation()
+										// 	e.nativeEvent.stopImmediatePropagation()
+										// 	setImageFullViewImage({
+										// 		src: e.currentTarget.src,
+										// 		width: e.currentTarget.naturalWidth,
+										// 		height: e.currentTarget.naturalHeight,
+										// 	})
+										// 	setImageFullViewToggle(true)
+										// }}
+									/>
+								</div>
+							</div>
+						)}
+
 						<div
-							className="text-md h-full grow font-medium text-foreground"
+							className="h-full grow font-medium text-foreground"
 							// style={{ fontSize: pollTextFontSize(poll.text) }}
+							style={{
+								fontSize: fullViewMode && poll.text.length < 50 ? "48px" : "16px",
+								marginTop: fullViewMode && poll.text.length < 50 ? "36px" : "0px",
+								marginBottom: fullViewMode && poll.text.length < 50 ? "48px" : "0px",
+							}}
 						>
 							{poll.text}
 						</div>
-						<div className="mt-4 flex flex-row justify-between text-xs text-secondary">
+
+						<div className="mt-4 flex flex-col justify-between text-xs text-secondary sm:flex-row">
 							<div>
 								<span className="tracking-wider">posted&nbsp;</span>
 								{poll.posterId ? (
 									<span>
 										<span className="tracking-wider">by&nbsp;</span>
-										<Link
-											href="/user/[id]"
-											as={`/user/${poll.posterId}`}
-											// rel="noopener noreferrer"
-											// target="_blank"
-											// passHref
-										>
-											<span
-												className="text-foreground"
-												// className="px-2 ml-[-4px] py-0.5 rounded-xl"
-												// onMouseEnter={(e) => {
-												// 	e.currentTarget.style.backgroundColor =
-												// 		colors["foreground"]
-												// 	e.currentTarget.style.color = colors["background"]
-												// }}
-												// onMouseLeave={(e) => {
-												// 	e.currentTarget.style.backgroundColor = ""
-												// 	e.currentTarget.style.color = colors["secondary"]
-												// }}
-											>
+										{displayMode ? (
+											<span className="cursor-pointer text-foreground">
 												{poll.poster?.displayName}
 											</span>
-										</Link>
+										) : (
+											<Link href="/user/[id]" as={`/user/${poll.posterId}`}>
+												<span
+													className="text-foreground"
+													// className="px-2 ml-[-4px] py-0.5 rounded-xl"
+													// onMouseEnter={(e) => {
+													// 	e.currentTarget.style.backgroundColor =
+													// 		colors["foreground"]
+													// 	e.currentTarget.style.color = colors["background"]
+													// }}
+													// onMouseLeave={(e) => {
+													// 	e.currentTarget.style.backgroundColor = ""
+													// 	e.currentTarget.style.color = colors["secondary"]
+													// }}
+												>
+													{poll.poster?.displayName}
+												</span>
+											</Link>
+										)}
 									</span>
 								) : (
 									<span className="tracking-wider">anonymously</span>
 								)}
 							</div>
-							<div className="tracking-wider">
+							<div className="mt-0.5 tracking-wider sm:mt-0">
 								on&nbsp;
 								{((date) =>
 									`${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`)(
@@ -114,39 +180,64 @@ const Poll: React.FC<{
 								)}
 							</div>
 						</div>
+
+						{console.log(poll)}
 					</div>
-					<div className="ml-1 mt-12 text-sm tracking-wider text-secondary">
-						{numOfVotes} vote{numOfVotes === 1 ? "" : "s"}
+					<div className="mb-5 h-[1px] w-full bg-secondary opacity-50" />
+					<div className="flex w-full flex-row justify-between">
+						<div className="ml-1 text-sm tracking-wider text-secondary">
+							{typeof sessionState[poll.id]?.numOfVotes === "number"
+								? sessionState[poll.id]?.numOfVotes
+								: poll.numOfVotes}{" "}
+							vote
+							{typeof sessionState[poll.id]?.numOfVotes === "number" &&
+							sessionState[poll.id].numOfVotes === 1
+								? ""
+								: "s"}
+						</div>
+						<div className="mr-1 text-sm tracking-wider text-secondary">
+							{poll.numOfOptions} options
+						</div>
 					</div>
-					<div className="pointer-events-none h-max w-full shrink-0 overflow-x-scroll pt-0 pb-4 opacity-0">
-						{visitor ? (
-							<OptionsForVisitors poll={poll} toggle={visitor} />
-						) : (
-							<Options
-								poll={poll}
-								setParentVoteState={setVoteState}
-								setParentNumOfVotes={setNumOfVotes}
-							/>
-						)}
+					<div className="pointer-events-none h-max w-full shrink-0 overflow-x-scroll pt-2 pb-4 opacity-0">
+						<Options
+							poll={
+								!allOptionsToggle || allOptionsFetching
+									? poll
+									: { ...poll, options: allOptionsData?.getSinglePoll?.options }
+							}
+							allOptionsToggle={allOptionsToggle}
+							setAllOptionsToggle={setAllOptionsToggle}
+						/>
 					</div>
-					<div className="absolute bottom-[8px] left-[calc(-16px-50vw)] flex h-max w-[150vw] shrink-0 flex-row overflow-x-scroll px-8 pt-0 pb-4">
+					<div className="absolute bottom-[8px] left-[calc(-20px-50vw)] flex h-max w-[160vw] shrink-0 flex-row overflow-x-scroll pl-8 pt-2 pb-4 ">
 						<div className="h-1 w-[50vw] shrink-0" />
-						{visitor ? (
-							<OptionsForVisitors poll={poll} toggle={visitor} />
-						) : (
-							<Options
-								poll={poll}
-								setParentVoteState={setVoteState}
-								setParentNumOfVotes={setNumOfVotes}
-							/>
-						)}
-						<div className="h-1 w-[50vw] shrink-0" />
+						<Options
+							poll={
+								!allOptionsToggle || allOptionsFetching
+									? poll
+									: { ...poll, options: allOptionsData?.getSinglePoll?.options }
+							}
+							allOptionsToggle={allOptionsToggle}
+							setAllOptionsToggle={setAllOptionsToggle}
+							displayMode={displayMode}
+						/>
+						<div className="h-1 w-[10vw] shrink-0 sm:w-[70vw]" />
 					</div>
 				</div>
 			</div>
-			<div className="mt-9 h-[0.5px] w-[80%] max-w-[80vw] self-center bg-secondary" />
+			{!fullViewMode && (
+				<div
+					className="mx-auto mt-6 mb-0 h-[1px] w-[80%] opacity-20 "
+					style={{
+						backgroundImage: `url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' stroke='%23333' stroke-width='2' stroke-dasharray='24%2c56' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e")`,
+					}}
+				/>
+			)}
+			{/* <div className="mt-10 h-[0.5px] w-[80%] max-w-[80vw] self-center bg-secondary" /> */}
 		</div>
 	)
 }
 
+// export default Poll
 export default withUrqlClient(urqlClientOptions, { ssr: true })(Poll)
