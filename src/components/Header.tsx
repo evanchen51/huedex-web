@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { LOCALSTORAGE_KEY_PATH_ORIGIN } from "../constants"
 import { d } from "../displayTexts"
 import { useGetCurrentUserQuery } from "../generated/graphql"
-import { colors } from "../utils/colors"
+import { HextoHSL, colors } from "../utils/colors"
 import { noBrowser } from "../utils/noBrowser"
 import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 
@@ -117,10 +117,17 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 				{!noBrowser() && !userFetching && !userData?.getCurrentUser && (
 					<>
 						<button
-							className="mb-1 flex w-fit flex-row items-center justify-center self-center rounded-full border-[0.5px] border-foreground px-5 py-3.5"
+							className="mb-1 flex w-fit cursor-pointer flex-row items-center justify-center self-center rounded-full border-[0.5px] border-foreground bg-background px-5 py-3.5"
 							onClick={() => {
 								localStorage.setItem(LOCALSTORAGE_KEY_PATH_ORIGIN, router.asPath)
-								location.href = "http://localhost:4000/auth/google"
+								location.href = process.env.NEXT_PUBLIC_API_URL + "/auth/google"
+							}}
+							onMouseEnter={(e) => {
+								const { h, s, l } = HextoHSL(colors["background"])
+								e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 1}%)`
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.backgroundColor = colors["background"]
 							}}
 						>
 							<svg
@@ -208,10 +215,17 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 						{!noBrowser() && !userFetching && !userData?.getCurrentUser && (
 							<>
 								<button
-									className="mb-1 mr-auto flex w-fit flex-row items-center justify-center self-center rounded-full border-[0.5px] border-background px-5 py-3.5"
+									className="mb-1 mr-auto flex w-fit cursor-pointer flex-row items-center justify-center self-center rounded-full border-[0.5px] border-background bg-foreground px-5 py-3.5"
 									onClick={() => {
 										localStorage.setItem(LOCALSTORAGE_KEY_PATH_ORIGIN, router.asPath)
-										location.href = "http://localhost:4000/auth/google"
+										location.href = process.env.NEXT_PUBLIC_API_URL + "/auth/google"
+									}}
+									onMouseEnter={(e) => {
+										const { h, s, l } = HextoHSL(colors["foreground"])
+										e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l + 8}%)`
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.backgroundColor = colors["foreground"]
 									}}
 								>
 									<svg
