@@ -1,4 +1,3 @@
-import { withUrqlClient } from "next-urql"
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import Header from "../components/Header"
@@ -11,6 +10,7 @@ import { convertBrowserLanguage } from "../utils/convertBrowserLanguage"
 import { noBrowser } from "../utils/noBrowser"
 import { urqlClientOptions } from "../utils/urqlClient"
 import { useVoteHandler } from "../utils/useVoteHandler"
+import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
 
 const Visitor: React.FC<{}> = ({}) => {
 	const router = useRouter()
@@ -60,4 +60,4 @@ const Visitor: React.FC<{}> = ({}) => {
 	)
 }
 
-export default withUrqlClient(urqlClientOptions, { ssr: true })(Visitor)
+export default withUrqlClientForComponent(urqlClientOptions, { ssr: true })(Visitor)

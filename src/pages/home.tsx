@@ -1,4 +1,3 @@
-import { withUrqlClient } from "next-urql"
 import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { DisplayLanguagePrompt } from "../components/DisplayLanguagePrompt"
@@ -10,6 +9,7 @@ import { noBrowser } from "../utils/noBrowser"
 import { urqlClientOptions } from "../utils/urqlClient"
 import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 import { usePreserveScroll } from "../utils/usePreserveScroll"
+import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
 
 const Home: React.FC<{}> = ({}) => {
 	const router = useRouter()
@@ -93,4 +93,4 @@ const Home: React.FC<{}> = ({}) => {
 	)
 }
 
-export default withUrqlClient(urqlClientOptions)(Home)
+export default withUrqlClientForComponent(urqlClientOptions)(Home)
