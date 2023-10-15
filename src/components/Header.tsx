@@ -90,7 +90,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 			<div className="hidden w-[36vw] flex-row items-center justify-end font-normal sm:flex">
 				{!noBrowser() && !userFetching && userData?.getCurrentUser && (
 					<>
-						<Link href="/create-poll">
+						<Link href="/create-poll-check">
 							<div className="flex flex-row items-center">
 								<div className="flex flex-row items-end">
 									<div className="h-2 w-[2.5px] rounded-[1px] bg-foreground" />
@@ -193,7 +193,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 									</div>
 									<div className="mt-5 h-[0.5px] w-full bg-secondary opacity-30" />
 								</Link>
-								<Link href="/create-poll">
+								<Link href="/create-poll-check">
 									<div className="mt-5 mb-1 ml-1 flex flex-row items-center">
 										<div className="flex flex-row items-end">
 											<div className="h-2 w-[2.5px] rounded-[1px] bg-background" />

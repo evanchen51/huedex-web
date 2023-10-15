@@ -1,7 +1,6 @@
 import { Field, FieldArray, Form, Formik } from "formik"
 import { withUrqlClient } from "next-urql"
 import Image from "next/image"
-import Link from "next/link"
 import { useRouter } from "next/router"
 import React, { useEffect, useRef, useState } from "react"
 import Header from "../components/Header"
@@ -878,32 +877,36 @@ const CreatePoll: React.FC<{}> = ({}) => {
 								// e.nativeEvent.stopImmediatePropagation()
 							}}
 						>
-							<div className="mb-3 px-9 pt-8 pb-7 font-semibold tracking-wider text-foreground flex flex-col sm:flex-row sm:items-center">
-								<div className="bg-foreground text-background font-bold h-10 flex items-center justify-center w-10 rounded-full text-xl mr-4 mb-3 sm:mb-0">!!</div>There might already be some similar polls:
+							<div className="mb-3 flex flex-col px-9 pt-8 pb-7 font-semibold tracking-wider text-foreground sm:flex-row sm:items-center">
+								<div className="mr-4 mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-xl font-bold text-background sm:mb-0">
+									!!
+								</div>
+								There might already be some similar polls:
 							</div>
 							{similarPollsData?.getSimilarPolls.map(
 								(e) =>
 									e.item && (
 										<div className="mx-1 mt-3 sm:mx-4" key={e.id}>
-											<Link
+											{/* <Link
 												href="/poll/[id]"
 												as={`/poll/${e.id}`}
 												rel="noopener noreferrer"
 												target="_blank"
 												passHref
-											>
-												<Poll
-													poll={{ ...e.item, options: e.item.topOptions }}
-													displayMode={true}
-													fullViewMode={true}
-												/>
-											</Link>
+											> */}
+											<Poll
+												poll={{ ...e.item, options: e.item.topOptions }}
+												displayMode={true}
+												fullViewMode={true}
+												link={"new-tab"}
+											/>
+											{/* </Link> */}
 										</div>
 									)
 							)}
-							<div className="mt-9 mb-5 flex w-full flex-row justify-between self-center items-center">
+							<div className="mt-9 mb-5 flex w-full flex-row items-center justify-between self-center">
 								<button
-									className="ml-5 rounded-full bg-foreground px-6 h-12 w-36 py-3 sm:text-sm text-xs tracking-wider text-background"
+									className="ml-5 h-12 w-36 rounded-full bg-foreground px-6 py-3 text-xs tracking-wider text-background sm:text-sm"
 									onClick={() => {
 										setGetSimilarToggle(false)
 										setPreviewToggle(false)
@@ -912,7 +915,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 									Back to Edit
 								</button>
 								<button
-									className=" mr-2 sm:mr-4 px-5 py-3 sm:text-sm text-xs tracking-wider text-foreground"
+									className=" mr-2 px-5 py-3 text-xs tracking-wider text-foreground sm:mr-4 sm:text-sm"
 									onClick={() => {
 										setGetSimilarToggle(false)
 										setPreviewToggle(true)
@@ -990,7 +993,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 						</div>
 						<div className="mt-9 mb-5 flex w-full flex-row justify-between self-center">
 							<button
-								className="ml-5 h-12 rounded-full sm:w-36 w-32 bg-foreground px-6 py-3 sm:text-sm text-xs tracking-wider text-background"
+								className="ml-5 h-12 w-32 rounded-full bg-foreground px-6 py-3 text-xs tracking-wider text-background sm:w-36 sm:text-sm"
 								onClick={() => {
 									setGetSimilarToggle(false)
 									setPreviewToggle(false)
@@ -999,7 +1002,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 								Back to Edit
 							</button>
 							<button
-								className="mr-5 flex h-12 sm:w-36 w-[120px] items-center justify-center rounded-full px-6 py-3 sm:text-sm text-xs tracking-wider text-foreground border border-foreground"
+								className="mr-5 flex h-12 w-[120px] items-center justify-center rounded-full border border-foreground px-6 py-3 text-xs tracking-wider text-foreground sm:w-36 sm:text-sm"
 								onClick={async (e_1) => {
 									creating.current = true
 									const e = e_1.currentTarget

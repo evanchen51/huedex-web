@@ -1,11 +1,12 @@
 import { withUrqlClient } from "next-urql"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import { IMAGE } from "../constants"
 import { d } from "../displayTexts"
 import { Poll as PollType, useGetAllOptionsQuery } from "../generated/graphql"
-import { colors } from "../utils/colors"
+import { HextoHSL, colors } from "../utils/colors"
 import { urqlClientOptions } from "../utils/urqlClient"
 import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 import { useVoteHandler } from "../utils/useVoteHandler"
@@ -15,8 +16,10 @@ const Poll: React.FC<{
 	poll: PollType
 	displayMode?: boolean
 	fullViewMode?: boolean
-}> = ({ poll, displayMode, fullViewMode }) => {
+	link?: boolean | string
+}> = ({ poll, displayMode, fullViewMode, link }) => {
 	const L = useGetDisplayLanguage()
+	const router = useRouter()
 	const { sessionState, sessionStateUpdater } = useVoteHandler()
 
 	const [allOptionsToggle, setAllOptionsToggle] = useState(false)
@@ -39,16 +42,54 @@ const Poll: React.FC<{
 
 	return (
 		<div
-			className="relative flex flex-col bg-background"
-			// style={{ pointerEvents: displayMode ? "none" : "auto" }}
+			className="relative flex flex-col rounded-xl bg-background"
+			style={{ cursor: link ? "pointer" : "auto" }}
+			onMouseEnter={(e) => {
+				e.stopPropagation()
+				if (!link) return
+				const { h, s, l } = HextoHSL(colors["background"])
+				e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 1}%)`
+				// ; (e.currentTarget.querySelector(".hover-indicator") as HTMLElement).style.opacity = "1"
+			}}
+			onMouseLeave={(e) => {
+				e.stopPropagation()
+				e.currentTarget.style.backgroundColor = colors["background"]
+				// ;(e.currentTarget.querySelector(".hover-indicator") as HTMLElement).style.opacity = "0.5"
+			}}
+			onClick={() => {
+				if (!link) return
+				if (link === "new-tab") {
+					window.open(`/poll/${poll.id}`, "_blank")
+					return
+				}
+				router.push(`/poll/${poll.id}`)
+			}}
 		>
 			{poll.topics && poll.topics.length > 0 ? (
-				<div className="relative mt-6 mb-2 flex w-full flex-row items-center px-[30px]">
+				<div className="relative mt-6 mb-2 flex w-full cursor-auto flex-row items-center px-[30px]">
 					<div className="flex grow flex-row overflow-x-scroll pr-6">
 						{poll.topics?.map((topic) => (
 							<div
 								key={topic.topicId}
-								className="mr-2 flex h-9 cursor-pointer flex-row items-center rounded-full bg-foreground px-4 py-1.5 text-sm text-background"
+								className="mr-2 flex h-9 flex-row items-center rounded-full bg-foreground px-4 py-1.5 text-sm text-background"
+								style={{
+									cursor:
+										!displayMode || (router.query.id as string) !== topic.topicId
+											? "pointer"
+											: "auto",
+								}}
+								onMouseEnter={(e) => {
+									if (displayMode || (router.query.id as string) === topic.topicId) return
+									const { h, s, l } = HextoHSL(colors["foreground"])
+									e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l + 8}%)`
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = colors["foreground"]
+								}}
+								onClick={(e) => {
+									e.stopPropagation()
+									e.nativeEvent.stopImmediatePropagation()
+								}}
 							>
 								{displayMode ? (
 									<div className="">{topic.topicId}</div>
@@ -65,7 +106,7 @@ const Poll: React.FC<{
 					</div>
 					{poll.featured && (
 						<div
-							className="flex shrink-0 flex-row items-center pl-1"
+							className="flex shrink-0 cursor-auto flex-row items-center pl-1"
 							style={{ boxShadow: `2px 0px 12px 24px ${colors["background"]}` }}
 						>
 							<div className="box-border flex h-9 flex-row items-center rounded-full border border-foreground bg-background px-4 py-1.5 text-sm text-foreground">
@@ -76,9 +117,9 @@ const Poll: React.FC<{
 				</div>
 			) : (
 				poll.featured && (
-					<div className="relative mt-6 mb-2 flex w-full flex-row items-center px-[30px]">
+					<div className="relative mt-6 mb-2 flex w-full cursor-auto flex-row items-center px-[30px]">
 						<div
-							className="ml-auto flex shrink-0 flex-row items-center pl-1"
+							className="ml-auto flex shrink-0 cursor-auto flex-row items-center pl-1"
 							style={{ boxShadow: `2px 0px 12px 24px ${colors["background"]}` }}
 						>
 							<div className="box-border flex h-9 flex-row items-center rounded-full border border-foreground bg-background px-4 py-1.5 text-sm text-foreground">
@@ -127,12 +168,18 @@ const Poll: React.FC<{
 						)}
 
 						<div
-							className="h-full grow font-medium text-foreground"
+							className="h-full grow cursor-text font-medium text-foreground"
 							// style={{ fontSize: pollTextFontSize(poll.text) }}
 							style={{
 								fontSize: fullViewMode && poll.text.length < 50 ? "48px" : "16px",
 								marginTop: fullViewMode && poll.text.length < 50 ? "36px" : "0px",
 								marginBottom: fullViewMode && poll.text.length < 50 ? "48px" : "0px",
+							}}
+							onMouseEnter={(e) => {
+								e.stopPropagation()
+							}}
+							onClick={(e) => {
+								e.stopPropagation()
 							}}
 						>
 							{poll.text}
@@ -145,23 +192,21 @@ const Poll: React.FC<{
 									<span>
 										<span className="tracking-wider">by&nbsp;</span>
 										{displayMode ? (
-											<span className="cursor-pointer text-foreground">
-												{poll.poster?.displayName}
-											</span>
+											<span className="text-foreground">{poll.poster?.displayName}</span>
 										) : (
 											<Link href="/user/[id]" as={`/user/${poll.posterId}`}>
 												<span
 													className="text-foreground"
-													// className="px-2 ml-[-4px] py-0.5 rounded-xl"
-													// onMouseEnter={(e) => {
-													// 	e.currentTarget.style.backgroundColor =
-													// 		colors["foreground"]
-													// 	e.currentTarget.style.color = colors["background"]
-													// }}
-													// onMouseLeave={(e) => {
-													// 	e.currentTarget.style.backgroundColor = ""
-													// 	e.currentTarget.style.color = colors["secondary"]
-													// }}
+													onMouseEnter={(e) => {
+														e.currentTarget.style.textDecorationLine = "underline"
+													}}
+													onMouseLeave={(e) => {
+														e.currentTarget.style.textDecorationLine = "none"
+													}}
+													onClick={(e) => {
+														e.stopPropagation()
+														e.nativeEvent.stopImmediatePropagation()
+													}}
 												>
 													{poll.poster?.displayName}
 												</span>
@@ -183,7 +228,7 @@ const Poll: React.FC<{
 
 						{console.log(poll)}
 					</div>
-					<div className="mb-5 h-[1px] w-full bg-secondary opacity-50" />
+					<div className="hover-indicator mb-5 h-[1px] w-full bg-secondary opacity-50" />
 					<div className="flex w-full flex-row justify-between">
 						<div className="ml-1 text-sm tracking-wider text-secondary">
 							{typeof sessionState[poll.id]?.numOfVotes === "number"

@@ -1,5 +1,4 @@
 import { withUrqlClient } from "next-urql"
-import Link from "next/link"
 import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { DisplayLanguagePrompt } from "../components/DisplayLanguagePrompt"
@@ -78,15 +77,13 @@ const Home: React.FC<{}> = ({}) => {
 							e.item &&
 							(i !== a.length - 2 ? (
 								<div className="mt-12" key={e.id}>
-									<Link href="/poll/[id]" as={`/poll/${e.id}`}>
-										<Poll poll={{ ...e.item, options: e.item.topOptions }} />
-									</Link>
+									{/* <Link href="/poll/[id]" as={`/poll/${e.id}`}> */}
+									<Poll poll={{ ...e.item, options: e.item.topOptions }} link={true}/>
+									{/* </Link> */}
 								</div>
 							) : (
 								<div className="mt-12" key={e.id} ref={loadPointRef}>
-									<Link href="/poll/[id]" as={`/poll/${e.id}`}>
-										<Poll poll={{ ...e.item, options: e.item.topOptions }} />
-									</Link>
+									<Poll poll={{ ...e.item, options: e.item.topOptions }} link={true}/>
 								</div>
 							))
 					)}

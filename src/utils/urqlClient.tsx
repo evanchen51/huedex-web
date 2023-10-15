@@ -36,7 +36,7 @@ export const urqlClientOptions = (ssrExchange: any, ctx: any) => {
 	let cookie = ""
 	if (noBrowser()) cookie = ctx?.req?.headers?.cookie
 	return {
-		url: "http://localhost:4000/graphql",
+		url: process.env.NEXT_PUBLIC_API_URL || "",
 		fetchOptions: {
 			credentials: "include" as const,
 			headers: cookie ? { cookie } : undefined,
@@ -109,5 +109,3 @@ export const urqlClientOptions = (ssrExchange: any, ctx: any) => {
 		],
 	}
 }
-
-

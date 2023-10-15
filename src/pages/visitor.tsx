@@ -1,5 +1,4 @@
 import { withUrqlClient } from "next-urql"
-import Link from "next/link"
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 import Header from "../components/Header"
@@ -47,12 +46,11 @@ const Visitor: React.FC<{}> = ({}) => {
 						(e) =>
 							e.item && (
 								<div className="mt-12" key={e.id}>
-									<Link href="/poll/[id]" as={`/poll/${e.id}`}>
-										<Poll
-											key={e.item.id}
-											poll={{ ...e.item, options: e.item.topOptions }}
-										/>
-									</Link>
+									<Poll
+										key={e.item.id}
+										poll={{ ...e.item, options: e.item.topOptions }}
+										link={true}
+									/>
 								</div>
 							)
 					)}

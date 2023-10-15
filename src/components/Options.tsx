@@ -4,7 +4,7 @@ import Image from "next/image"
 import React from "react"
 import { IMAGE } from "../constants"
 import { Option as OptionType, Poll as PollType } from "../generated/graphql"
-import { colors } from "../utils/colors"
+import { HextoHSL, colors } from "../utils/colors"
 import { urqlClientOptions } from "../utils/urqlClient"
 import { useImageFullViewer } from "../utils/useImageFullViewer"
 import { useVoteHandler } from "../utils/useVoteHandler"
@@ -26,12 +26,7 @@ const Options: React.FC<{
 	return (
 		<div className="flex flex-col">
 			<div
-				className="flex w-max cursor-default flex-row bg-background pt-5 pb-5 pl-1 pr-3"
-				onClick={(e) => {
-					e.preventDefault()
-					e.stopPropagation()
-					e.nativeEvent.stopImmediatePropagation()
-				}}
+				className="flex w-max cursor-default flex-row pt-5 pb-5 pl-1 pr-3"
 			>
 				{poll.options
 					?.sort((a, b) => b.numOfVotes - a.numOfVotes)
@@ -43,8 +38,35 @@ const Options: React.FC<{
 						const voted = sessionState[poll.id]?.options[option.id]?.state === "voted"
 						const numOfVotes = sessionState[poll.id]?.options[option.id]?.numOfVotes
 						return (
-							<div key={option.id} className="mr-2 flex h-max w-max flex-row items-center">
-								<div className="mr-2 flex w-[176px] flex-col rounded-b-[48px] rounded-t-[48px] border border-secondary border-opacity-50 px-4 pt-5 pb-2">
+							<div
+								key={option.id}
+								className="mr-2 flex h-max w-max flex-row items-center"
+								// onMouseEnter={(e) => {
+								// 	const { h, s, l } = HextoHSL(colors["background"])
+								// 	e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 1}%)`
+								// }}
+								// onMouseLeave={(e)=>{e.currentTarget.style.backgroundColor = colors["background"]}}
+							>
+								<div
+									className="mr-2 flex w-[176px] flex-col rounded-b-[44px] rounded-t-[44px] border border-secondary border-opacity-[0.24] px-4 pt-5 pb-2"
+									style={{
+										backgroundColor: `hsl(${HextoHSL(colors["background"]).h},${
+											HextoHSL(colors["background"]).s
+										}%,${HextoHSL(colors["background"]).l - 1}%)`,
+									}}
+									onMouseEnter={(e) => {
+										e.stopPropagation()
+										e.currentTarget.style.borderColor = colors["foreground"] + "30"
+									}}
+									onMouseLeave={(e) => {
+										e.stopPropagation()
+										e.currentTarget.style.borderColor = colors["secondary"] + "30"
+									}}
+									onClick={(e) => {
+										e.stopPropagation()
+										e.nativeEvent.stopImmediatePropagation()
+									}}
+								>
 									<div
 										className={
 											"relative z-20 flex w-full cursor-pointer flex-col rounded-full bg-background px-5 py-4 font-normal text-foreground transition"
@@ -180,14 +202,16 @@ const Options: React.FC<{
 											</div>
 										)}
 									<div
-										className="mx-3.5 mt-7 mb-5 flex max-w-full items-center justify-center text-sm text-foreground"
-										style={{
-											// height:
-											// 	a.find((e) => e.mediaTypeCode && e.mediaTypeCode === IMAGE) &&
-											// 	!option.mediaURL
-											// 		? "156px"
-											// 		: "100%",
-										}}
+										className="mx-3.5 mt-7 mb-5 flex max-w-full cursor-text items-center justify-center text-sm text-foreground"
+										style={
+											{
+												// height:
+												// 	a.find((e) => e.mediaTypeCode && e.mediaTypeCode === IMAGE) &&
+												// 	!option.mediaURL
+												// 		? "156px"
+												// 		: "100%",
+											}
+										}
 									>
 										{option.text}
 									</div>

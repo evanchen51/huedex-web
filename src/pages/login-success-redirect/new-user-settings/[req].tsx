@@ -1,32 +1,23 @@
-import { Field, Form, Formik } from "formik"
 import { withUrqlClient } from "next-urql"
-import { useRouter } from "next/router"
-import React, { useEffect, useState } from "react"
-import { LOCALSTORAGE_KEY_PATH_ORIGIN } from "../../../constants"
-import { displayLanguage } from "../../../displayTexts"
-import {
-	useGetAllLanguagesQuery,
-	useSetUserDisplayLanguageMutation,
-	useSetUserDisplayNameMutation,
-} from "../../../generated/graphql"
+import React from "react"
 import { urqlClientOptions } from "../../../utils/urqlClient"
 
 const NewUserSettings: React.FC<{}> = ({}) => {
-	const router = useRouter()
-	const [{ data: languagesData }] = useGetAllLanguagesQuery({})
-	const [, setUserDisplayLanguage] = useSetUserDisplayLanguageMutation()
-	const [, setUserDisplayName] = useSetUserDisplayNameMutation()
-	const [reqDisplayName, setReqDisplayName] = useState(false)
-	const [reqDisplayLanguage, setReqDisplayLanguage] = useState(false)
+	// const router = useRouter()
+	// const [{ data: languagesData }] = useGetAllLanguagesQuery({})
+	// const [, setUserDisplayLanguage] = useSetUserDisplayLanguageMutation()
+	// const [, setUserDisplayName] = useSetUserDisplayNameMutation()
+	// const [reqDisplayName, setReqDisplayName] = useState(false)
+	// const [reqDisplayLanguage, setReqDisplayLanguage] = useState(false)
 
-	useEffect(() => {
-		if (/displayname/.test(router.asPath)) setReqDisplayName(true)
-		if (/langpref/.test(router.asPath)) setReqDisplayLanguage(true)
-	}, [router])
+	// useEffect(() => {
+	// 	if (/displayname/.test(router.asPath)) setReqDisplayName(true)
+	// 	if (/langpref/.test(router.asPath)) setReqDisplayLanguage(true)
+	// }, [router])
 
 	return (
 		<>
-			<Formik
+			{/* <Formik
 				initialValues={{
 					displayName: "",
 					displayLanguage: "",
@@ -86,7 +77,7 @@ const NewUserSettings: React.FC<{}> = ({}) => {
 											))}
 								</div>
 								{errors.displayLanguage && errors.displayLanguage}
-								{/* TODO other language ___ */}
+								TODO other language ___
 							</>
 						)}
 						<button
@@ -98,7 +89,7 @@ const NewUserSettings: React.FC<{}> = ({}) => {
 						</button>
 					</Form>
 				)}
-			</Formik>
+			</Formik> */}
 		</>
 	)
 }

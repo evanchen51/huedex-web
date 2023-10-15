@@ -2,5 +2,10 @@ module.exports = {
 	experimental: {
 		scrollRestoration: true,
 	},
-	images: { domains: ["localhost","huedex-s3-bucket.s3.us-west-1.amazonaws.com"] },
+	images: { domains: [process.env.NEXT_PUBLIC_WEB_DOMAIN, process.env.NEXT_PUBLIC_S3_DOMAIN] },
+	env: {
+		NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+		NEXT_PUBLIC_WEB_DOMAIN: process.env.NEXT_PUBLIC_WEB_DOMAIN,
+		NEXT_PUBLIC_S3_DOMAIN: process.env.NEXT_PUBLIC_S3_DOMAIN,
+	},
 }

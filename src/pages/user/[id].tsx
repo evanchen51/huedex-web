@@ -1,5 +1,4 @@
 import { withUrqlClient } from "next-urql"
-import Link from "next/link"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useRef, useState } from "react"
 import Header from "../../components/Header"
@@ -183,21 +182,19 @@ const UserPage: React.FC<{}> = ({}) => {
 								e.item &&
 								(i !== a.length - 3 ? (
 									<div className="mt-12">
-										<Link href="/poll/[id]" as={`/poll/${e.id}`}>
-											<Poll
-												key={e.item.id}
-												poll={{ ...e.item, options: e.item.topOptions }}
-											/>
-										</Link>
+										<Poll
+											key={e.item.id}
+											poll={{ ...e.item, options: e.item.topOptions }}
+											link={true}
+										/>
 									</div>
 								) : (
-									<div className="mt-12" ref={loadPointRef} >
-										<Link href="/poll/[id]" as={`/poll/${e.id}`}>
-											<Poll
-												key={e.item.id}
-												poll={{ ...e.item, options: e.item.topOptions }}
-											/>
-										</Link>
+									<div className="mt-12" ref={loadPointRef}>
+										<Poll
+											key={e.item.id}
+											poll={{ ...e.item, options: e.item.topOptions }}
+											link={true}
+										/>
 									</div>
 								))
 						)
