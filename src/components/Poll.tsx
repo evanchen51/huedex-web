@@ -1,4 +1,3 @@
-import { withUrqlClient } from "next-urql"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/router"
@@ -10,6 +9,7 @@ import { HextoHSL, colors } from "../utils/colors"
 import { urqlClientOptions } from "../utils/urqlClient"
 import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 import { useVoteHandler } from "../utils/useVoteHandler"
+import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
 import Options from "./Options"
 
 const Poll: React.FC<{
@@ -246,7 +246,6 @@ const Poll: React.FC<{
 					</div>
 					<div className="pointer-events-none h-max w-full shrink-0 overflow-x-scroll pt-2 pb-4 opacity-0">
 						<Options
-							pageProps={<></>}
 							poll={
 								!allOptionsToggle || allOptionsFetching
 									? poll
@@ -259,7 +258,6 @@ const Poll: React.FC<{
 					<div className="absolute bottom-[8px] left-[calc(-20px-50vw)] flex h-max w-[160vw] shrink-0 flex-row overflow-x-scroll pl-8 pt-2 pb-4 ">
 						<div className="h-1 w-[50vw] shrink-0" />
 						<Options
-							pageProps={<></>}
 							poll={
 								!allOptionsToggle || allOptionsFetching
 									? poll
@@ -287,4 +285,4 @@ const Poll: React.FC<{
 }
 
 // export default Poll
-export default withUrqlClient(urqlClientOptions, { ssr: true })(Poll)
+export default withUrqlClientForComponent(urqlClientOptions, { ssr: true })(Poll)

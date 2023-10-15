@@ -49,6 +49,7 @@ export type FollowTopic = {
 export type Language = {
   __typename?: 'Language';
   code: Scalars['String'];
+  englishName: Scalars['String'];
   nativeName: Scalars['String'];
 };
 
@@ -230,6 +231,7 @@ export type PollType = {
 
 export type Query = {
   __typename?: 'Query';
+  checkAdmin: Scalars['Boolean'];
   createPollCheck: Scalars['Boolean'];
   getAllLanguages?: Maybe<Array<Language>>;
   getAllTopics: Array<Topic>;
@@ -246,6 +248,11 @@ export type Query = {
   getVisitorFeed: Array<FeedItem>;
   getVoteHistory: Array<Vote>;
   test?: Maybe<Scalars['String']>;
+};
+
+
+export type QueryCheckAdminArgs = {
+  passcode: Scalars['String'];
 };
 
 

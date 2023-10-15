@@ -1,5 +1,4 @@
 // import isEqual from "lodash/isEqual"
-import { withUrqlClient } from "next-urql"
 import Image from "next/image"
 import React from "react"
 import { IMAGE } from "../constants"
@@ -8,6 +7,7 @@ import { HextoHSL, colors } from "../utils/colors"
 import { urqlClientOptions } from "../utils/urqlClient"
 import { useImageFullViewer } from "../utils/useImageFullViewer"
 import { useVoteHandler } from "../utils/useVoteHandler"
+import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
 import LoadingSpinner from "./LoadingSpinner"
 
 const Options: React.FC<{
@@ -260,4 +260,4 @@ const Options: React.FC<{
 }
 
 // export default Options
-export default withUrqlClient(urqlClientOptions, { ssr: true })(Options)
+export default withUrqlClientForComponent(urqlClientOptions, { ssr: true })(Options)
