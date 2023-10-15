@@ -246,6 +246,7 @@ const Poll: React.FC<{
 					</div>
 					<div className="pointer-events-none h-max w-full shrink-0 overflow-x-scroll pt-2 pb-4 opacity-0">
 						<Options
+							pageProps={<></>}
 							poll={
 								!allOptionsToggle || allOptionsFetching
 									? poll
@@ -258,6 +259,7 @@ const Poll: React.FC<{
 					<div className="absolute bottom-[8px] left-[calc(-20px-50vw)] flex h-max w-[160vw] shrink-0 flex-row overflow-x-scroll pl-8 pt-2 pb-4 ">
 						<div className="h-1 w-[50vw] shrink-0" />
 						<Options
+							pageProps={<></>}
 							poll={
 								!allOptionsToggle || allOptionsFetching
 									? poll
