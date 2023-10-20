@@ -131,11 +131,11 @@ const CreatePoll: React.FC<{}> = ({}) => {
 					}}
 				>
 					{({ errors, values, setFieldValue, setFieldError }) => (
-						<div className="flex h-max w-[80%] max-w-[640px] flex-col items-center overflow-visible py-32 tracking-wider">
+						<div className="flex h-max w-[80%] max-w-[640px] flex-col items-center overflow-visible pt-28 pb-48 tracking-wider">
 							<Form className="w-full">
 								{/* main text */}
 								<div className="flex flex-col">
-									<div className="flex w-full flex-col border-b-[0.5px] border-foreground border-opacity-30 pb-4 text-sm">
+									<div className="flex w-full flex-col border-b-[0.5px] border-foreground border-opacity-30 pb-5 text-sm">
 										<div className="text-foreground">Poll Question</div>
 										<div className="mt-1 text-negative">{errors.text && errors.text}</div>
 									</div>
@@ -263,7 +263,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 										as="textarea"
 										name="text"
 										placeholder="ADD QUESTION"
-										className="mt-4 resize-none rounded-xl border border-background bg-secondary bg-opacity-[0.075] px-4 pb-5 pt-3 placeholder-secondary outline-none outline-[0.5px] outline-background placeholder:pt-1 placeholder:text-xs focus:bg-opacity-[0.025] focus:outline-secondary"
+										className="mt-[18px] resize-none rounded-xl border border-background bg-secondary bg-opacity-[0.075] px-4 pb-5 pt-3 placeholder-secondary outline-none outline-[0.5px] outline-background placeholder:pt-1 placeholder:text-xs focus:bg-opacity-[0.025] focus:outline-secondary"
 										rows={3}
 										onChange={(e: any) => {
 											setFieldError("text", "")
@@ -278,7 +278,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 								<FieldArray name="options">
 									{({ remove, push }) => (
 										<div className="relative mt-20 w-full">
-											<div className="flex flex-col border-b-[0.5px]  border-foreground border-opacity-30 pb-3 text-sm">
+											<div className="flex flex-col border-b-[0.5px]  border-foreground border-opacity-30 pb-2 text-sm">
 												<div className="flex flex-col sm:flex-row">
 													<div className="py-1 text-foreground">
 														Options&nbsp;
@@ -671,8 +671,8 @@ const CreatePoll: React.FC<{}> = ({}) => {
 
 								{/* topics */}
 								{/* new topic details & rules */}
-								<div onClick={(e) => e.stopPropagation()} className="mt-28 w-full ">
-									<div className="mb-3 flex flex-row border-b-[0.5px] border-foreground border-opacity-30 pb-6 text-sm">
+								<div onClick={(e) => e.stopPropagation()} className="mt-24 w-full ">
+									<div className="flex flex-row border-b-[0.5px] border-foreground border-opacity-30 pb-6 text-sm">
 										<div className="text-foreground">
 											Topics&nbsp;
 											{`(${
@@ -876,7 +876,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 									type="submit"
 									disabled={getSimilarToggle}
 									// onClick={() => validateField("displayLanguage")}
-									className="mt-16 rounded-full border border-foreground bg-background py-2 px-5 text-sm text-foreground"
+									className="mt-24 rounded-full border border-foreground bg-background py-2 px-5 text-sm text-foreground"
 								>
 									Preview
 								</button>
