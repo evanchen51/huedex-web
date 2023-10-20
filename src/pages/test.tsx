@@ -29,7 +29,7 @@ const Test = () => {
 			</div>
 
 			<Image
-				src="https://huedex-s3-bucket.s3.us-west-1.amazonaws.com/ounxlg7zohifesurn0a6q4z8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAZUJZFFUBCKDB"
+				src="https://huedex-s3-bucket.s3.us-west-1.amazonaws.com/lm6m55792ewqtxlvfjjm84m9"
 				width={100}
 				height={100}
 				alt=""

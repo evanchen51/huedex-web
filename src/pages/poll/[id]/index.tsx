@@ -21,4 +21,4 @@ const PollPage: React.FC<{}> = ({}) => {
 }
 
 // export default PollPage
-export default withUrqlClient(urqlClientOptions, { ssr: true })(PollPage)
+export default withUrqlClient(urqlClientOptions)(PollPage)

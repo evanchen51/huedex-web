@@ -1,6 +1,6 @@
 // import isEqual from "lodash/isEqual"
 import Image from "next/image"
-import React from "react"
+import React, { useState } from "react"
 import { IMAGE } from "../constants"
 import { Option as OptionType, Poll as PollType } from "../generated/graphql"
 import { HextoHSL, colors } from "../utils/colors"
@@ -15,9 +15,13 @@ const Options: React.FC<{
 	allOptionsToggle: boolean
 	setAllOptionsToggle: React.Dispatch<React.SetStateAction<boolean>>
 	displayMode?: boolean
-}> = ({ poll, allOptionsToggle, setAllOptionsToggle, displayMode }) => {
+	pollHovering?: boolean
+}> = ({ poll, allOptionsToggle, setAllOptionsToggle, displayMode, pollHovering }) => {
 	const { voteHandler, sessionState, initState } = useVoteHandler()
 	const { onImageFullView } = useImageFullViewer()
+
+	const [imageLoading, setImageLoading] = useState<Record<number, boolean>>({})
+
 	// const optionHeight = poll.options?.reduce((r:string,e) => {
 	// 	if (e.text.length > 60) return ""
 	// 	return ""
@@ -25,16 +29,14 @@ const Options: React.FC<{
 
 	return (
 		<div className="flex flex-col">
-			<div
-				className="flex w-max cursor-default flex-row pt-5 pb-5 pl-1 pr-3"
-			>
+			<div className="flex w-max cursor-default flex-row pt-5 pb-5 pl-1 pr-3">
 				{poll.options
 					?.sort((a, b) => b.numOfVotes - a.numOfVotes)
 					.reduce((r, e) => {
 						const voted = initState[e.id] || false
 						return !voted ? [...r, e] : [e, ...r]
 					}, [] as OptionType[])
-					.map((option) => {
+					.map((option, i) => {
 						const voted = sessionState[poll.id]?.options[option.id]?.state === "voted"
 						const numOfVotes = sessionState[poll.id]?.options[option.id]?.numOfVotes
 						return (
@@ -48,11 +50,13 @@ const Options: React.FC<{
 								// onMouseLeave={(e)=>{e.currentTarget.style.backgroundColor = colors["background"]}}
 							>
 								<div
-									className="mr-2 flex w-[176px] flex-col rounded-b-[44px] rounded-t-[44px] border border-secondary border-opacity-[0.24] px-4 pt-5 pb-2"
+									className="mr-2 flex w-[196px] flex-col rounded-b-[44px] rounded-t-[44px] border border-secondary border-opacity-[0.24] px-4 pt-5 pb-2"
 									style={{
-										backgroundColor: `hsl(${HextoHSL(colors["background"]).h},${
-											HextoHSL(colors["background"]).s
-										}%,${HextoHSL(colors["background"]).l - 1}%)`,
+										backgroundColor: pollHovering
+											? `hsl(${HextoHSL(colors["background"]).h},${
+													HextoHSL(colors["background"]).s
+											  }%,${HextoHSL(colors["background"]).l - 1}%)`
+											: colors["background"],
 									}}
 									onMouseEnter={(e) => {
 										e.stopPropagation()
@@ -188,7 +192,7 @@ const Options: React.FC<{
 												<div
 													className="relative h-[156px] w-[156px] cursor-pointer overflow-hidden rounded-xl"
 													onClick={() => {
-														if (option.mediaURL) onImageFullView(option.mediaURL)
+														onImageFullView(option.mediaURL || "")
 													}}
 												>
 													{/* <div className="relative h-52 w-52 overflow-hidden rounded-xl sm:h-[216px] sm:w-[216px]"> */}
@@ -197,7 +201,16 @@ const Options: React.FC<{
 														alt={""}
 														fill={true}
 														className="object-cover	"
+														style={{ zIndex: 1 }}
+														onLoad={() => {
+															setImageLoading((prev) => ({ ...prev, [i]: true }))
+														}}
 													/>
+													{!imageLoading[i] && (
+														<div className="z-0 flex h-full w-full items-center justify-center">
+															<LoadingSpinner />
+														</div>
+													)}
 												</div>
 											</div>
 										)}
@@ -228,7 +241,10 @@ const Options: React.FC<{
 				{poll.numOfOptions && poll.options && poll.numOfOptions > poll.options?.length && (
 					<div
 						className="mt-2 flex w-[168px] cursor-pointer flex-row pl-3 text-sm tracking-wider text-foreground"
-						onClick={() => {
+						onClick={(e) => {
+							e.preventDefault()
+							e.stopPropagation()
+							e.nativeEvent.stopImmediatePropagation()
 							setAllOptionsToggle(true)
 							// e.currentTarget.style.visibility = "hidden"
 						}}

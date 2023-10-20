@@ -13,4 +13,4 @@ export const withUrqlClientForComponent = withUrqlClient as (
 	options?: WithUrqlClientOptions
 ) => <C extends NextPage<any, any> | typeof NextApp>(
 	AppOrPage: C
-) => NextComponentType<NextUrqlContext, {}, Omit<WithUrqlProps, "pageProps">>
+) => NextComponentType<NextUrqlContext, {}, Partial<WithUrqlProps>>

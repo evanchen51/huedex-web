@@ -8,9 +8,11 @@ import { Poll as PollType, useGetAllOptionsQuery } from "../generated/graphql"
 import { HextoHSL, colors } from "../utils/colors"
 import { urqlClientOptions } from "../utils/urqlClient"
 import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
+import { useImageFullViewer } from "../utils/useImageFullViewer"
 import { useVoteHandler } from "../utils/useVoteHandler"
 import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
 import Options from "./Options"
+import LoadingSpinner from "./LoadingSpinner"
 
 const Poll: React.FC<{
 	poll: PollType
@@ -21,6 +23,11 @@ const Poll: React.FC<{
 	const L = useGetDisplayLanguage()
 	const router = useRouter()
 	const { sessionState, sessionStateUpdater } = useVoteHandler()
+	const { onImageFullView } = useImageFullViewer()
+
+	const [pollHovering, setPollHovering] = useState(false)
+
+	const [imageLoading, setImageLoading] = useState(true)
 
 	const [allOptionsToggle, setAllOptionsToggle] = useState(false)
 	const [{ data: allOptionsData, fetching: allOptionsFetching }] = useGetAllOptionsQuery({
@@ -43,16 +50,20 @@ const Poll: React.FC<{
 	return (
 		<div
 			className="relative flex flex-col rounded-xl bg-background"
-			style={{ cursor: link ? "pointer" : "auto" }}
+			style={{
+				cursor: link ? "pointer" : "auto",
+			}}
 			onMouseEnter={(e) => {
 				e.stopPropagation()
 				if (!link) return
+				setPollHovering(true)
 				const { h, s, l } = HextoHSL(colors["background"])
 				e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 1}%)`
 				// ; (e.currentTarget.querySelector(".hover-indicator") as HTMLElement).style.opacity = "1"
 			}}
 			onMouseLeave={(e) => {
 				e.stopPropagation()
+				setPollHovering(false)
 				e.currentTarget.style.backgroundColor = colors["background"]
 				// ;(e.currentTarget.querySelector(".hover-indicator") as HTMLElement).style.opacity = "0.5"
 			}}
@@ -145,12 +156,22 @@ const Poll: React.FC<{
 					>
 						{poll.mediaTypeCode && poll.mediaTypeCode === IMAGE && poll.mediaURL && (
 							<div className="item-center mb-6 flex w-full justify-center">
-								<div className="relative h-[200px] w-full overflow-hidden rounded-xl sm:h-[400px] sm:w-full">
+								<div
+									className="relative h-[200px] w-full overflow-hidden rounded-xl sm:h-[400px] sm:w-full"
+									onClick={(e) => {
+										e.preventDefault()
+										e.stopPropagation()
+										e.nativeEvent.stopImmediatePropagation()
+										onImageFullView(poll.mediaURL || "")
+									}}
+								>
 									<Image
 										src={poll.mediaURL}
 										alt={""}
 										fill={true}
 										className="object-cover	"
+										style={{zIndex:1}}
+										onLoad={()=>{setImageLoading(false)}}
 										// onClick={(e) => {
 										// 	e.preventDefault()
 										// 	e.stopPropagation()
@@ -163,6 +184,7 @@ const Poll: React.FC<{
 										// 	setImageFullViewToggle(true)
 										// }}
 									/>
+									{imageLoading&&<div className="z-0 w-full h-full flex items-center justify-center"><LoadingSpinner/></div>}
 								</div>
 							</div>
 						)}
@@ -266,6 +288,7 @@ const Poll: React.FC<{
 							allOptionsToggle={allOptionsToggle}
 							setAllOptionsToggle={setAllOptionsToggle}
 							displayMode={displayMode}
+							pollHovering={pollHovering}
 						/>
 						<div className="h-1 w-[10vw] shrink-0 sm:w-[70vw]" />
 					</div>

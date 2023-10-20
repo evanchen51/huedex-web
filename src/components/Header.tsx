@@ -43,7 +43,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 
 	return (
 		<div
-			className="fixed flex w-full flex-row items-center justify-between bg-background bg-opacity-50 px-9 pb-6 pt-6 font-bold tracking-wider text-foreground backdrop-blur-lg transition"
+			className="fixed flex w-full flex-row items-center justify-between bg-background bg-opacity-50 sm:pl-9 pl-6 pr-6 sm:pr-3 pb-3 pt-3.5 font-bold tracking-wider text-foreground backdrop-blur-lg transition"
 			style={{
 				zIndex: menuToggle === "closed" ? 50 : 70,
 				// paddingTop: visitor ? "24px" : "24px",
@@ -91,7 +91,16 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 				{!noBrowser() && !userFetching && userData?.getCurrentUser && (
 					<>
 						<Link href="/create-poll-check">
-							<div className="flex flex-row items-center">
+							<div
+								className="flex flex-row items-center rounded-full py-3 px-6"
+								onMouseEnter={(e) => {
+									const { h, s, l } = HextoHSL(colors["background"])
+									e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 3}%)`
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = colors["background"]
+								}}
+							>
 								<div className="flex flex-row items-end">
 									<div className="h-2 w-[2.5px] rounded-[1px] bg-foreground" />
 									<div className="mx-[2.5px] h-3 w-[2.5px] rounded-[1px] bg-foreground" />
@@ -101,7 +110,16 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 							</div>
 						</Link>
 						<Link href="/user/[id]" as={`/user/${userData?.getCurrentUser.id}`}>
-							<div className="ml-8 flex flex-row items-center">
+							<div
+								className="ml-0 flex flex-row items-center rounded-full py-3 px-6"
+								onMouseEnter={(e) => {
+									const { h, s, l } = HextoHSL(colors["background"])
+									e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 3}%)`
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = colors["background"]
+								}}
+							>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									className="h-3 fill-foreground"
@@ -117,14 +135,14 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 				{!noBrowser() && !userFetching && !userData?.getCurrentUser && (
 					<>
 						<button
-							className="mb-1 flex w-fit cursor-pointer flex-row items-center justify-center self-center rounded-full border-[0.5px] border-foreground bg-background px-5 py-3.5"
+							className="mb-1 flex w-fit cursor-pointer flex-row items-center justify-center self-center rounded-full border-[0.5px] border-foreground bg-background px-5 py-3.5 mr-3"
 							onClick={() => {
 								localStorage.setItem(LOCALSTORAGE_KEY_PATH_ORIGIN, router.asPath)
 								location.href = process.env.NEXT_PUBLIC_API_URL + "/auth/google"
 							}}
 							onMouseEnter={(e) => {
 								const { h, s, l } = HextoHSL(colors["background"])
-								e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 1}%)`
+								e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 3}%)`
 							}}
 							onMouseLeave={(e) => {
 								e.currentTarget.style.backgroundColor = colors["background"]
@@ -240,7 +258,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 									</div>
 								</button>
 								<div className="mt-4 h-[0.5px] w-full bg-secondary opacity-30" />
-								<div className="mt-4 flex w-full flex-row items-center">
+								<div className="mt-4 flex w-full flex-row items-center opacity-50">
 									<div className="flex flex-row items-end">
 										<div className="h-2 w-[2.5px] rounded-[1px] bg-secondary" />
 										<div className="mx-[2.5px] h-3 w-[2.5px] rounded-[1px] bg-secondary" />

@@ -30,6 +30,7 @@ const PollPage: React.FC<{}> = ({}) => {
 			<Header visitor={!userData?.getCurrentUser && !userFetching} />
 			<div className="flex h-full max-w-full flex-col items-center overflow-x-hidden overflow-y-scroll">
 				<div className="mb-36 mt-24 w-full max-w-[560px]">
+					{console.log("poll:", pollData?.getSinglePoll)}
 					<Poll
 						poll={
 							{

@@ -78,7 +78,7 @@ export const DisplayLanguagePrompt: React.FC<{
 								.map((e) => (
 									<label
 										key={e.code}
-										className="flex flex-row items-center text-background"
+										className="flex flex-row items-center text-background cursor-pointer"
 										onClick={() => {
 											setChoice(e.code)
 										}}

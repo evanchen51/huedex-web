@@ -631,7 +631,7 @@ export const GetAllOptionsDocument = gql`
 }
     `;
 
-export function useGetAllOptionsQuery(options: Omit<Urql.UseQueryArgs<GetAllOptionsQueryVariables>, 'query'>) {
+export function useGetAllOptionsQuery(options: Omit<Urql.UseQueryArgs<GetAllOptionsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetAllOptionsQuery>({ query: GetAllOptionsDocument, ...options });
 };
 export const GetAllTopicsDocument = gql`
@@ -720,7 +720,7 @@ export const GetHomeFeedDocument = gql`
 }
     `;
 
-export function useGetHomeFeedQuery(options: Omit<Urql.UseQueryArgs<GetHomeFeedQueryVariables>, 'query'>) {
+export function useGetHomeFeedQuery(options: Omit<Urql.UseQueryArgs<GetHomeFeedQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetHomeFeedQuery>({ query: GetHomeFeedDocument, ...options });
 };
 export const GetSimilarPollsDocument = gql`
@@ -770,7 +770,7 @@ export const GetSimilarPollsDocument = gql`
 }
     `;
 
-export function useGetSimilarPollsQuery(options: Omit<Urql.UseQueryArgs<GetSimilarPollsQueryVariables>, 'query'>) {
+export function useGetSimilarPollsQuery(options: Omit<Urql.UseQueryArgs<GetSimilarPollsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetSimilarPollsQuery>({ query: GetSimilarPollsDocument, ...options });
 };
 export const GetSinglePollDocument = gql`
@@ -817,7 +817,7 @@ export const GetSinglePollDocument = gql`
 }
     `;
 
-export function useGetSinglePollQuery(options: Omit<Urql.UseQueryArgs<GetSinglePollQueryVariables>, 'query'>) {
+export function useGetSinglePollQuery(options: Omit<Urql.UseQueryArgs<GetSinglePollQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetSinglePollQuery>({ query: GetSinglePollDocument, ...options });
 };
 export const GetTopicNewPollsDocument = gql`
@@ -932,7 +932,7 @@ export const GetUserDocument = gql`
 }
     `;
 
-export function useGetUserQuery(options: Omit<Urql.UseQueryArgs<GetUserQueryVariables>, 'query'>) {
+export function useGetUserQuery(options: Omit<Urql.UseQueryArgs<GetUserQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetUserQuery>({ query: GetUserDocument, ...options });
 };
 export const GetUserPostedPollsDocument = gql`
@@ -1085,7 +1085,7 @@ export const GetVisitorFeedDocument = gql`
 }
     `;
 
-export function useGetVisitorFeedQuery(options: Omit<Urql.UseQueryArgs<GetVisitorFeedQueryVariables>, 'query'>) {
+export function useGetVisitorFeedQuery(options: Omit<Urql.UseQueryArgs<GetVisitorFeedQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<GetVisitorFeedQuery>({ query: GetVisitorFeedDocument, ...options });
 };
 export const GetVoteHistoryDocument = gql`
