@@ -48,11 +48,16 @@ const Options: React.FC<{
 		<div className="flex flex-col">
 			<div className="flex w-max cursor-default flex-row pt-5 pb-5 pl-1 pr-3">
 				{poll.options
-					?.sort((a, b) => b.numOfVotes - a.numOfVotes).sort((a,b) => {
-						const aTime = new Date(parseInt(a.createdAt)), bTime = new Date(parseInt(b.createdAt))
-						if (aTime.getFullYear() !== bTime.getFullYear() || aTime.getMonth() !== bTime.getMonth() || aTime.getDate() !== bTime.getDate() || aTime.getHours() !== bTime.getHours()) {
-							return aTime.getTime() - bTime.getTime()
-						}else return bTime.getTime() - aTime.getTime()
+					?.sort((a, b) => b.numOfVotes - a.numOfVotes)
+					.sort((a, b) => {
+						// const aTime = new Date(parseInt(a.createdAt)), bTime = new Date(parseInt(b.createdAt))
+						// if (aTime.getFullYear() !== bTime.getFullYear() || aTime.getMonth() !== bTime.getMonth() || aTime.getDate() !== bTime.getDate() || aTime.getHours() !== bTime.getHours()) {
+						// 	return aTime.getTime() - bTime.getTime()
+						// }else return bTime.getTime() - aTime.getTime()
+						return (
+							(typeof a.index === "number" ? a.index : 0) -
+							(typeof b.index === "number" ? b.index : 0)
+						)
 					})
 					.reduce((r, e) => {
 						const voted = initState[e.id] || false
@@ -260,7 +265,9 @@ const Options: React.FC<{
 																	},
 																}))
 																if (imageLoaderTimer.current[i])
-																	clearTimeout(imageLoaderTimer.current[i] as NodeJS.Timeout)
+																	clearTimeout(
+																		imageLoaderTimer.current[i] as NodeJS.Timeout
+																	)
 																imageLoaderTimer.current[i] = null
 															}, 500)
 														}}

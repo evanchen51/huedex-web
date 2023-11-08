@@ -31,6 +31,7 @@ query GetUserVotedPolls($userId: String!, $cursorId: String) {
 				languageCode
 				mediaTypeCode
 				mediaURL
+				index
 				createdAt
 				updatedAt
 			}

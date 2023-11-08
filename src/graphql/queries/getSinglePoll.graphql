@@ -28,6 +28,7 @@ query GetSinglePoll($id: String!) {
 			languageCode
 			mediaTypeCode
 			mediaURL
+			index
 			createdAt
 			updatedAt
 		}

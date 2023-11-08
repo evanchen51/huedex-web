@@ -23,6 +23,7 @@ mutation CreatePoll($createPollInput: CreatePollInput!) {
 			numOfVotes
 			pollId
 			languageCode
+			index
 			createdAt
 			updatedAt
 		}
