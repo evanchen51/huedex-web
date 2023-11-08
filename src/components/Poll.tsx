@@ -38,6 +38,7 @@ const Poll: React.FC<{
 	const [{ data: allOptionsData, fetching: allOptionsFetching }] = useGetAllOptionsQuery({
 		pause: !allOptionsToggle || displayMode,
 		variables: { id: poll.id },
+		requestPolicy:"network-only"
 	})
 
 	useEffect(() => {

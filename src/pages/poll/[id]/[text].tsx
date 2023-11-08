@@ -16,7 +16,7 @@ const PollPage: React.FC<{}> = ({}) => {
 
 	const [{ data: pollData, fetching: pollFetching }] = useGetSinglePollQuery({
 		variables: { id: router.query.id as string },
-		// requestPolicy: "network-only",
+		requestPolicy: "network-only",
 	})
 
 	const { loginPromptControl } = useVoteHandler()

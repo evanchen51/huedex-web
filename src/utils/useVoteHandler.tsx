@@ -112,7 +112,7 @@ export const useVoteHandler = () => {
 				? {
 						...prev,
 						[poll.id]: {
-							numOfVotes: poll.numOfVotes,
+							numOfVotes: prev[poll.id]?.numOfVotes?? poll.numOfVotes,
 							options: prev[poll.id]
 								? {
 										...prev[poll.id].options,

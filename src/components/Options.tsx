@@ -37,6 +37,7 @@ const Options: React.FC<{
 			  )
 			: {}
 	)
+	const [startedVoting, setStartedVoting] = useState(false)
 	useEffect(() => {
 		setImageLoader((prev) =>
 			poll.options
@@ -53,7 +54,7 @@ const Options: React.FC<{
 				  )
 				: {}
 		)
-	},[poll])
+	}, [poll])
 	const imageLoaderTimer = useRef<Record<number, NodeJS.Timeout | null>>({})
 
 	// const optionHeight = poll.options?.reduce((r:string,e) => {
@@ -66,21 +67,18 @@ const Options: React.FC<{
 			<div className="flex w-max cursor-default flex-row pt-5 pb-5 pl-1 pr-3">
 				{poll.options
 					?.sort((a, b) => {
-						const aNumOfVotes =
-							sessionState[poll.id]?.options[a.id]?.numOfVotes ?? a.numOfVotes
-						const bNumOfVotes =
-							sessionState[poll.id]?.options[b.id]?.numOfVotes ?? b.numOfVotes
-						return bNumOfVotes - aNumOfVotes
-					})
-					.sort((a, b) => {
-						// const aTime = new Date(parseInt(a.createdAt)), bTime = new Date(parseInt(b.createdAt))
-						// if (aTime.getFullYear() !== bTime.getFullYear() || aTime.getMonth() !== bTime.getMonth() || aTime.getDate() !== bTime.getDate() || aTime.getHours() !== bTime.getHours()) {
-						// 	return aTime.getTime() - bTime.getTime()
-						// }else return bTime.getTime() - aTime.getTime()
 						return (
 							(typeof a.index === "number" ? a.index : 0) -
 							(typeof b.index === "number" ? b.index : 0)
 						)
+					})
+					.sort((a, b) => {
+						// const aNumOfVotes =
+						// 	sessionState[poll.id]?.options[a.id]?.numOfVotes ?? a.numOfVotes
+						// const bNumOfVotes =
+						// 	sessionState[poll.id]?.options[b.id]?.numOfVotes ?? b.numOfVotes
+						// return bNumOfVotes - aNumOfVotes
+						return b.numOfVotes - a.numOfVotes
 					})
 					.reduce((r, e) => {
 						const voted = initState[e.id] || false
@@ -136,6 +134,7 @@ const Options: React.FC<{
 											e.stopPropagation()
 											e.nativeEvent.stopImmediatePropagation()
 											voteHandler(poll.id, option.id)
+											if(!startedVoting)setStartedVoting(true)
 										}}
 										onMouseEnter={(e) => {
 											e.currentTarget.style.boxShadow = voted
