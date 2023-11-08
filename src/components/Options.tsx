@@ -65,7 +65,13 @@ const Options: React.FC<{
 		<div className="flex flex-col">
 			<div className="flex w-max cursor-default flex-row pt-5 pb-5 pl-1 pr-3">
 				{poll.options
-					?.sort((a, b) => b.numOfVotes - a.numOfVotes)
+					?.sort((a, b) => {
+						const aNumOfVotes =
+							sessionState[poll.id]?.options[a.id]?.numOfVotes ?? a.numOfVotes
+						const bNumOfVotes =
+							sessionState[poll.id]?.options[b.id]?.numOfVotes ?? b.numOfVotes
+						return bNumOfVotes - aNumOfVotes
+					})
 					.sort((a, b) => {
 						// const aTime = new Date(parseInt(a.createdAt)), bTime = new Date(parseInt(b.createdAt))
 						// if (aTime.getFullYear() !== bTime.getFullYear() || aTime.getMonth() !== bTime.getMonth() || aTime.getDate() !== bTime.getDate() || aTime.getHours() !== bTime.getHours()) {
