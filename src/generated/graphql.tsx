@@ -596,8 +596,8 @@ export const CreatePollCheckDocument = gql`
 }
     `;
 
-export function useCreatePollCheckQuery(options: Omit<Urql.UseQueryArgs<CreatePollCheckQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<CreatePollCheckQuery>({ query: CreatePollCheckDocument, ...options });
+export function useCreatePollCheckQuery(options?: Omit<Urql.UseQueryArgs<CreatePollCheckQueryVariables>, 'query'>) {
+  return Urql.useQuery<CreatePollCheckQuery, CreatePollCheckQueryVariables>({ query: CreatePollCheckDocument, ...options });
 };
 export const GetAllLanguagesDocument = gql`
     query GetAllLanguages {
@@ -609,8 +609,8 @@ export const GetAllLanguagesDocument = gql`
 }
     `;
 
-export function useGetAllLanguagesQuery(options: Omit<Urql.UseQueryArgs<GetAllLanguagesQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetAllLanguagesQuery>({ query: GetAllLanguagesDocument, ...options });
+export function useGetAllLanguagesQuery(options?: Omit<Urql.UseQueryArgs<GetAllLanguagesQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllLanguagesQuery, GetAllLanguagesQueryVariables>({ query: GetAllLanguagesDocument, ...options });
 };
 export const GetAllOptionsDocument = gql`
     query GetAllOptions($id: String!) {
@@ -634,8 +634,8 @@ export const GetAllOptionsDocument = gql`
 }
     `;
 
-export function useGetAllOptionsQuery(options: Omit<Urql.UseQueryArgs<GetAllOptionsQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetAllOptionsQuery>({ query: GetAllOptionsDocument, ...options });
+export function useGetAllOptionsQuery(options: Omit<Urql.UseQueryArgs<GetAllOptionsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllOptionsQuery, GetAllOptionsQueryVariables>({ query: GetAllOptionsDocument, ...options });
 };
 export const GetAllTopicsDocument = gql`
     query GetAllTopics {
@@ -646,8 +646,8 @@ export const GetAllTopicsDocument = gql`
 }
     `;
 
-export function useGetAllTopicsQuery(options: Omit<Urql.UseQueryArgs<GetAllTopicsQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetAllTopicsQuery>({ query: GetAllTopicsDocument, ...options });
+export function useGetAllTopicsQuery(options?: Omit<Urql.UseQueryArgs<GetAllTopicsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllTopicsQuery, GetAllTopicsQueryVariables>({ query: GetAllTopicsDocument, ...options });
 };
 export const GetCurrentUserDocument = gql`
     query GetCurrentUser {
@@ -659,8 +659,8 @@ export const GetCurrentUserDocument = gql`
 }
     `;
 
-export function useGetCurrentUserQuery(options: Omit<Urql.UseQueryArgs<GetCurrentUserQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetCurrentUserQuery>({ query: GetCurrentUserDocument, ...options });
+export function useGetCurrentUserQuery(options?: Omit<Urql.UseQueryArgs<GetCurrentUserQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetCurrentUserQuery, GetCurrentUserQueryVariables>({ query: GetCurrentUserDocument, ...options });
 };
 export const GetCurrentUserPersonalSettingsDocument = gql`
     query GetCurrentUserPersonalSettings {
@@ -672,8 +672,8 @@ export const GetCurrentUserPersonalSettingsDocument = gql`
 }
     `;
 
-export function useGetCurrentUserPersonalSettingsQuery(options: Omit<Urql.UseQueryArgs<GetCurrentUserPersonalSettingsQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetCurrentUserPersonalSettingsQuery>({ query: GetCurrentUserPersonalSettingsDocument, ...options });
+export function useGetCurrentUserPersonalSettingsQuery(options?: Omit<Urql.UseQueryArgs<GetCurrentUserPersonalSettingsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetCurrentUserPersonalSettingsQuery, GetCurrentUserPersonalSettingsQueryVariables>({ query: GetCurrentUserPersonalSettingsDocument, ...options });
 };
 export const GetHomeFeedDocument = gql`
     query GetHomeFeed($seen: [String!]!) {
@@ -724,8 +724,8 @@ export const GetHomeFeedDocument = gql`
 }
     `;
 
-export function useGetHomeFeedQuery(options: Omit<Urql.UseQueryArgs<GetHomeFeedQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetHomeFeedQuery>({ query: GetHomeFeedDocument, ...options });
+export function useGetHomeFeedQuery(options: Omit<Urql.UseQueryArgs<GetHomeFeedQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetHomeFeedQuery, GetHomeFeedQueryVariables>({ query: GetHomeFeedDocument, ...options });
 };
 export const GetSimilarPollsDocument = gql`
     query GetSimilarPolls($text: String!) {
@@ -775,8 +775,8 @@ export const GetSimilarPollsDocument = gql`
 }
     `;
 
-export function useGetSimilarPollsQuery(options: Omit<Urql.UseQueryArgs<GetSimilarPollsQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetSimilarPollsQuery>({ query: GetSimilarPollsDocument, ...options });
+export function useGetSimilarPollsQuery(options: Omit<Urql.UseQueryArgs<GetSimilarPollsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetSimilarPollsQuery, GetSimilarPollsQueryVariables>({ query: GetSimilarPollsDocument, ...options });
 };
 export const GetSinglePollDocument = gql`
     query GetSinglePoll($id: String!) {
@@ -823,8 +823,8 @@ export const GetSinglePollDocument = gql`
 }
     `;
 
-export function useGetSinglePollQuery(options: Omit<Urql.UseQueryArgs<GetSinglePollQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetSinglePollQuery>({ query: GetSinglePollDocument, ...options });
+export function useGetSinglePollQuery(options: Omit<Urql.UseQueryArgs<GetSinglePollQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetSinglePollQuery, GetSinglePollQueryVariables>({ query: GetSinglePollDocument, ...options });
 };
 export const GetTopicNewPollsDocument = gql`
     query GetTopicNewPolls($topicId: String!, $cursorId: String) {
@@ -875,8 +875,8 @@ export const GetTopicNewPollsDocument = gql`
 }
     `;
 
-export function useGetTopicNewPollsQuery(options: Omit<Urql.UseQueryArgs<GetTopicNewPollsQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetTopicNewPollsQuery>({ query: GetTopicNewPollsDocument, ...options });
+export function useGetTopicNewPollsQuery(options: Omit<Urql.UseQueryArgs<GetTopicNewPollsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetTopicNewPollsQuery, GetTopicNewPollsQueryVariables>({ query: GetTopicNewPollsDocument, ...options });
 };
 export const GetTopicTopPollsDocument = gql`
     query GetTopicTopPolls($topicId: String!, $cursorId: String) {
@@ -927,8 +927,8 @@ export const GetTopicTopPollsDocument = gql`
 }
     `;
 
-export function useGetTopicTopPollsQuery(options: Omit<Urql.UseQueryArgs<GetTopicTopPollsQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetTopicTopPollsQuery>({ query: GetTopicTopPollsDocument, ...options });
+export function useGetTopicTopPollsQuery(options: Omit<Urql.UseQueryArgs<GetTopicTopPollsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetTopicTopPollsQuery, GetTopicTopPollsQueryVariables>({ query: GetTopicTopPollsDocument, ...options });
 };
 export const GetUserDocument = gql`
     query GetUser($id: String!) {
@@ -940,8 +940,8 @@ export const GetUserDocument = gql`
 }
     `;
 
-export function useGetUserQuery(options: Omit<Urql.UseQueryArgs<GetUserQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetUserQuery>({ query: GetUserDocument, ...options });
+export function useGetUserQuery(options: Omit<Urql.UseQueryArgs<GetUserQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUserQuery, GetUserQueryVariables>({ query: GetUserDocument, ...options });
 };
 export const GetUserPostedPollsDocument = gql`
     query GetUserPostedPolls($userId: String!, $cursorId: String) {
@@ -992,8 +992,8 @@ export const GetUserPostedPollsDocument = gql`
 }
     `;
 
-export function useGetUserPostedPollsQuery(options: Omit<Urql.UseQueryArgs<GetUserPostedPollsQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetUserPostedPollsQuery>({ query: GetUserPostedPollsDocument, ...options });
+export function useGetUserPostedPollsQuery(options: Omit<Urql.UseQueryArgs<GetUserPostedPollsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUserPostedPollsQuery, GetUserPostedPollsQueryVariables>({ query: GetUserPostedPollsDocument, ...options });
 };
 export const GetUserVotedPollsDocument = gql`
     query GetUserVotedPolls($userId: String!, $cursorId: String) {
@@ -1044,8 +1044,8 @@ export const GetUserVotedPollsDocument = gql`
 }
     `;
 
-export function useGetUserVotedPollsQuery(options: Omit<Urql.UseQueryArgs<GetUserVotedPollsQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetUserVotedPollsQuery>({ query: GetUserVotedPollsDocument, ...options });
+export function useGetUserVotedPollsQuery(options: Omit<Urql.UseQueryArgs<GetUserVotedPollsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUserVotedPollsQuery, GetUserVotedPollsQueryVariables>({ query: GetUserVotedPollsDocument, ...options });
 };
 export const GetVisitorFeedDocument = gql`
     query GetVisitorFeed($languageCodes: [String!]!) {
@@ -1096,8 +1096,8 @@ export const GetVisitorFeedDocument = gql`
 }
     `;
 
-export function useGetVisitorFeedQuery(options: Omit<Urql.UseQueryArgs<GetVisitorFeedQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetVisitorFeedQuery>({ query: GetVisitorFeedDocument, ...options });
+export function useGetVisitorFeedQuery(options: Omit<Urql.UseQueryArgs<GetVisitorFeedQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetVisitorFeedQuery, GetVisitorFeedQueryVariables>({ query: GetVisitorFeedDocument, ...options });
 };
 export const GetVoteHistoryDocument = gql`
     query GetVoteHistory {
@@ -1109,6 +1109,6 @@ export const GetVoteHistoryDocument = gql`
 }
     `;
 
-export function useGetVoteHistoryQuery(options: Omit<Urql.UseQueryArgs<GetVoteHistoryQueryVariables>, 'query'> = {}) {
-  return Urql.useQuery<GetVoteHistoryQuery>({ query: GetVoteHistoryDocument, ...options });
+export function useGetVoteHistoryQuery(options?: Omit<Urql.UseQueryArgs<GetVoteHistoryQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetVoteHistoryQuery, GetVoteHistoryQueryVariables>({ query: GetVoteHistoryDocument, ...options });
 };
