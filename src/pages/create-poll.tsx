@@ -999,6 +999,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 										id: "placeholderId:" + i,
 										text: e.text,
 										numOfVotes: 0,
+										index:i,
 										...(optionImageInputs[i].URL && {
 											mediaTypeCode: IMAGE,
 											mediaURL: optionImageInputs[i].URL,
