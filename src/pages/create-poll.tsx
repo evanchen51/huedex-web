@@ -907,10 +907,10 @@ const CreatePoll: React.FC<{}> = ({}) => {
 							}}
 						>
 							<div className="mb-3 flex flex-col border-b-[0.5px] border-foreground border-opacity-30 px-9 pt-8 pb-8 font-semibold tracking-wider text-foreground sm:flex-row sm:items-center">
-								<div className="mr-5 mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-xl font-bold text-background sm:mb-0">
+								<div className="mr-2 mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-xl font-bold text-background sm:mb-0">
 									!!
 								</div>
-								<div className="text-sm sm:text-base">
+								<div className="text-sm sm:text-base sm:rounded-full rounded-3xl bg-foreground text-white px-6 sm:h-10 h-20 flex items-center justify-center">
 									There might already be some similar polls:
 								</div>
 							</div>
