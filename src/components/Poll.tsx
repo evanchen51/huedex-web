@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { IMAGE } from "../constants"
 import { d } from "../displayTexts"
 import { Poll as PollType, useGetAllOptionsQuery } from "../generated/graphql"
@@ -11,8 +11,8 @@ import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 import { useImageFullViewer } from "../utils/useImageFullViewer"
 import { useVoteHandler } from "../utils/useVoteHandler"
 import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
-import Options from "./Options"
 import LoadingSpinner from "./LoadingSpinner"
+import Options from "./Options"
 
 const Poll: React.FC<{
 	poll: PollType
@@ -27,7 +27,12 @@ const Poll: React.FC<{
 
 	const [pollHovering, setPollHovering] = useState(false)
 
-	const [imageLoading, setImageLoading] = useState(true)
+	const [imageLoader,setImageLoader] = useState<{
+		URL: string
+		retried: number
+		loaded: boolean
+	}>({ URL: poll.mediaURL ?? "", retried: 0, loaded: false })
+	const imageLoaderTimer = useRef<NodeJS.Timeout|null>(null)
 
 	const [allOptionsToggle, setAllOptionsToggle] = useState(false)
 	const [{ data: allOptionsData, fetching: allOptionsFetching }] = useGetAllOptionsQuery({
@@ -154,40 +159,74 @@ const Poll: React.FC<{
 						// 		"inset -4px -4px 6px 2px rgb(256, 256, 256), inset 4px 4px 6px 2px rgb(216, 216, 216)",
 						// }}
 					>
-						{poll.mediaTypeCode && poll.mediaTypeCode === IMAGE && poll.mediaURL && (
-							<div className="item-center mb-6 flex w-full justify-center">
-								<div
-									className="relative h-[200px] w-full overflow-hidden rounded-xl sm:h-[400px] sm:w-full"
-									onClick={(e) => {
-										e.preventDefault()
-										e.stopPropagation()
-										e.nativeEvent.stopImmediatePropagation()
-										onImageFullView(poll.mediaURL || "")
-									}}
-								>
-									<Image
-										src={poll.mediaURL}
-										alt={""}
-										fill={true}
-										className="object-cover	"
-										style={{zIndex:1}}
-										onLoad={()=>{setImageLoading(false)}}
-										// onClick={(e) => {
-										// 	e.preventDefault()
-										// 	e.stopPropagation()
-										// 	e.nativeEvent.stopImmediatePropagation()
-										// 	setImageFullViewImage({
-										// 		src: e.currentTarget.src,
-										// 		width: e.currentTarget.naturalWidth,
-										// 		height: e.currentTarget.naturalHeight,
-										// 	})
-										// 	setImageFullViewToggle(true)
-										// }}
-									/>
-									{imageLoading&&<div className="z-0 w-full h-full flex items-center justify-center"><LoadingSpinner/></div>}
+						{poll.mediaTypeCode &&
+							poll.mediaTypeCode === IMAGE &&
+							poll.mediaURL &&
+							imageLoader.URL && (
+								<div className="item-center mb-6 flex w-full justify-center">
+									<div
+										className="relative h-[200px] w-full overflow-hidden rounded-xl sm:h-[400px] sm:w-full"
+										onClick={(e) => {
+											e.preventDefault()
+											e.stopPropagation()
+											e.nativeEvent.stopImmediatePropagation()
+											if (imageLoader.URL)
+												onImageFullView(imageLoader.URL || "/image-error.png")
+										}}
+									>
+										<Image
+											src={imageLoader.URL||"/image-error.png"}
+											alt={""}
+											fill={true}
+											className="object-cover	"
+											style={{
+												zIndex: 1,
+												opacity: imageLoader.loaded ? "1" : "0",
+											}}
+											onLoad={() => {
+												setImageLoader(prev=>({...prev,loaded:true}))
+											}}
+											onError={() => {
+												if (imageLoader.retried >= 5) {
+													setImageLoader((prev) => ({
+														...prev,
+														URL: "/image-error.png",
+														loaded: true,
+													}))
+													return
+												}
+												if (imageLoaderTimer.current) return
+												imageLoaderTimer.current = setTimeout(() => {
+													setImageLoader((prev) => ({
+														...prev,
+														URL: poll.mediaURL + "?" + +new Date(),
+														retried:imageLoader.retried+1
+													}))
+													if (imageLoaderTimer.current)
+														clearTimeout(imageLoaderTimer.current)
+													imageLoaderTimer.current = null
+												}, 500)
+											}}
+											// onClick={(e) => {
+											// 	e.preventDefault()
+											// 	e.stopPropagation()
+											// 	e.nativeEvent.stopImmediatePropagation()
+											// 	setImageFullViewImage({
+											// 		src: e.currentTarget.src,
+											// 		width: e.currentTarget.naturalWidth,
+											// 		height: e.currentTarget.naturalHeight,
+											// 	})
+											// 	setImageFullViewToggle(true)
+											// }}
+										/>
+										{!imageLoader.loaded && (
+											<div className="z-0 flex h-full w-full items-center justify-center">
+												<LoadingSpinner />
+											</div>
+										)}
+									</div>
 								</div>
-							</div>
-						)}
+							)}
 
 						<div
 							className="h-full grow cursor-text font-medium text-foreground"

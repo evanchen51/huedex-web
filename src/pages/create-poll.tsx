@@ -1089,30 +1089,31 @@ const CreatePoll: React.FC<{}> = ({}) => {
 											console.log("s3 signature error")
 											return
 										}
-										const disttributeURL: (
-											URLs: string[],
-											inputs: ImageInputType[]
-										) => ImageInputType[] = (URLs, inputs) => {
-											if (URLs.length === 1) {
-												if (inputs[0].file) {
-													return [{ ...inputs[0], URL: URLs[0] }]
-												} else
-													return [
-														{ ...inputs[0], URL: "" },
-														...disttributeURL(URLs, inputs.slice(1)),
-													]
-											} else if (inputs[0].file) {
-												return [
-													{ ...inputs[0], URL: URLs[0] },
-													...disttributeURL(URLs.slice(1), inputs.slice(1)),
-												]
-											} else
-												return [
-													{ ...inputs[0], URL: "" },
-													...disttributeURL(URLs, inputs.slice(1)),
-												]
-										}
-										id = await (async (readiedOptionImageInputs) => {
+										// const disttributeURL: (
+										// 	URLs: string[],
+										// 	inputs: ImageInputType[]
+										// ) => ImageInputType[] = (URLs, inputs) => {
+										// 	console.log("inputs", inputs)
+										// 	if (URLs.length === 1) {
+										// 		if (inputs[0].file) {
+										// 			return [{ ...inputs[0], URL: URLs[0] }]
+										// 		} else
+										// 			return [
+										// 				{ ...inputs[0], URL: "" },
+										// 				...disttributeURL(URLs, inputs.slice(1)),
+										// 			]
+										// 	} else if (inputs[0].file) {
+										// 		return [
+										// 			{ ...inputs[0], URL: URLs[0] },
+										// 			...disttributeURL(URLs.slice(1), inputs.slice(1)),
+										// 		]
+										// 	} else
+										// 		return [
+										// 			{ ...inputs[0], URL: "" },
+										// 			...disttributeURL(URLs, inputs.slice(1)),
+										// 		]
+										// }
+										id = await(async (readiedOptionImageInputs) => {
 											return (
 												await createPoll({
 													createPollInput: {
@@ -1122,27 +1123,31 @@ const CreatePoll: React.FC<{}> = ({}) => {
 															s3URL[0] && {
 																media: { type: IMAGE, URL: s3URL[0].split("?")[0] },
 															}),
-														...(readiedOptionImageInputs &&
-															readiedOptionImageInputs.length > 0 && {
-																options: createPollInput.options.map((e, i) => ({
-																	text: e.text,
+														...{
+															options: createPollInput.options.map((e, i) => ({
+																text: e.text,
+																...(readiedOptionImageInputs[i] && {
 																	media: {
 																		type: IMAGE,
 																		URL:
-																			readiedOptionImageInputs[i].URL?.split(
+																			readiedOptionImageInputs[i].split(
 																				"?"
 																			)[0] || "",
 																	},
-																})),
-															}),
+																}),
+															})),
+														},
 													},
 												})
 											).data?.createPoll?.id
 										})(
-											disttributeURL(
-												s3URL.slice(pollImageInput.file ? 1 : 0),
-												optionImageInputs
-											)
+											((URLs) => {
+												let p = 0, r:Record<number,string> = {}
+												for (let i = 0; i < optionImageInputs.length; i++){
+													r = { ...r, [i]: optionImageInputs[i].file ? URLs[p++]:""}
+												}
+												return r
+											})(s3URL.slice(pollImageInput.file?1:0))
 										)
 										Promise.all(
 											[

@@ -1,6 +1,6 @@
 // import isEqual from "lodash/isEqual"
 import Image from "next/image"
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import { IMAGE } from "../constants"
 import { Option as OptionType, Poll as PollType } from "../generated/graphql"
 import { HextoHSL, colors } from "../utils/colors"
@@ -20,7 +20,24 @@ const Options: React.FC<{
 	const { voteHandler, sessionState, initState } = useVoteHandler()
 	const { onImageFullView } = useImageFullViewer()
 
-	const [imageLoading, setImageLoading] = useState<Record<number, boolean>>({})
+	// const [imageLoading, setImageLoading] = useState<Record<number, boolean>>({})
+	// const [imageURLs, setImageURLs] = useState<Record<number, string>>(
+	// 	poll.options ? poll.options?.reduce((r, e, i) => ({ ...r, [i]: e.mediaURL ?? "" }), {}) : {}
+	// )
+	const [imageLoader, setImageLoader] = useState<
+		Record<number, { URL: string; retried: number; loaded: boolean }>
+	>(
+		poll.options
+			? poll.options?.reduce(
+					(r, e, i) => ({
+						...r,
+						[i]: { URL: e.mediaURL ?? "", timer: null, retried: 0, loaded: false },
+					}),
+					{}
+			  )
+			: {}
+	)
+	const imageLoaderTimer = useRef<Record<number, NodeJS.Timeout | null>>({})
 
 	// const optionHeight = poll.options?.reduce((r:string,e) => {
 	// 	if (e.text.length > 60) return ""
@@ -187,26 +204,63 @@ const Options: React.FC<{
 									</div>
 									{option.mediaTypeCode &&
 										option.mediaTypeCode === IMAGE &&
-										option.mediaURL && (
+										option.mediaURL &&
+										imageLoader[i].URL && (
 											<div className="item-center mt-6 flex w-full justify-center">
 												<div
 													className="relative h-[156px] w-[156px] cursor-pointer overflow-hidden rounded-xl"
 													onClick={() => {
-														onImageFullView(option.mediaURL || "")
+														if (imageLoader[i].URL)
+															onImageFullView(
+																imageLoader[i].URL || "/image-error.png"
+															)
 													}}
 												>
 													{/* <div className="relative h-52 w-52 overflow-hidden rounded-xl sm:h-[216px] sm:w-[216px]"> */}
 													<Image
-														src={option.mediaURL}
+														src={imageLoader[i].URL || "/image-error.png"}
 														alt={""}
 														fill={true}
 														className="object-cover	"
-														style={{ zIndex: 1 }}
+														style={{
+															zIndex: 1,
+															opacity: imageLoader[i].loaded ? "1" : "0",
+														}}
 														onLoad={() => {
-															setImageLoading((prev) => ({ ...prev, [i]: true }))
+															setImageLoader((prev) => ({
+																...prev,
+																[i]: { ...prev[i], loaded: true },
+															}))
+														}}
+														onError={() => {
+															if (imageLoader[i].retried >= 5) {
+																setImageLoader((prev) => ({
+																	...prev,
+																	[i]: {
+																		...prev[i],
+																		URL: "/image-error.png",
+																		loaded: true,
+																	},
+																}))
+																return
+															}
+															if (imageLoaderTimer.current[i]) return
+															imageLoaderTimer.current[i] = setTimeout(() => {
+																setImageLoader((prev) => ({
+																	...prev,
+																	[i]: {
+																		...prev[i],
+																		URL: option.mediaURL + "?" + +new Date(),
+																		retried: prev[i].retried + 1,
+																	},
+																}))
+																if (imageLoaderTimer.current[i])
+																	clearTimeout(imageLoaderTimer.current[i] as NodeJS.Timeout)
+																imageLoaderTimer.current[i] = null
+															}, 500)
 														}}
 													/>
-													{!imageLoading[i] && (
+													{!imageLoader[i].loaded && (
 														<div className="z-0 flex h-full w-full items-center justify-center">
 															<LoadingSpinner />
 														</div>
