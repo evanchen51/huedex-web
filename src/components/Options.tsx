@@ -1,6 +1,6 @@
 // import isEqual from "lodash/isEqual"
 import Image from "next/image"
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { IMAGE } from "../constants"
 import { Option as OptionType, Poll as PollType } from "../generated/graphql"
 import { HextoHSL, colors } from "../utils/colors"
@@ -31,12 +31,29 @@ const Options: React.FC<{
 			? poll.options?.reduce(
 					(r, e, i) => ({
 						...r,
-						[i]: { URL: e.mediaURL ?? "", timer: null, retried: 0, loaded: false },
+						[i]: { URL: e.mediaURL ?? "", retried: 0, loaded: false },
 					}),
 					{}
 			  )
 			: {}
 	)
+	useEffect(() => {
+		setImageLoader((prev) =>
+			poll.options
+				? poll.options?.reduce(
+						(r, e, i) => ({
+							...r,
+							[i]: {
+								URL: e.mediaURL ?? (prev[i] && prev[i].URL ? prev[i].URL : ""),
+								retried: prev[i] && prev[i].retried ? prev[i].retried : 0,
+								loaded: prev[i] && prev[i].loaded ? prev[i].loaded : false,
+							},
+						}),
+						{}
+				  )
+				: {}
+		)
+	},[poll])
 	const imageLoaderTimer = useRef<Record<number, NodeJS.Timeout | null>>({})
 
 	// const optionHeight = poll.options?.reduce((r:string,e) => {
@@ -215,6 +232,7 @@ const Options: React.FC<{
 									{option.mediaTypeCode &&
 										option.mediaTypeCode === IMAGE &&
 										option.mediaURL &&
+										imageLoader[i] &&
 										imageLoader[i].URL && (
 											<div className="item-center mt-6 flex w-full justify-center">
 												<div
