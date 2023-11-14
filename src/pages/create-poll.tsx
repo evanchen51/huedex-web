@@ -20,6 +20,7 @@ import { colors } from "../utils/colors"
 import { noBrowser } from "../utils/noBrowser"
 import { urqlClientOptions } from "../utils/urqlClient"
 import { useImageFullViewer } from "../utils/useImageFullViewer"
+import Head from "next/head"
 
 const CreatePoll: React.FC<{}> = ({}) => {
 	const router = useRouter()
@@ -73,6 +74,9 @@ const CreatePoll: React.FC<{}> = ({}) => {
 
 	return (
 		<div className="relative">
+			<Head>
+				<title>Huedex | Create a Poll</title>
+			</Head>
 			<Header />
 			{/* <ImageFullView control={imageFullViewControl} /> */}
 			<div
@@ -910,7 +914,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 								<div className="mr-2 mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-xl font-bold text-background sm:mb-0">
 									!!
 								</div>
-								<div className="text-sm sm:text-base sm:rounded-full rounded-3xl bg-foreground text-white px-6 sm:h-10 h-20 flex items-center justify-center">
+								<div className="flex h-20 items-center justify-center rounded-3xl bg-foreground px-6 text-sm text-white sm:h-10 sm:rounded-full sm:text-base">
 									There might already be some similar polls:
 								</div>
 							</div>
@@ -999,7 +1003,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 										id: "placeholderId:" + i,
 										text: e.text,
 										numOfVotes: 0,
-										index:i,
+										index: i,
 										...(optionImageInputs[i].URL && {
 											mediaTypeCode: IMAGE,
 											mediaURL: optionImageInputs[i].URL,
@@ -1114,7 +1118,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 										// 			...disttributeURL(URLs, inputs.slice(1)),
 										// 		]
 										// }
-										id = await(async (readiedOptionImageInputs) => {
+										id = await (async (readiedOptionImageInputs) => {
 											return (
 												await createPoll({
 													createPollInput: {
@@ -1143,12 +1147,13 @@ const CreatePoll: React.FC<{}> = ({}) => {
 											).data?.createPoll?.id
 										})(
 											((URLs) => {
-												let p = 0, r:Record<number,string> = {}
-												for (let i = 0; i < optionImageInputs.length; i++){
-													r = { ...r, [i]: optionImageInputs[i].file ? URLs[p++]:""}
+												let p = 0,
+													r: Record<number, string> = {}
+												for (let i = 0; i < optionImageInputs.length; i++) {
+													r = { ...r, [i]: optionImageInputs[i].file ? URLs[p++] : "" }
 												}
 												return r
-											})(s3URL.slice(pollImageInput.file?1:0))
+											})(s3URL.slice(pollImageInput.file ? 1 : 0))
 										)
 										Promise.all(
 											[

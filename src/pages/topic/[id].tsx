@@ -13,6 +13,7 @@ import {
 import { colors } from "../../utils/colors"
 import { urqlClientOptions } from "../../utils/urqlClient"
 import { useVoteHandler } from "../../utils/useVoteHandler"
+import Head from "next/head"
 
 const TopicPage: React.FC<{}> = ({}) => {
 	const router = useRouter()
@@ -102,6 +103,9 @@ const TopicPage: React.FC<{}> = ({}) => {
 
 	return (
 		<div className="h-screen">
+			<Head>
+				<title>Huedex | {(router.query.id as string).replace("-", " ")}</title>
+			</Head>
 			<LoginPrompt message={"Login/Join to vote"} control={loginPromptControl} />
 			<Header />
 			<div className="pointer-events-none h-20 w-1" />

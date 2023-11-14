@@ -10,6 +10,7 @@ import { urqlClientOptions } from "../utils/urqlClient"
 import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 import { usePreserveScroll } from "../utils/usePreserveScroll"
 import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
+import Head from "next/head"
 
 const Home: React.FC<{}> = ({}) => {
 	const router = useRouter()
@@ -64,6 +65,9 @@ const Home: React.FC<{}> = ({}) => {
 
 	return (
 		<div>
+			<Head>
+				<title>Huedex | Home</title>
+			</Head>
 			<DisplayLanguagePrompt
 				state={displayLanguagePrompt}
 				toggle={setDisplayLanguagePromptToggle}
@@ -78,12 +82,12 @@ const Home: React.FC<{}> = ({}) => {
 							(i !== a.length - 2 ? (
 								<div className="mt-12" key={e.id}>
 									{/* <Link href="/poll/[id]" as={`/poll/${e.id}`}> */}
-									<Poll poll={{ ...e.item, options: e.item.topOptions }} link={true}/>
+									<Poll poll={{ ...e.item, options: e.item.topOptions }} link={true} />
 									{/* </Link> */}
 								</div>
 							) : (
 								<div className="mt-12" key={e.id} ref={loadPointRef}>
-									<Poll poll={{ ...e.item, options: e.item.topOptions }} link={true}/>
+									<Poll poll={{ ...e.item, options: e.item.topOptions }} link={true} />
 								</div>
 							))
 					)}

@@ -11,7 +11,7 @@ const CreatePollCheck: React.FC<{}> = ({}) => {
 	const [{ data: data, fetching: fetching }] = useCreatePollCheckQuery({ pause: noBrowser() })
 	if (noBrowser() || fetching) return <LoadingScreen />
 	if (!data) return <>error</>
-	else router.push("/create-poll")
+	else router.replace("/create-poll")
 	return <LoadingScreen />
 }
 

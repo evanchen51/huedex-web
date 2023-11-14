@@ -11,6 +11,7 @@ import { noBrowser } from "../utils/noBrowser"
 import { urqlClientOptions } from "../utils/urqlClient"
 import { useVoteHandler } from "../utils/useVoteHandler"
 import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
+import Head from "next/head"
 
 const Visitor: React.FC<{}> = ({}) => {
 	const router = useRouter()
@@ -38,6 +39,9 @@ const Visitor: React.FC<{}> = ({}) => {
 
 	return (
 		<div className="relative">
+			<Head>
+				<title>Huedex | Home</title>
+			</Head>
 			<LoginPrompt message={"Login/Join to vote"} control={loginPromptControl} />
 			<Header home={true} visitor={true} />
 			<div className="flex max-w-full flex-col items-center overflow-x-hidden">

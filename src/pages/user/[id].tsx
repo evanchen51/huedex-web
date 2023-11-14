@@ -14,6 +14,7 @@ import {
 import { colors } from "../../utils/colors"
 import { urqlClientOptions } from "../../utils/urqlClient"
 import { useVoteHandler } from "../../utils/useVoteHandler"
+import Head from "next/head"
 
 const UserPage: React.FC<{}> = ({}) => {
 	const router = useRouter()
@@ -118,6 +119,9 @@ const UserPage: React.FC<{}> = ({}) => {
 
 	return (
 		<div className="h-screen">
+			<Head>
+				<title>Huedex | {userData?.getUser?.displayName || "..."}</title>
+			</Head>
 			<LoginPrompt message={"Login/Join to vote"} control={loginPromptControl} />
 			<Header />
 			<div className="pointer-events-none h-16 w-full" />
