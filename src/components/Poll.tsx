@@ -233,9 +233,9 @@ const Poll: React.FC<{
 							className="h-full grow cursor-text font-medium text-foreground"
 							// style={{ fontSize: pollTextFontSize(poll.text) }}
 							style={{
-								fontSize: fullViewMode && poll.text.length < 50 ? "48px" : "16px",
-								marginTop: fullViewMode && poll.text.length < 50 ? "36px" : "0px",
-								marginBottom: fullViewMode && poll.text.length < 50 ? "48px" : "0px",
+								fontSize: fullViewMode && poll.text&&poll.text.length < 50 ? "48px" : "16px",
+								marginTop: fullViewMode && poll.text&&poll.text.length < 50 ? "36px" : "0px",
+								marginBottom: fullViewMode && poll.text&&poll.text.length < 50 ? "48px" : "0px",
 							}}
 							onMouseEnter={(e) => {
 								e.stopPropagation()

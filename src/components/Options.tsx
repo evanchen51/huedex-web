@@ -25,13 +25,13 @@ const Options: React.FC<{
 	// 	poll.options ? poll.options?.reduce((r, e, i) => ({ ...r, [i]: e.mediaURL ?? "" }), {}) : {}
 	// )
 	const [imageLoader, setImageLoader] = useState<
-		Record<number, { URL: string; retried: number; loaded: boolean }>
+		Record<string, { URL: string; retried: number; loaded: boolean }>
 	>(
 		poll.options
 			? poll.options?.reduce(
-					(r, e, i) => ({
+					(r, e) => ({
 						...r,
-						[i]: { URL: e.mediaURL ?? "", retried: 0, loaded: false },
+						[e.id]: { URL: e.mediaURL ?? "", retried: 0, loaded: false },
 					}),
 					{}
 			  )
@@ -42,12 +42,12 @@ const Options: React.FC<{
 		setImageLoader((prev) =>
 			poll.options
 				? poll.options?.reduce(
-						(r, e, i) => ({
+						(r, e) => ({
 							...r,
-							[i]: {
-								URL: e.mediaURL ?? (prev[i] && prev[i].URL ? prev[i].URL : ""),
-								retried: prev[i] && prev[i].retried ? prev[i].retried : 0,
-								loaded: prev[i] && prev[i].loaded ? prev[i].loaded : false,
+							[e.id]: {
+								URL: e.mediaURL ?? (prev[e.id] && prev[e.id].URL ? prev[e.id].URL : ""),
+								retried: prev[e.id] && prev[e.id].retried ? prev[e.id].retried : 0,
+								loaded: prev[e.id] && prev[e.id].loaded ? prev[e.id].loaded : false,
 							},
 						}),
 						{}
@@ -55,7 +55,7 @@ const Options: React.FC<{
 				: {}
 		)
 	}, [poll])
-	const imageLoaderTimer = useRef<Record<number, NodeJS.Timeout | null>>({})
+	const imageLoaderTimer = useRef<Record<string, NodeJS.Timeout | null>>({})
 
 	// const optionHeight = poll.options?.reduce((r:string,e) => {
 	// 	if (e.text.length > 60) return ""
@@ -84,7 +84,7 @@ const Options: React.FC<{
 						const voted = initState[e.id] || false
 						return !voted ? [...r, e] : [e, ...r]
 					}, [] as OptionType[])
-					.map((option, i) => {
+					.map((option) => {
 						const voted = sessionState[poll.id]?.options[option.id]?.state === "voted"
 						const numOfVotes = sessionState[poll.id]?.options[option.id]?.numOfVotes
 						return (
@@ -134,7 +134,7 @@ const Options: React.FC<{
 											e.stopPropagation()
 											e.nativeEvent.stopImmediatePropagation()
 											voteHandler(poll.id, option.id)
-											if(!startedVoting)setStartedVoting(true)
+											if (!startedVoting) setStartedVoting(true)
 										}}
 										onMouseEnter={(e) => {
 											e.currentTarget.style.boxShadow = voted
@@ -237,65 +237,65 @@ const Options: React.FC<{
 									{option.mediaTypeCode &&
 										option.mediaTypeCode === IMAGE &&
 										option.mediaURL &&
-										imageLoader[i] &&
-										imageLoader[i].URL && (
+										imageLoader[option.id] &&
+										imageLoader[option.id].URL && (
 											<div className="item-center mt-6 flex w-full justify-center">
 												<div
 													className="relative h-[156px] w-[156px] cursor-pointer overflow-hidden rounded-xl"
 													onClick={() => {
-														if (imageLoader[i].URL)
+														if (imageLoader[option.id].URL)
 															onImageFullView(
-																imageLoader[i].URL || "/image-error.png"
+																imageLoader[option.id].URL || "/image-error.png"
 															)
 													}}
 												>
 													{/* <div className="relative h-52 w-52 overflow-hidden rounded-xl sm:h-[216px] sm:w-[216px]"> */}
 													<Image
-														src={imageLoader[i].URL || "/image-error.png"}
+														src={imageLoader[option.id].URL || "/image-error.png"}
 														alt={""}
 														fill={true}
 														className="object-cover	"
 														style={{
 															zIndex: 1,
-															opacity: imageLoader[i].loaded ? "1" : "0",
+															opacity: imageLoader[option.id].loaded ? "1" : "0",
 														}}
 														onLoad={() => {
 															setImageLoader((prev) => ({
 																...prev,
-																[i]: { ...prev[i], loaded: true },
+																[option.id]: { ...prev[option.id], loaded: true },
 															}))
 														}}
 														onError={() => {
-															if (imageLoader[i].retried >= 5) {
+															if (imageLoader[option.id].retried >= 5) {
 																setImageLoader((prev) => ({
 																	...prev,
-																	[i]: {
-																		...prev[i],
+																	[option.id]: {
+																		...prev[option.id],
 																		URL: "/image-error.png",
 																		loaded: true,
 																	},
 																}))
 																return
 															}
-															if (imageLoaderTimer.current[i]) return
-															imageLoaderTimer.current[i] = setTimeout(() => {
+															if (imageLoaderTimer.current[option.id]) return
+															imageLoaderTimer.current[option.id] = setTimeout(() => {
 																setImageLoader((prev) => ({
 																	...prev,
-																	[i]: {
-																		...prev[i],
+																	[option.id]: {
+																		...prev[option.id],
 																		URL: option.mediaURL + "?" + +new Date(),
-																		retried: prev[i].retried + 1,
+																		retried: prev[option.id].retried + 1,
 																	},
 																}))
-																if (imageLoaderTimer.current[i])
+																if (imageLoaderTimer.current[option.id])
 																	clearTimeout(
-																		imageLoaderTimer.current[i] as NodeJS.Timeout
+																		imageLoaderTimer.current[option.id] as NodeJS.Timeout
 																	)
-																imageLoaderTimer.current[i] = null
+																imageLoaderTimer.current[option.id] = null
 															}, 500)
 														}}
 													/>
-													{!imageLoader[i].loaded && (
+													{!imageLoader[option.id].loaded && (
 														<div className="z-0 flex h-full w-full items-center justify-center">
 															<LoadingSpinner />
 														</div>
