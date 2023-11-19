@@ -60,8 +60,8 @@ export const DisplayLanguagePrompt: React.FC<{
 								<path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
 							</svg>
 						</button>
-						<div className="mr-2 tracking-wider text-secondary opacity-60 text-sm">
-							{d(L,"Change Display Language?")}
+						<div className="mr-2 text-sm tracking-wider text-secondary opacity-60">
+							{d(L, "Change Display Language?")}
 						</div>
 						<svg
 							className="h-4 fill-secondary opacity-60"
@@ -78,7 +78,7 @@ export const DisplayLanguagePrompt: React.FC<{
 								.map((e) => (
 									<label
 										key={e.code}
-										className="flex flex-row items-center text-background cursor-pointer"
+										className="flex cursor-pointer flex-row items-center text-background"
 										onClick={() => {
 											setChoice(e.code)
 										}}

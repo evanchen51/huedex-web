@@ -1,10 +1,12 @@
 import { withUrqlClient } from "next-urql"
+import Head from "next/head"
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useRef, useState } from "react"
 import Header from "../../components/Header"
 import LoadingSpinner from "../../components/LoadingSpinner"
 import { LoginPrompt } from "../../components/LoginPrompt"
 import Poll from "../../components/Poll"
+import { d } from "../../displayTexts"
 import {
 	FeedItem,
 	useGetUserPostedPollsQuery,
@@ -14,9 +16,11 @@ import {
 import { colors } from "../../utils/colors"
 import { urqlClientOptions } from "../../utils/urqlClient"
 import { useVoteHandler } from "../../utils/useVoteHandler"
-import Head from "next/head"
+import { useGetDisplayLanguage } from "../../utils/useGetDisplayLanguage"
+import Sidebar from "../../components/Sidebar"
 
 const UserPage: React.FC<{}> = ({}) => {
+	const L = useGetDisplayLanguage()
 	const router = useRouter()
 
 	// const [{ data: currentUserData, fetching: currentUserFetching }] = useGetCurrentUserQuery({
@@ -124,6 +128,7 @@ const UserPage: React.FC<{}> = ({}) => {
 			</Head>
 			<LoginPrompt message={"Login/Join to vote"} control={loginPromptControl} />
 			<Header />
+			<Sidebar />
 			<div className="pointer-events-none h-16 w-full" />
 			<div className="flex w-full flex-row items-center justify-center">
 				<div className="flex w-full max-w-[560px] flex-row items-center justify-center pt-9 font-normal">
@@ -140,12 +145,20 @@ const UserPage: React.FC<{}> = ({}) => {
 					onClick={() => {
 						setTabToggle("voted")
 					}}
+					onMouseEnter={(e) => {
+						if (tabToggle === "voted") return
+						;(e.currentTarget.lastElementChild as HTMLElement).style.opacity = "0.2"
+					}}
+					onMouseLeave={(e) => {
+						if (tabToggle === "voted") return
+						;(e.currentTarget.lastElementChild as HTMLElement).style.opacity = "0"
+					}}
 				>
-					voted
+					{d(L, "voted")}
 					<div
-						className="mt-1 h-1 w-1 rounded-xl bg-foreground"
+						className="mt-1 h-1 w-1 rounded-xl bg-foreground transition-opacity duration-200"
 						style={{
-							visibility: tabToggle === "voted" ? "visible" : "hidden",
+							opacity: tabToggle === "voted" ? "1" : "0",
 						}}
 					/>
 				</div>
@@ -157,18 +170,26 @@ const UserPage: React.FC<{}> = ({}) => {
 					onClick={() => {
 						setTabToggle("posted")
 					}}
+					onMouseEnter={(e) => {
+						if (tabToggle === "posted") return
+						;(e.currentTarget.lastElementChild as HTMLElement).style.opacity = "0.2"
+					}}
+					onMouseLeave={(e) => {
+						if (tabToggle === "posted") return
+						;(e.currentTarget.lastElementChild as HTMLElement).style.opacity = "0"
+					}}
 				>
-					posted
+					{d(L, "posted")}
 					<div
-						className="mt-1 h-1 w-1 rounded-xl bg-foreground"
+						className="mt-1 h-1 w-1 rounded-xl bg-foreground transition-opacity duration-200"
 						style={{
-							visibility: tabToggle === "posted" ? "visible" : "hidden",
+							opacity: tabToggle === "posted" ? "1" : "0",
 						}}
 					/>
 				</div>
 			</div>
 			<div className="flex h-max max-w-full flex-col items-center overflow-x-hidden">
-				<div className="mb-36 mt-[-12px] w-full max-w-[560px]">
+				<div className="mb-36 mt-6 w-full max-w-[560px]">
 					{!feed[tabToggle] || feed[tabToggle].length === 0 ? (
 						<div className="mt-20 flex w-full flex-col items-center">
 							{(tabToggle === "voted" && votedFetching) ||
@@ -185,7 +206,7 @@ const UserPage: React.FC<{}> = ({}) => {
 							(e, i, a) =>
 								e.item &&
 								(i !== a.length - 3 ? (
-									<div className="mt-12">
+									<div className="">
 										<Poll
 											key={e.item.id}
 											poll={{ ...e.item, options: e.item.topOptions }}
@@ -193,7 +214,7 @@ const UserPage: React.FC<{}> = ({}) => {
 										/>
 									</div>
 								) : (
-									<div className="mt-12" ref={loadPointRef}>
+									<div className="" ref={loadPointRef}>
 										<Poll
 											key={e.item.id}
 											poll={{ ...e.item, options: e.item.topOptions }}

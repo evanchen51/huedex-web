@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useMemo, useState } from "react"
 import { LOCALSTORAGE_KEY_FALLBACK_LANGUAGE } from "../constants"
 import { useGetCurrentUserPersonalSettingsQuery } from "../generated/graphql"
 import { DEFAULT_LANGUAGE, displayLanguage } from "./../displayTexts"
@@ -11,7 +11,7 @@ export const useGetDisplayLanguage = (
 	const [{ data: settingsData, fetching: settingsFetching }] =
 		useGetCurrentUserPersonalSettingsQuery({ pause: noBrowser() })
 	const [res, setRes] = useState(DEFAULT_LANGUAGE)
-	useEffect(() => {
+	useMemo(() => {
 		if (settingsFetching) return
 		if (
 			!settingsFetching &&
@@ -30,6 +30,7 @@ export const useGetDisplayLanguage = (
 			settingPromptToggle(true)
 			setRes("")
 		}
+		if (noBrowser()) return
 		const local = localStorage.getItem(LOCALSTORAGE_KEY_FALLBACK_LANGUAGE)
 		if (local) {
 			setRes(local)
@@ -42,6 +43,6 @@ export const useGetDisplayLanguage = (
 			displayLanguage.fallback(browserLanguages)
 		)
 		return
-	}, [settingsData, settingsFetching])
+	}, [settingsData, settingsFetching, noBrowser()])
 	return res
 }

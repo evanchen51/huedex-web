@@ -1,14 +1,17 @@
 // import isEqual from "lodash/isEqual"
 import Image from "next/image"
+import { useRouter } from "next/router"
 import React, { useEffect, useRef, useState } from "react"
 import { IMAGE } from "../constants"
+import { d } from "../displayTexts"
 import { Option as OptionType, Poll as PollType } from "../generated/graphql"
-import { HextoHSL, colors } from "../utils/colors"
+import { colors } from "../utils/colors"
 import { urqlClientOptions } from "../utils/urqlClient"
 import { useImageFullViewer } from "../utils/useImageFullViewer"
 import { useVoteHandler } from "../utils/useVoteHandler"
 import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
 import LoadingSpinner from "./LoadingSpinner"
+import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 
 const Options: React.FC<{
 	poll: PollType
@@ -16,7 +19,11 @@ const Options: React.FC<{
 	setAllOptionsToggle: React.Dispatch<React.SetStateAction<boolean>>
 	displayMode?: boolean
 	pollHovering?: boolean
-}> = ({ poll, allOptionsToggle, setAllOptionsToggle, displayMode, pollHovering }) => {
+	link?: boolean | string
+}> = ({ poll, allOptionsToggle, setAllOptionsToggle, displayMode, link }) => {
+	const L = useGetDisplayLanguage()
+	const router = useRouter()
+
 	const { voteHandler, sessionState, initState } = useVoteHandler()
 	const { onImageFullView } = useImageFullViewer()
 
@@ -63,8 +70,25 @@ const Options: React.FC<{
 	// },"72px")
 
 	return (
-		<div className="flex flex-col">
-			<div className="flex w-max cursor-default flex-row pt-5 pb-5 pl-1 pr-3">
+		<div
+			className="pointer-events-none ml-[50vw] mr-[10vw] flex flex-col sm:mr-[70vw]"
+			style={{
+				cursor: link ? "pointer" : "default",
+			}}
+			onClick={(e) => {
+				e.stopPropagation()
+				if (!link) return
+				if (link === "new-tab") {
+					window.open(`/poll/${poll.id}`, "_blank")
+					return
+				}
+				router.push(`/poll/${poll.id}`)
+			}}
+		>
+			<div
+				className="pointer-events-auto flex w-max flex-row pt-5 pb-5 pl-1"
+				style={{ paddingRight: poll.options?.length === 2 ? "108px" : "48px" }}
+			>
 				{poll.options
 					?.sort((a, b) => {
 						return (
@@ -98,28 +122,76 @@ const Options: React.FC<{
 								// onMouseLeave={(e)=>{e.currentTarget.style.backgroundColor = colors["background"]}}
 							>
 								<div
-									className="mr-2 flex w-[196px] flex-col rounded-b-[44px] rounded-t-[44px] border border-secondary border-opacity-[0.24] px-4 pt-5 pb-2"
+									className="z-20 mr-2 flex w-[196px] cursor-pointer flex-col rounded-b-[44px] rounded-t-[44px] border-2 border-[rgb(252,252,252)] px-4 pt-5 pb-2 backdrop-blur-lg transition"
 									style={{
-										backgroundColor: pollHovering
-											? `hsl(${HextoHSL(colors["background"]).h},${
-													HextoHSL(colors["background"]).s
-											  }%,${HextoHSL(colors["background"]).l - 1}%)`
-											: colors["background"],
+										// backgroundColor: pollHovering
+										// 	? `hsl(${HextoHSL(colors["background"]).h},${
+										// 			HextoHSL(colors["background"]).s
+										// 	  }%,${HextoHSL(colors["background"]).l - 2}%)`
+										// 	: colors["background"],
+										boxShadow:
+											"0px 2px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)",
 									}}
 									onMouseEnter={(e) => {
 										e.stopPropagation()
-										e.currentTarget.style.borderColor = colors["foreground"] + "30"
+										// e.currentTarget.style.borderColor = colors["secondary"] + "60"
+										e.currentTarget.style.boxShadow =
+											"0px 8px 16px -8px rgb(0 0 0 / 0.1), 0px 6px 8px -6px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)"
+										const button = e.currentTarget.querySelector(
+											"#vote-button"
+										) as HTMLElement
+										button.style.boxShadow = voted
+											? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(212, 212, 212), inset 2px 2px 8px 2px rgb(212, 212, 212)"
+											: "-6px -6px 8px 2px rgb(252, 252, 252), inset 4px 4px 6px 0px rgb(252, 252, 252), 6px 6px 8px 2px rgb(233, 233, 233), inset -2px -2px 6px 0px rgb(233, 233, 233)"
+										button.style.transform = "scale(0.98)"
+									}}
+									onMouseDown={(e) => {
+										if (displayMode) return
+										e.currentTarget.style.boxShadow =
+											"0px 0px 12px -6px rgb(0 0 0 / 0.1), 0px 0px 6px -6px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)"
+										const button = e.currentTarget.querySelector(
+											"#vote-button"
+										) as HTMLElement
+										button.style.boxShadow =
+											"6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(200, 200, 200), inset 2px 2px 6px 0px rgb(200, 200, 200)"
+										button.style.transform = "scale(0.96)"
 									}}
 									onMouseLeave={(e) => {
 										e.stopPropagation()
-										e.currentTarget.style.borderColor = colors["secondary"] + "30"
+										// e.currentTarget.style.borderColor = colors["secondary"] + "80"
+										e.currentTarget.style.boxShadow =
+											"0px 2px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)"
+										const button = e.currentTarget.querySelector(
+											"#vote-button"
+										) as HTMLElement
+										button.style.boxShadow = voted
+											? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
+											: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
+										button.style.transform = "scale(1)"
+									}}
+									onMouseUp={(e) => {
+										if (displayMode) return
+										e.currentTarget.style.boxShadow =
+											"0px 2px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)"
+										const button = e.currentTarget.querySelector(
+											"#vote-button"
+										) as HTMLElement
+										button.style.boxShadow = voted
+											? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
+											: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
+										button.style.transform = "scale(1)"
 									}}
 									onClick={(e) => {
 										e.stopPropagation()
 										e.nativeEvent.stopImmediatePropagation()
+										const button = e.currentTarget.querySelector(
+											"#vote-button"
+										) as HTMLElement
+										button.click()
 									}}
 								>
 									<div
+										id={"vote-button"}
 										className={
 											"relative z-20 flex w-full cursor-pointer flex-col rounded-full bg-background px-5 py-4 font-normal text-foreground transition"
 										}
@@ -136,11 +208,11 @@ const Options: React.FC<{
 											voteHandler(poll.id, option.id)
 											if (!startedVoting) setStartedVoting(true)
 										}}
-										onMouseEnter={(e) => {
-											e.currentTarget.style.boxShadow = voted
-												? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(212, 212, 212), inset 2px 2px 8px 2px rgb(212, 212, 212)"
-												: "-6px -6px 8px 2px rgb(252, 252, 252), inset 4px 4px 6px 0px rgb(252, 252, 252), 6px 6px 8px 2px rgb(233, 233, 233), inset -2px -2px 6px 0px rgb(233, 233, 233)"
-											e.currentTarget.style.transform = "scale(0.98)"
+										onMouseEnter={() => {
+											// e.currentTarget.style.boxShadow = voted
+											// 	? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(212, 212, 212), inset 2px 2px 8px 2px rgb(212, 212, 212)"
+											// 	: "-6px -6px 8px 2px rgb(252, 252, 252), inset 4px 4px 6px 0px rgb(252, 252, 252), 6px 6px 8px 2px rgb(233, 233, 233), inset -2px -2px 6px 0px rgb(233, 233, 233)"
+											// e.currentTarget.style.transform = "scale(0.98)"
 										}}
 										onMouseDown={(e) => {
 											if (displayMode) return
@@ -148,11 +220,11 @@ const Options: React.FC<{
 												"6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(200, 200, 200), inset 2px 2px 6px 0px rgb(200, 200, 200)"
 											e.currentTarget.style.transform = "scale(0.96)"
 										}}
-										onMouseLeave={(e) => {
-											e.currentTarget.style.boxShadow = voted
-												? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
-												: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
-											e.currentTarget.style.transform = "scale(1)"
+										onMouseLeave={() => {
+											// e.currentTarget.style.boxShadow = voted
+											// 	? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
+											// 	: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
+											// e.currentTarget.style.transform = "scale(1)"
 										}}
 										onMouseUp={(e) => {
 											if (displayMode) return
@@ -192,7 +264,9 @@ const Options: React.FC<{
 														typeof numOfVotes === "number"
 															? numOfVotes
 															: option.numOfVotes
-													} vote${numOfVotes && numOfVotes === 1 ? "" : "s"})`}
+													} ${d(L, "vote")}${
+														numOfVotes && numOfVotes === 1 ? "" : d(L, "s")
+													})`}
 												</span>
 											</div>
 											<div
@@ -241,12 +315,18 @@ const Options: React.FC<{
 										imageLoader[option.id].URL && (
 											<div className="item-center mt-6 flex w-full justify-center">
 												<div
-													className="relative h-[156px] w-[156px] cursor-pointer overflow-hidden rounded-xl"
-													onClick={() => {
+													className="relative h-[156px] w-[156px] cursor-pointer overflow-hidden rounded-lg"
+													onClick={(e) => {
+														e.stopPropagation()
 														if (imageLoader[option.id].URL)
 															onImageFullView(
 																imageLoader[option.id].URL || "/image-error.png"
 															)
+													}}
+													onMouseDown={(e) => {
+														e.stopPropagation()
+														// e.preventDefault()
+														// e.nativeEvent.stopImmediatePropagation()
 													}}
 												>
 													{/* <div className="relative h-52 w-52 overflow-hidden rounded-xl sm:h-[216px] sm:w-[216px]"> */}
@@ -278,21 +358,26 @@ const Options: React.FC<{
 																return
 															}
 															if (imageLoaderTimer.current[option.id]) return
-															imageLoaderTimer.current[option.id] = setTimeout(() => {
-																setImageLoader((prev) => ({
-																	...prev,
-																	[option.id]: {
-																		...prev[option.id],
-																		URL: option.mediaURL + "?" + +new Date(),
-																		retried: prev[option.id].retried + 1,
-																	},
-																}))
-																if (imageLoaderTimer.current[option.id])
-																	clearTimeout(
-																		imageLoaderTimer.current[option.id] as NodeJS.Timeout
-																	)
-																imageLoaderTimer.current[option.id] = null
-															}, 500)
+															imageLoaderTimer.current[option.id] = setTimeout(
+																() => {
+																	setImageLoader((prev) => ({
+																		...prev,
+																		[option.id]: {
+																			...prev[option.id],
+																			URL: option.mediaURL + "?" + +new Date(),
+																			retried: prev[option.id].retried + 1,
+																		},
+																	}))
+																	if (imageLoaderTimer.current[option.id])
+																		clearTimeout(
+																			imageLoaderTimer.current[
+																				option.id
+																			] as NodeJS.Timeout
+																		)
+																	imageLoaderTimer.current[option.id] = null
+																},
+																500
+															)
 														}}
 													/>
 													{!imageLoader[option.id].loaded && (
@@ -304,7 +389,7 @@ const Options: React.FC<{
 											</div>
 										)}
 									<div
-										className="mx-3.5 mt-7 mb-5 flex max-w-full cursor-text items-center justify-center text-sm text-foreground"
+										className="mx-3.5 mt-7 mb-5 flex w-max max-w-[90%] cursor-text items-center justify-center self-center text-sm text-foreground"
 										style={
 											{
 												// height:
@@ -314,6 +399,21 @@ const Options: React.FC<{
 												// 		: "100%",
 											}
 										}
+										onMouseDown={(e) => {
+											e.stopPropagation()
+											// e.preventDefault()
+											// e.nativeEvent.stopImmediatePropagation()
+										}}
+										onMouseUp={(e) => {
+											e.stopPropagation()
+											// e.preventDefault()
+											// e.nativeEvent.stopImmediatePropagation()
+										}}
+										onClick={(e) => {
+											e.stopPropagation()
+											// e.preventDefault()
+											// e.nativeEvent.stopImmediatePropagation()
+										}}
 									>
 										{option.text}
 									</div>
@@ -343,9 +443,9 @@ const Options: React.FC<{
 						) : (
 							<div className="ml-1 flex flex-row pr-9">
 								<div className="">
-									See All ({poll.numOfOptions})
+									{d(L, "See All ")}({poll.numOfOptions})
 									<p className="mt-1 flex flex-row border-b-[0.5px] border-secondary pb-2.5">
-										Options
+										{d(L, "Options")}
 										<svg
 											className="ml-1.5 mt-[5px] h-3 fill-foreground"
 											xmlns="http://www.w3.org/2000/svg"

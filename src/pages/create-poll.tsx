@@ -1,5 +1,6 @@
 import { Field, FieldArray, Form, Formik } from "formik"
 import { withUrqlClient } from "next-urql"
+import Head from "next/head"
 import Image from "next/image"
 import { useRouter } from "next/router"
 import React, { useEffect, useRef, useState } from "react"
@@ -7,6 +8,7 @@ import Header from "../components/Header"
 import LoadingScreen from "../components/LoadingScreen"
 import Poll from "../components/Poll"
 import { IMAGE, SESSIONSTORAGE_KEY_TOAST_MESSAGE } from "../constants"
+import { d } from "../displayTexts"
 import {
 	CreatePollInput,
 	useCreatePollCheckQuery,
@@ -20,9 +22,10 @@ import { colors } from "../utils/colors"
 import { noBrowser } from "../utils/noBrowser"
 import { urqlClientOptions } from "../utils/urqlClient"
 import { useImageFullViewer } from "../utils/useImageFullViewer"
-import Head from "next/head"
+import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 
 const CreatePoll: React.FC<{}> = ({}) => {
+	const L = useGetDisplayLanguage()
 	const router = useRouter()
 	const [{ data: checkData, fetching: checkFetching }] = useCreatePollCheckQuery({
 		pause: noBrowser(),
@@ -75,7 +78,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 	return (
 		<div className="relative">
 			<Head>
-				<title>Huedex | Create a Poll</title>
+				<title>Huedex | {d(L, "Making poll")}</title>
 			</Head>
 			<Header />
 			{/* <ImageFullView control={imageFullViewControl} /> */}
@@ -95,24 +98,25 @@ const CreatePoll: React.FC<{}> = ({}) => {
 						window.scroll(0, 0)
 						let errors = {} as any
 						values.text = values.text.trim()
-						if (values.text.length < 3) errors = { ...errors, text: "Question too short" }
+						if (values.text.length < 3) errors = { ...errors, text:d(L,"Question too short") }
 						if (values.text === "")
-							errors = { ...errors, text: "Please enter your your question" }
-						if (values.text.length > 3000) errors = { ...errors, text: "Question too long" }
+							errors = { ...errors, text:d(L,"Please enter your your question") }
+						if (values.text.length > 3000)
+							errors = { ...errors, text:d(L,"Question too long") }
 						if (values.existingTopics.length + values.newTopics.length > 5)
 							errors = {
 								...errors,
-								existingTopics: ["Please don't tag too many topics"],
+								existingTopics: [d(L,"Please don't tag too many topics")],
 							}
 						if (values.options.length < 2)
-							errors = { ...errors, options: ["Please provide at least 2 options"] }
+							errors = { ...errors, options: [d(L,"Please provide at least 2 options")] }
 						values.options = values.options.map((e) => e.trim())
 						values.options.forEach((e, i) => {
 							if (e === "" && !optionImageInputs[i].file)
 								// if option blank
 								errors = {
 									...errors,
-									options: ["Please don't leave any options blank"],
+									options: [d(L,"Please don't leave any options blank")],
 								}
 						})
 						if (
@@ -120,7 +124,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 							[...new Set(values.options.map((e, i) => e + optionImageInputs[i].file?.name))]
 								.length < values.options.length
 						)
-							errors = { ...errors, options: ["Please avoid duplicate options"] }
+							errors = { ...errors, options: [d(L,"Please avoid duplicate options")] }
 						return errors
 					}}
 					validateOnChange={false}
@@ -140,7 +144,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 								{/* main text */}
 								<div className="flex flex-col">
 									<div className="flex w-full flex-col border-b-[0.5px] border-foreground border-opacity-30 pb-5 text-sm">
-										<div className="text-foreground">Poll Question</div>
+										<div className="text-foreground">{d(L, "Poll Question")}</div>
 										<div className="mt-1 text-negative">{errors.text && errors.text}</div>
 									</div>
 
@@ -157,18 +161,18 @@ const CreatePoll: React.FC<{}> = ({}) => {
 												</svg>
 												{/* <div className="text-sm text-foreground">Add</div> */}
 												<div
-													className="ml-2 flex cursor-pointer flex-row items-center rounded-lg border-[0.5px] border-dashed border-background px-2 py-0.5"
+													className="ml-2 flex cursor-pointer flex-row items-center rounded-lg border-[0.5px] border-dashed border-background bg-foreground bg-opacity-0 px-2 py-0.5 hover:bg-opacity-[0.03]"
 													onClick={(e) => {
 														const e_1 = e.currentTarget.lastElementChild
 														const e_2 = e.currentTarget
-														if (e_1) e_1.innerHTML = "Selecting..."
+														if (e_1) e_1.innerHTML =d(L,"Selecting...")
 														if (e_2) e_2.style.borderColor = colors["secondary"]
 														setPollImageInput((prev) => ({ ...prev, error: "" }))
 														;(
 															e.currentTarget?.firstElementChild as HTMLElement
 														)?.click()
 														setTimeout(() => {
-															if (e_1) e_1.innerHTML = "Image"
+															if (e_1) e_1.innerHTML =d(L,"Image")
 															if (e_2) e_2.style.borderColor = colors["background"]
 														}, 1500)
 													}}
@@ -208,7 +212,9 @@ const CreatePoll: React.FC<{}> = ({}) => {
 													>
 														<path d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6h96 32H424c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z" />
 													</svg>
-													<div className="ml-2 text-sm text-foreground">Image</div>
+													<div className="ml-2 text-sm text-foreground">
+														{d(L, "Image")}
+													</div>
 												</div>
 											</div>
 										</div>
@@ -221,7 +227,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 									{pollImageInput.URL && (
 										<div className="mt-4 mb-2 flex w-full flex-row justify-center">
 											<div
-												className="relative h-64 w-64 cursor-pointer overflow-hidden rounded-2xl sm:h-72 sm:w-72"
+												className="relative h-64 w-64 cursor-pointer overflow-hidden rounded-lg sm:h-72 sm:w-72"
 												onClick={() => {
 													onImageFullView(pollImageInput.URL || "")
 												}}
@@ -243,7 +249,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 											</div>
 											<button
 												type="button"
-												className="flex h-full flex-col items-start pl-3 pt-1"
+												className="flex h-full flex-col items-start pl-2"
 												onClick={() => {
 													setPollImageInput((prev) => ({
 														...prev,
@@ -252,13 +258,21 @@ const CreatePoll: React.FC<{}> = ({}) => {
 													}))
 												}}
 											>
-												<svg
-													xmlns="http://www.w3.org/2000/svg"
-													className="h-4 fill-foreground"
-													viewBox="0 0 384 512"
+												<div
+													className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground bg-opacity-0 hover:bg-opacity-[0.03]"
+													onMouseDown={(e) => {
+														e.currentTarget.style.backgroundColor =
+															"rgba(34,34,34,0.2)"
+													}}
 												>
-													<path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
-												</svg>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														className="h-4 fill-foreground"
+														viewBox="0 0 384 512"
+													>
+														<path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+													</svg>
+												</div>
 											</button>
 										</div>
 									)}
@@ -266,7 +280,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 									<Field
 										as="textarea"
 										name="text"
-										placeholder="ADD QUESTION"
+										placeholder={d(L, "ADD QUESTION")}
 										className="mt-[18px] resize-none rounded-xl border border-background bg-secondary bg-opacity-[0.075] px-4 pb-5 pt-3 placeholder-secondary outline-none outline-[0.5px] outline-background placeholder:pt-1 placeholder:text-xs focus:bg-opacity-[0.025] focus:outline-secondary"
 										rows={3}
 										onChange={(e: any) => {
@@ -285,8 +299,9 @@ const CreatePoll: React.FC<{}> = ({}) => {
 											<div className="flex flex-col border-b-[0.5px]  border-foreground border-opacity-30 pb-2 text-sm">
 												<div className="flex flex-col sm:flex-row">
 													<div className="py-1 text-foreground">
-														Options&nbsp;
+														{d(L, "Options ")}
 														{`(${values?.options?.length && values.options.length})`}
+														{d(L, "：")}
 													</div>
 													<div className="mt-2 flex flex-row items-center sm:ml-6 sm:mt-0">
 														<svg
@@ -298,17 +313,17 @@ const CreatePoll: React.FC<{}> = ({}) => {
 														</svg>
 														{/* <div className="text-sm text-foreground">Add</div> */}
 														<div
-															className="ml-2 flex cursor-pointer flex-row items-center rounded-lg border-[0.5px] border-dashed border-background px-2 py-1 text-xs"
+															className="ml-2 flex cursor-pointer flex-row items-center rounded-lg border-[0.5px] border-dashed border-background bg-foreground bg-opacity-0 px-2 py-1 text-xs hover:bg-opacity-[0.03]"
 															onClick={(e) => {
 																const e_1 = e.currentTarget.lastElementChild
 																const e_2 = e.currentTarget
-																if (e_1) e_1.innerHTML = "Selecting..."
+																if (e_1) e_1.innerHTML =d(L,"Selecting...")
 																if (e_2) e_2.style.borderColor = colors["secondary"]
 																;(
 																	e.currentTarget?.firstElementChild as HTMLElement
 																)?.click()
 																setTimeout(() => {
-																	if (e_1) e_1.innerHTML = "Add Multiple Images"
+																	if (e_1) e_1.innerHTML =d(L,"Add Multiple Images")
 																	if (e_2)
 																		e_2.style.borderColor = colors["background"]
 																}, 1000)
@@ -369,7 +384,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 																<path d="M160 32c-35.3 0-64 28.7-64 64V320c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H160zM396 138.7l96 144c4.9 7.4 5.4 16.8 1.2 24.6S480.9 320 472 320H328 280 200c-9.2 0-17.6-5.3-21.6-13.6s-2.9-18.2 2.9-25.4l64-80c4.6-5.7 11.4-9 18.7-9s14.2 3.3 18.7 9l17.3 21.6 56-84C360.5 132 368 128 376 128s15.5 4 20 10.7zM192 128a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM48 120c0-13.3-10.7-24-24-24S0 106.7 0 120V344c0 75.1 60.9 136 136 136H456c13.3 0 24-10.7 24-24s-10.7-24-24-24H136c-48.6 0-88-39.4-88-88V120z" />
 															</svg>
 															<div className="ml-2 overflow-visible whitespace-nowrap break-keep text-foreground">
-																Add Multiple Images
+																{d(L, "Add Multiple Images")}
 															</div>
 														</div>
 													</div>
@@ -402,7 +417,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 																	<Field
 																		as="textarea"
 																		name={`options[${i}]`}
-																		placeholder="ADD OPTION"
+																		placeholder={d(L, "ADD OPTION")}
 																		className="w-48 resize-none rounded-xl border border-background bg-secondary bg-opacity-[0.075] px-4 pb-5 pt-3 placeholder-secondary outline-none outline-[0.5px] outline-background placeholder:pt-1 placeholder:text-xs focus:bg-opacity-[0.025] focus:outline-secondary"
 																		style={{
 																			height:
@@ -427,29 +442,35 @@ const CreatePoll: React.FC<{}> = ({}) => {
 																			)
 																		}}
 																	/>
-																	<button
-																		type="button"
-																		className="flex h-full flex-col items-start pl-2"
-																	>
-																		<svg
-																			xmlns="http://www.w3.org/2000/svg"
-																			className="h-4 fill-foreground"
-																			viewBox="0 0 384 512"
-																			onClick={() => {
-																				remove(i)
-																				setOptionImageInputs((prev) => {
-																					prev.splice(i, 1)
-																					return prev
-																				})
-																				if (values.options.length === 1) {
-																					optionTextAreaHeight.current = 64
-																					return
-																				}
+																	<div className="flex h-full flex-col items-start pl-2">
+																		<button
+																			type="button"
+																			className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground bg-opacity-0 hover:bg-opacity-[0.03]"
+																			onMouseDown={(e) => {
+																				e.currentTarget.style.backgroundColor =
+																					"rgba(34,34,34,0.2)"
 																			}}
 																		>
-																			<path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
-																		</svg>
-																	</button>
+																			<svg
+																				xmlns="http://www.w3.org/2000/svg"
+																				className="h-4 fill-foreground"
+																				viewBox="0 0 384 512"
+																				onClick={() => {
+																					remove(i)
+																					setOptionImageInputs((prev) => {
+																						prev.splice(i, 1)
+																						return prev
+																					})
+																					if (values.options.length === 1) {
+																						optionTextAreaHeight.current = 64
+																						return
+																					}
+																				}}
+																			>
+																				<path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+																			</svg>
+																		</button>
+																	</div>
 																	<div className="ml-0 h-20 w-[0.5px] self-center bg-background" />
 																</div>
 
@@ -467,13 +488,13 @@ const CreatePoll: React.FC<{}> = ({}) => {
 																			</svg>
 																			{/* <div className="text-sm text-foreground">Add</div> */}
 																			<div
-																				className="ml-2 flex cursor-pointer flex-row items-center rounded-lg border-[0.5px] border-dashed border-background px-2 py-0.5"
+																				className="ml-2 flex cursor-pointer flex-row items-center rounded-lg border-[0.5px] border-dashed border-background bg-foreground bg-opacity-0 px-2 py-0.5 hover:bg-opacity-[0.03]"
 																				onClick={(e) => {
 																					const e_1 =
 																						e.currentTarget.lastElementChild
 																					const e_2 = e.currentTarget
 																					if (e_1)
-																						e_1.innerHTML = "Selecting..."
+																						e_1.innerHTML =d(L,"Selecting...")
 																					if (e_2)
 																						e_2.style.borderColor =
 																							colors["secondary"]
@@ -491,7 +512,8 @@ const CreatePoll: React.FC<{}> = ({}) => {
 																							?.firstElementChild as HTMLElement
 																					)?.click()
 																					setTimeout(() => {
-																						if (e_1) e_1.innerHTML = "Image"
+																						if (e_1)
+																							e_1.innerHTML =d(L,"Image")
 																						if (e_2)
 																							e_2.style.borderColor =
 																								colors["background"]
@@ -560,7 +582,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 																					<path d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6h96 32H424c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z" />
 																				</svg>
 																				<div className="ml-2 text-sm text-foreground">
-																					Image
+																					{d(L, "Image")}
 																				</div>
 																			</div>
 																		</div>
@@ -573,9 +595,9 @@ const CreatePoll: React.FC<{}> = ({}) => {
 																		)}
 																	{optionImageInputs[i] &&
 																		optionImageInputs[i].URL && (
-																			<div className="mt-6 flex w-48 flex-row justify-center">
+																			<div className="mt-6 flex w-[200px] flex-row justify-center">
 																				<div
-																					className="relative h-[156px] w-[156px] cursor-pointer overflow-hidden rounded-2xl"
+																					className="relative h-[156px] w-[156px] cursor-pointer overflow-hidden rounded-lg"
 																					onClick={() => {
 																						onImageFullView(
 																							optionImageInputs[i].URL || ""
@@ -591,30 +613,36 @@ const CreatePoll: React.FC<{}> = ({}) => {
 																						className="object-cover	"
 																					/>
 																				</div>
-																				<button
-																					type="button"
-																					className="flex h-full flex-col items-start pl-2 pt-1"
-																					onClick={() => {
-																						setOptionImageInputs((prev) =>
-																							prev.map((e, i_1) => {
-																								if (i_1 !== i) return e
-																								return {
-																									...e,
-																									URL: "",
-																									file: null,
-																								}
-																							})
-																						)
-																					}}
-																				>
-																					<svg
-																						xmlns="http://www.w3.org/2000/svg"
-																						className="h-4 fill-foreground"
-																						viewBox="0 0 384 512"
+																				<div className="mt-[-4px] flex h-full flex-col items-start pl-2 pt-0">
+																					<button
+																						type="button"
+																						className="flex h-6 w-6 items-center justify-center rounded-full bg-foreground bg-opacity-0 hover:bg-opacity-[0.03]"
+																						onMouseDown={(e) => {
+																							e.currentTarget.style.backgroundColor =
+																								"rgba(34,34,34,0.2)"
+																						}}
+																						onClick={() => {
+																							setOptionImageInputs((prev) =>
+																								prev.map((e, i_1) => {
+																									if (i_1 !== i) return e
+																									return {
+																										...e,
+																										URL: "",
+																										file: null,
+																									}
+																								})
+																							)
+																						}}
 																					>
-																						<path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
-																					</svg>
-																				</button>
+																						<svg
+																							xmlns="http://www.w3.org/2000/svg"
+																							className="h-4 fill-foreground"
+																							viewBox="0 0 384 512"
+																						>
+																							<path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+																						</svg>
+																					</button>
+																				</div>
 																			</div>
 																		)}
 																</div>
@@ -650,10 +678,10 @@ const CreatePoll: React.FC<{}> = ({}) => {
 															}, 100)
 														}}
 													>
-														<div className="mb-12 flex flex-row items-center border-b-[0.5px] border-secondary px-1 pb-2.5 text-sm tracking-wider text-foreground">
+														<div className="mb-12 flex w-max flex-row items-center rounded-lg bg-foreground bg-opacity-0 px-3 py-2.5 text-sm tracking-wider text-foreground hover:bg-opacity-[0.01] ">
 															<div className="flex flex-col items-center">
-																<div className="flex flex-row">
-																	Add
+																<div className="mx-1 flex flex-row">
+																	{d(L, "Add")}
 																	<svg
 																		className="ml-1.5 mt-0.5 h-4 fill-foreground"
 																		xmlns="http://www.w3.org/2000/svg"
@@ -662,7 +690,10 @@ const CreatePoll: React.FC<{}> = ({}) => {
 																		<path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" />
 																	</svg>
 																</div>
-																<div className="mt-1">Option</div>
+																<div className="mx-1 mt-1 self-start">
+																	{d(L, "Option")}
+																</div>
+																<div className="mt-2 mb-1 h-[0.5px] w-full bg-secondary" />
 															</div>
 														</div>
 													</button>
@@ -678,12 +709,13 @@ const CreatePoll: React.FC<{}> = ({}) => {
 								<div onClick={(e) => e.stopPropagation()} className="mt-24 w-full ">
 									<div className="flex flex-row border-b-[0.5px] border-foreground border-opacity-30 pb-6 text-sm">
 										<div className="text-foreground">
-											Topics&nbsp;
+											{d(L, "Topics ")}
 											{`(${
 												values?.existingTopics?.length &&
 												values.newTopics?.length &&
 												values.existingTopics.length + values.newTopics.length
 											}/5)`}
+											{d(L, "：")}
 										</div>
 										<div className="ml-2 text-negative">
 											{errors.existingTopics && errors.existingTopics}
@@ -693,7 +725,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 										<input
 											id="topic-input"
 											autoComplete="off"
-											placeholder="Search for Topics..."
+											placeholder={d(L, "Search for Topics...")}
 											className=" mt-3 w-[136px] border-b border-foreground bg-background pb-1.5 uppercase placeholder-secondary outline-none placeholder:text-xs"
 											onChange={(e_1) => {
 												const v = e_1.target.value.toUpperCase()
@@ -749,7 +781,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 														: "100%",
 											}}
 										>
-											Create Topic
+											{d(L, "Create Topic")}
 										</button>
 									</div>
 
@@ -825,7 +857,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 														<div className="flex shrink-0 flex-row items-center">
 															{i === 0 && (
 																<div className="mr-2 text-sm tracking-wider text-secondary">
-																	Select:
+																	{d(L, "Select:")}
 																</div>
 															)}
 															<Field
@@ -837,7 +869,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 															/>
 															<label
 																key={e.id}
-																className="mr-4 flex h-8 cursor-pointer flex-row items-center rounded-full border border-foreground bg-background px-4 py-1.5 text-xs text-foreground"
+																className="mr-4 flex h-8 cursor-pointer flex-row items-center rounded-full border border-foreground bg-background px-4 py-1.5 text-xs text-foreground hover:bg-foreground hover:text-background"
 																onClick={() => {
 																	setFieldValue("existingTopics", [
 																		...values.existingTopics,
@@ -855,7 +887,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 
 								{/* others */}
 								<div className="mt-24 flex flex-row items-center text-sm text-foreground">
-									Post anonymously&nbsp;
+									{d(L, "Post anonymously ")}
 									<Field type="checkbox" name="anonymous" className="ml-1 hidden" />
 									<div
 										className="mt-1 ml-2 flex h-8 w-16 cursor-pointer flex-row items-center justify-start rounded-full transition"
@@ -882,7 +914,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 									// onClick={() => validateField("displayLanguage")}
 									className="mt-24 rounded-full border border-foreground bg-background py-2 px-5 text-sm text-foreground"
 								>
-									Preview
+									{d(L, "Preview")}
 								</button>
 							</Form>
 						</div>
@@ -915,7 +947,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 									!!
 								</div>
 								<div className="flex h-20 items-center justify-center rounded-3xl bg-foreground px-6 text-sm text-white sm:h-10 sm:rounded-full sm:text-base">
-									There might already be some similar polls:
+									{d(L, "There might already be some similar polls:")}
 								</div>
 							</div>
 							{similarPollsData?.getSimilarPolls.map(
@@ -947,7 +979,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 										setPreviewToggle(false)
 									}}
 								>
-									Back to Edit
+									{d(L, "Back to Edit")}
 								</button>
 								<button
 									className=" mr-2 px-5 py-3 text-xs tracking-wider text-foreground sm:mr-4 sm:text-sm"
@@ -957,7 +989,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 										window.scroll(0, 0)
 									}}
 								>
-									Continue to Preview
+									{d(L, "Continue to Preview")}
 								</button>
 							</div>
 						</div>
@@ -985,7 +1017,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 						}}
 					>
 						<div className="mb-6 border-b-[0.5px] border-foreground border-opacity-30 px-9 pt-7 pb-7 font-bold tracking-wider text-foreground">
-							Preview:
+							{d(L, "Preview:")}
 						</div>
 						<div className="mx-1 mt-3 sm:mx-4">
 							<Poll
@@ -1035,7 +1067,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 									setPreviewToggle(false)
 								}}
 							>
-								Back to Edit
+								{d(L, "Back to Edit")}
 							</button>
 							<button
 								className="mr-5 flex h-12 w-[120px] items-center justify-center rounded-full border border-foreground px-6 py-3 text-xs tracking-wider text-foreground sm:w-36 sm:text-sm"
@@ -1048,28 +1080,28 @@ const CreatePoll: React.FC<{}> = ({}) => {
 									// e.style.backgroundColor = colors["foreground"]
 									e.style.color = colors["foreground"]
 									// e.style.fontSize = "14px"
-									e.innerHTML = "Creating"
+									e.innerHTML =d(L,"Creating")
 									setTimeout(() => {
-										if (creating.current) e.innerHTML = "Creating ."
+										if (creating.current) e.innerHTML =d(L,"Creating") + " ."
 									}, 500)
 									setTimeout(() => {
-										if (creating.current) e.innerHTML = "Creating . ."
+										if (creating.current) e.innerHTML =d(L,"Creating") + " . ."
 									}, 1500)
 									setTimeout(() => {
-										if (creating.current) e.innerHTML = "Creating . . ."
+										if (creating.current) e.innerHTML =d(L,"Creating") + " . . ."
 									}, 2000)
 									setInterval(() => {
 										setTimeout(() => {
-											if (creating.current) e.innerHTML = "Creating"
+											if (creating.current) e.innerHTML =d(L,"Creating")
 										}, 500)
 										setTimeout(() => {
-											if (creating.current) e.innerHTML = "Creating ."
+											if (creating.current) e.innerHTML =d(L,"Creating") + " ."
 										}, 1000)
 										setTimeout(() => {
-											if (creating.current) e.innerHTML = "Creating . ."
+											if (creating.current) e.innerHTML =d(L,"Creating") + " . ."
 										}, 1500)
 										setTimeout(() => {
-											if (creating.current) e.innerHTML = "Creating . . ."
+											if (creating.current) e.innerHTML =d(L,"Creating") + " . . ."
 										}, 2000)
 									}, 2000)
 									const numOfFiles = [pollImageInput, ...optionImageInputs].reduce(
@@ -1199,7 +1231,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 									// new page no interaction bug
 								}}
 							>
-								Create Poll!
+								{d(L, "Create Poll!")}
 							</button>
 						</div>
 					</div>

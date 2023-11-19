@@ -1,18 +1,21 @@
+import Head from "next/head"
 import { useRouter } from "next/router"
 import React, { useCallback, useEffect, useRef, useState } from "react"
 import { DisplayLanguagePrompt } from "../components/DisplayLanguagePrompt"
 import Header from "../components/Header"
 import LoadingScreen from "../components/LoadingScreen"
 import Poll from "../components/Poll"
+import { d } from "../displayTexts"
 import { FeedItem, useGetCurrentUserQuery, useGetHomeFeedQuery } from "../generated/graphql"
 import { noBrowser } from "../utils/noBrowser"
 import { urqlClientOptions } from "../utils/urqlClient"
 import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 import { usePreserveScroll } from "../utils/usePreserveScroll"
 import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
-import Head from "next/head"
+import Sidebar from "../components/Sidebar"
 
 const Home: React.FC<{}> = ({}) => {
+	const L = useGetDisplayLanguage()
 	const router = useRouter()
 	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
@@ -66,7 +69,7 @@ const Home: React.FC<{}> = ({}) => {
 	return (
 		<div>
 			<Head>
-				<title>Huedex | Home</title>
+				<title>Huedex | {d(L, "Home")}</title>
 			</Head>
 			<DisplayLanguagePrompt
 				state={displayLanguagePrompt}
@@ -74,19 +77,20 @@ const Home: React.FC<{}> = ({}) => {
 			/>
 			<Header home={true} />
 			{/* <ImageFullView control={imageFullViewControl} /> */}
+			<Sidebar />
 			<div className="flex max-w-full flex-col items-center overflow-x-hidden">
-				<div className="mb-36 mt-16 w-full max-w-[560px]">
+				<div className="mb-36 mt-24 w-full max-w-[560px]">
 					{feed.map(
 						(e, i, a) =>
 							e.item &&
 							(i !== a.length - 2 ? (
-								<div className="mt-12" key={e.id}>
+								<div className="" key={e.id}>
 									{/* <Link href="/poll/[id]" as={`/poll/${e.id}`}> */}
 									<Poll poll={{ ...e.item, options: e.item.topOptions }} link={true} />
 									{/* </Link> */}
 								</div>
 							) : (
-								<div className="mt-12" key={e.id} ref={loadPointRef}>
+								<div className="" key={e.id} ref={loadPointRef}>
 									<Poll poll={{ ...e.item, options: e.item.topOptions }} link={true} />
 								</div>
 							))

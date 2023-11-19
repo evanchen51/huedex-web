@@ -28,7 +28,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 		if (Math.abs(window.scrollY - scrollRef.current) < 50) {
 			return
 		}
-		if (window.scrollY > scrollRef.current && window.scrollY > 100) {
+		if (window.scrollY > scrollRef.current && window.scrollY > 100 && menuToggle === "close") {
 			setHeaderToggle(false)
 		} else if (window.scrollY < scrollRef.current || window.scrollY <= 100) {
 			setHeaderToggle(true)
@@ -43,11 +43,12 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 
 	return (
 		<div
-			className="fixed flex w-full flex-row items-center justify-between bg-background bg-opacity-50 sm:pl-9 pl-6 pr-6 sm:pr-3 pb-3 pt-3.5 font-bold tracking-wider text-foreground backdrop-blur-lg transition"
+			className="fixed flex w-full flex-row items-center justify-between bg-background bg-opacity-50 pl-6 pr-6 pb-3 pt-3.5 font-bold tracking-wider text-foreground backdrop-blur-lg transition sm:pl-9 sm:pr-3"
 			style={{
 				zIndex: menuToggle === "closed" ? 50 : 70,
 				// paddingTop: visitor ? "24px" : "24px",
 				transform: headerToggle ? "translateY(0%)" : "translateY(-100%)",
+				// boxShadow:"inset 0px -4px 6px 2px rgba(255,255,255,0.5)"
 			}}
 		>
 			<Link href="/" as={`/`}>
@@ -95,7 +96,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 								className="flex flex-row items-center rounded-full py-3 px-6"
 								onMouseEnter={(e) => {
 									const { h, s, l } = HextoHSL(colors["background"])
-									e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 3}%)`
+									e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 2}%)`
 								}}
 								onMouseLeave={(e) => {
 									e.currentTarget.style.backgroundColor = colors["background"]
@@ -114,7 +115,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 								className="ml-0 flex flex-row items-center rounded-full py-3 px-6"
 								onMouseEnter={(e) => {
 									const { h, s, l } = HextoHSL(colors["background"])
-									e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 3}%)`
+									e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 2}%)`
 								}}
 								onMouseLeave={(e) => {
 									e.currentTarget.style.backgroundColor = colors["background"]
@@ -135,7 +136,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 				{!noBrowser() && !userFetching && !userData?.getCurrentUser && (
 					<>
 						<button
-							className="mb-1 flex w-fit cursor-pointer flex-row items-center justify-center self-center rounded-full border-[0.5px] border-foreground bg-background px-5 py-3.5 mr-3"
+							className="mb-1 mr-3 flex w-fit cursor-pointer flex-row items-center justify-center self-center rounded-full border-[0.5px] border-foreground bg-background px-5 py-3.5"
 							onClick={() => {
 								localStorage.setItem(LOCALSTORAGE_KEY_PATH_ORIGIN, router.asPath)
 								location.href = process.env.NEXT_PUBLIC_API_URL + "/auth/google"
@@ -186,101 +187,99 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 				>
 					<path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" />
 				</svg>
-				<div
-					className="absolute top-[-20px] right-[-20px] z-10 flex h-max w-max flex-col items-end text-background transition"
-					style={{
-						visibility: menuToggle === "closed" ? "hidden" : "visible",
-						opacity: menuToggle === "open" ? "1" : "0",
-					}}
-				>
-					<div className="pointer-events-none absolute top-[-24px] right-[-24px] h-[120vh] w-[120vw] bg-foreground opacity-20" />
-					<div className="z-10 flex h-max w-[90vw] flex-col rounded-xl bg-foreground px-7 py-5 text-sm font-normal tracking-wider">
-						{!noBrowser() && !userFetching && userData?.getCurrentUser && (
-							<>
-								<Link href="/user/[id]" as={`/user/${userData?.getCurrentUser.id}`}>
-									<div className="mb-6 mt-0 ml-1 flex flex-row items-center">
-										<div className="font-light">
-											{userData.getCurrentUser.displayName}
-										</div>
-									</div>
-									{/* <div className="mt-4 h-[0.5px] w-full bg-secondary opacity-30" /> */}
-								</Link>
-								<Link href="/user/[id]" as={`/user/${userData?.getCurrentUser.id}`}>
-									<div className="ml-1 flex flex-row items-center">
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											className="h-3 fill-background"
-											viewBox="0 0 448 512"
-										>
-											<path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" />
-										</svg>
-										<div className="ml-4">{d(L, "my profile")}</div>
-									</div>
-									<div className="mt-5 h-[0.5px] w-full bg-secondary opacity-30" />
-								</Link>
-								<Link href="/create-poll-check">
-									<div className="mt-5 mb-1 ml-1 flex flex-row items-center">
-										<div className="flex flex-row items-end">
-											<div className="h-2 w-[2.5px] rounded-[1px] bg-background" />
-											<div className="mx-[2.5px] h-3 w-[2.5px] rounded-[1px] bg-background" />
-											<div className="h-1.5 w-[2.5px] rounded-[1px] bg-background" />
-										</div>
-										<div className="ml-4 text-background">{d(L, "make a poll")}</div>
-									</div>
-								</Link>
-							</>
-						)}
-						{!noBrowser() && !userFetching && !userData?.getCurrentUser && (
-							<>
-								<button
-									className="mb-1 mr-auto flex w-fit cursor-pointer flex-row items-center justify-center self-center rounded-full border-[0.5px] border-background bg-foreground px-5 py-3.5"
-									onClick={() => {
-										localStorage.setItem(LOCALSTORAGE_KEY_PATH_ORIGIN, router.asPath)
-										location.href = process.env.NEXT_PUBLIC_API_URL + "/auth/google"
-									}}
-									onMouseEnter={(e) => {
-										const { h, s, l } = HextoHSL(colors["foreground"])
-										e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l + 8}%)`
-									}}
-									onMouseLeave={(e) => {
-										e.currentTarget.style.backgroundColor = colors["foreground"]
-									}}
-								>
-									<svg
-										className="mr-4 h-3.5 fill-background"
-										xmlns="http://www.w3.org/2000/svg"
-										viewBox="0 0 488 512"
-									>
-										<path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" />
-									</svg>
-									<div className="text-sm font-light text-background">
-										{d(L, "Continue with Google")}
-									</div>
-								</button>
-								<div className="mt-4 h-[0.5px] w-full bg-secondary opacity-30" />
-								<div className="mt-4 flex w-full flex-row items-center opacity-50">
-									<div className="flex flex-row items-end">
-										<div className="h-2 w-[2.5px] rounded-[1px] bg-secondary" />
-										<div className="mx-[2.5px] h-3 w-[2.5px] rounded-[1px] bg-secondary" />
-										<div className="h-1.5 w-[2.5px] rounded-[1px] bg-secondary" />
-									</div>
-									<div className="ml-3 text-secondary">{d(L, "make a poll")}</div>
+			</div>
+			<div
+				className="absolute top-[2vw] right-[2vw] z-10 flex h-max w-max flex-col items-end text-background transition "
+				style={{
+					visibility: menuToggle === "closed" ? "hidden" : "visible",
+					opacity: menuToggle === "open" ? "1" : "0",
+				}}
+			>
+				<div className="pointer-events-none absolute top-[-24px] right-[-24px] h-[120vh] w-[120vw] bg-foreground opacity-20" />
+				<div className="z-10 flex h-max w-[96vw] flex-col rounded-xl bg-foreground px-7 py-5 text-sm font-normal tracking-wider">
+					{!noBrowser() && !userFetching && userData?.getCurrentUser && (
+						<>
+							<Link href="/user/[id]" as={`/user/${userData?.getCurrentUser.id}`}>
+								<div className="mb-6 mt-0 ml-1 flex flex-row items-center">
+									<div className="font-light">{userData.getCurrentUser.displayName}</div>
 								</div>
-							</>
-						)}
-					</div>
-					<div
-						className="absolute top-[-96px] right-[-96px] z-0 h-[120vh] w-[120vw] cursor-default"
-						onClick={() => {
-							if (menuToggle === "open") {
-								setMenuToggle("exit")
-								setTimeout(() => {
-									setMenuToggle("closed")
-								}, 300)
-							}
-						}}
-					/>
+								{/* <div className="mt-4 h-[0.5px] w-full bg-secondary opacity-30" /> */}
+							</Link>
+							<Link href="/user/[id]" as={`/user/${userData?.getCurrentUser.id}`}>
+								<div className="ml-1 flex flex-row items-center">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										className="h-3 fill-background"
+										viewBox="0 0 448 512"
+									>
+										<path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7C448 383.8 368.2 304 269.7 304H178.3z" />
+									</svg>
+									<div className="ml-4">{d(L, "my profile")}</div>
+								</div>
+								<div className="mt-5 h-[0.5px] w-full bg-secondary opacity-30" />
+							</Link>
+							<Link href="/create-poll-check">
+								<div className="mt-5 mb-1 ml-1 flex flex-row items-center">
+									<div className="flex flex-row items-end">
+										<div className="h-2 w-[2.5px] rounded-[1px] bg-background" />
+										<div className="mx-[2.5px] h-3 w-[2.5px] rounded-[1px] bg-background" />
+										<div className="h-1.5 w-[2.5px] rounded-[1px] bg-background" />
+									</div>
+									<div className="ml-4 text-background">{d(L, "make a poll")}</div>
+								</div>
+							</Link>
+						</>
+					)}
+					{!noBrowser() && !userFetching && !userData?.getCurrentUser && (
+						<>
+							<button
+								className="mb-1 mr-auto flex w-fit cursor-pointer flex-row items-center justify-center self-center rounded-full border-[0.5px] border-background bg-foreground px-5 py-3.5"
+								onClick={() => {
+									localStorage.setItem(LOCALSTORAGE_KEY_PATH_ORIGIN, router.asPath)
+									location.href = process.env.NEXT_PUBLIC_API_URL + "/auth/google"
+								}}
+								onMouseEnter={(e) => {
+									const { h, s, l } = HextoHSL(colors["foreground"])
+									e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l + 8}%)`
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = colors["foreground"]
+								}}
+							>
+								<svg
+									className="mr-4 h-3.5 fill-background"
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 488 512"
+								>
+									<path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" />
+								</svg>
+								<div className="text-sm font-light text-background">
+									{d(L, "Continue with Google")}
+								</div>
+							</button>
+							<div className="mt-4 h-[0.5px] w-full bg-secondary opacity-30" />
+							<div className="mt-4 flex w-full flex-row items-center opacity-50">
+								<div className="flex flex-row items-end">
+									<div className="h-2 w-[2.5px] rounded-[1px] bg-secondary" />
+									<div className="mx-[2.5px] h-3 w-[2.5px] rounded-[1px] bg-secondary" />
+									<div className="h-1.5 w-[2.5px] rounded-[1px] bg-secondary" />
+								</div>
+								<div className="ml-3 text-secondary">{d(L, "make a poll")}</div>
+							</div>
+						</>
+					)}
 				</div>
+				<div
+					className="absolute top-[-96px] right-[-96px] z-0 h-[120vh] w-[120vw] cursor-default"
+					onClick={() => {
+						if (menuToggle === "open") {
+							setMenuToggle("exit")
+							setTimeout(() => {
+								setMenuToggle("closed")
+							}, 300)
+						}
+					}}
+				/>
 			</div>
 		</div>
 	)
