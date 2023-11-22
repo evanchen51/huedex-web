@@ -21,7 +21,7 @@ const Options: React.FC<{
 	scroller?: HTMLDivElement | null
 	pollHovering?: boolean
 	link?: boolean | string
-}> = ({ poll, allOptionsToggle, setAllOptionsToggle, displayMode, scroller, link }) => {
+}> = ({ poll, allOptionsToggle, setAllOptionsToggle, displayMode, link }) => {
 	const L = useGetDisplayLanguage()
 	const router = useRouter()
 
@@ -72,7 +72,7 @@ const Options: React.FC<{
 
 	return (
 		<div
-			className="pointer-events-none flex flex-col"
+			className="pointer-events-none ml-[75vw] mr-[10vw] flex flex-col sm:mr-[calc((100vw_-_560px)_/_2_+_48px)]"
 			style={{
 				cursor: link ? "pointer" : "default",
 				// opacity: scroller ? "0" : "1",
@@ -134,22 +134,21 @@ const Options: React.FC<{
 										// 			HextoHSL(colors["background"]).s
 										// 	  }%,${HextoHSL(colors["background"]).l - 2}%)`
 										// 	: colors["background"],
-										backdropFilter: scroller ? "blur(0px)" : "blur(16px)",
-										borderColor: scroller ? "transparent" : "rgb(252,252,252)",
+										// backdropFilter: scroller ? "blur(0px)" : "blur(16px)",
+										// borderColor: scroller ? "transparent" : "rgb(252,252,252)",
 										// backgroundColor: scroller ? colors["background"] : "transparent",
-										boxShadow: scroller
-											? ""
-											: "0px 2px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)",
+										boxShadow: 
+											"0px 2px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)",
 									}}
 									onMouseEnter={(e) => {
 										e.stopPropagation()
-										let e_1 = scroller
-											? (scroller.querySelector(`#${option.id}`) as HTMLDivElement)
-											: e.currentTarget
+										// let e_1 = scroller
+										// 	? (scroller.querySelector(`#${option.id}`) as HTMLDivElement)
+										// 	: e.currentTarget
 										// e.currentTarget.style.borderColor = colors["secondary"] + "60"
-										e_1.style.boxShadow =
+										e.currentTarget.style.boxShadow =
 											"0px 8px 16px -8px rgb(0 0 0 / 0.1), 0px 6px 8px -6px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)"
-										const button = e_1.querySelector("#vote-button") as HTMLElement
+										const button = e.currentTarget.querySelector("#vote-button") as HTMLElement
 										button.style.boxShadow = voted
 											? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(212, 212, 212), inset 2px 2px 8px 2px rgb(212, 212, 212)"
 											: "-6px -6px 8px 2px rgb(252, 252, 252), inset 4px 4px 6px 0px rgb(252, 252, 252), 6px 6px 8px 2px rgb(233, 233, 233), inset -2px -2px 6px 0px rgb(233, 233, 233)"
@@ -157,25 +156,25 @@ const Options: React.FC<{
 									}}
 									onMouseDown={(e) => {
 										if (displayMode) return
-										let e_1 = scroller
-											? (scroller.querySelector(`#${option.id}`) as HTMLDivElement)
-											: e.currentTarget
-										e_1.style.boxShadow =
+										// let e_1 = scroller
+										// 	? (scroller.querySelector(`#${option.id}`) as HTMLDivElement)
+										// 	: e.currentTarget
+										e.currentTarget.style.boxShadow =
 											"0px 0px 12px -6px rgb(0 0 0 / 0.1), 0px 0px 6px -6px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)"
-										const button = e_1.querySelector("#vote-button") as HTMLElement
+										const button = e.currentTarget.querySelector("#vote-button") as HTMLElement
 										button.style.boxShadow =
 											"6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(200, 200, 200), inset 2px 2px 6px 0px rgb(200, 200, 200)"
 										button.style.transform = "scale(0.96)"
 									}}
 									onMouseLeave={(e) => {
 										e.stopPropagation()
-										let e_1 = scroller
-											? (scroller.querySelector(`#${option.id}`) as HTMLDivElement)
-											: e.currentTarget
+										// let e_1 = scroller
+										// 	? (scroller.querySelector(`#${option.id}`) as HTMLDivElement)
+										// 	: e.currentTarget
 										// e.currentTarget.style.borderColor = colors["secondary"] + "80"
-										e_1.style.boxShadow =
+										e.currentTarget.style.boxShadow =
 											"0px 2px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)"
-										const button = e_1.querySelector("#vote-button") as HTMLElement
+										const button = e.currentTarget.querySelector("#vote-button") as HTMLElement
 										button.style.boxShadow = voted
 											? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
 											: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
@@ -184,12 +183,12 @@ const Options: React.FC<{
 									onMouseUp={(e) => {
 										// if (scroller) return
 										if (displayMode) return
-										let e_1 = scroller
-											? (scroller.querySelector(`#${option.id}`) as HTMLDivElement)
-											: e.currentTarget
-										e_1.style.boxShadow =
+										// let e_1 = scroller
+										// 	? (scroller.querySelector(`#${option.id}`) as HTMLDivElement)
+										// 	: e.currentTarget
+										e.currentTarget.style.boxShadow =
 											"0px 2px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)"
-										const button = e_1.querySelector("#vote-button") as HTMLElement
+										const button = e.currentTarget.querySelector("#vote-button") as HTMLElement
 										button.style.boxShadow = voted
 											? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
 											: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
@@ -217,7 +216,7 @@ const Options: React.FC<{
 											"relative z-20 flex w-full cursor-pointer flex-col rounded-full bg-background px-5 py-4 font-normal text-foreground transition"
 										}
 										style={{
-											opacity: scroller ? "0" : "1",
+											// opacity: scroller ? "0" : "1",
 											boxShadow: voted
 												? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
 												: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)",
@@ -425,7 +424,7 @@ const Options: React.FC<{
 											// 	!option.mediaURL
 											// 		? "156px"
 											// 		: "100%",
-											backgroundColor: scroller ? colors["background"] : "transparent",
+											// backgroundColor: scroller ? colors["background"] : "transparent",
 										}}
 										onMouseDown={(e) => {
 											// if (scroller) return
@@ -477,36 +476,34 @@ const Options: React.FC<{
 								<div
 									className="h-max rounded-[44px] border-2 border-white bg-transparent px-6 pt-4 pb-4 backdrop-blur-lg transition"
 									style={{
-										backdropFilter: scroller ? "blur(0px)" : "blur(16px)",
+										// backdropFilter: scroller ? "blur(0px)" : "blur(16px)",
 										// backgroundColor: scroller ? colors["background"] : "transparent",
-										borderColor: scroller ? "transparent" : "rgb(252,252,252)",
-										color: scroller ? "transparent" : colors["foreground"],
-										boxShadow: scroller
-											? ""
-											: "0px 4px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -3px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(252 252 252 / 0.75)",
+										// borderColor: scroller ? "transparent" : "rgb(252,252,252)",
+										// color: scroller ? "transparent" : colors["foreground"],
+										boxShadow: "0px 4px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -3px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(252 252 252 / 0.75)",
 									}}
 									id={poll.id + "-see-all"}
 									onMouseEnter={(e) => {
 										e.stopPropagation()
-										let e_1 = scroller
-											? (scroller.querySelector(`#${poll.id}-see-all`) as HTMLDivElement)
-											: e.currentTarget
-										e_1.style.boxShadow =
+										// let e_1 = scroller
+										// 	? (scroller.querySelector(`#${poll.id}-see-all`) as HTMLDivElement)
+										// 	: e.currentTarget
+										e.currentTarget.style.boxShadow =
 											"0px 4px 12px -8px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(252 252 252 / 0.75)"
 									}}
 									onMouseDown={(e) => {
-										let e_1 = scroller
-											? (scroller.querySelector(`#${poll.id}-see-all`) as HTMLDivElement)
-											: e.currentTarget
-										e_1.style.boxShadow =
+										// let e_1 = scroller
+										// 	? (scroller.querySelector(`#${poll.id}-see-all`) as HTMLDivElement)
+										// 	: e.currentTarget
+										e.currentTarget.style.boxShadow =
 											"0px 2px 12px -12px rgb(0 0 0 / 0.1), 0px 0px 6px -6px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(252 252 252 / 0.75)"
 									}}
 									onMouseLeave={(e) => {
 										e.stopPropagation()
-										let e_1 = scroller
-											? (scroller.querySelector(`#${poll.id}-see-all`) as HTMLDivElement)
-											: e.currentTarget
-										e_1.style.boxShadow =
+										// let e_1 = scroller
+										// 	? (scroller.querySelector(`#${poll.id}-see-all`) as HTMLDivElement)
+										// 	: e.currentTarget
+										e.currentTarget.style.boxShadow =
 											"0px 4px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -3px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(252 252 252 / 0.75)"
 									}}
 								>

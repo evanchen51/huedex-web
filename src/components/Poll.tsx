@@ -56,7 +56,7 @@ const Poll: React.FC<{
 	return (
 		<>
 			<div
-				className="pointer-events-auto relative flex flex-col rounded-[44px] border-[1.5px] border-white bg-background"
+				className="pointer-events-auto relative flex flex-col rounded-[44px] border-[2px] border-white bg-background"
 				style={{
 					cursor: link ? "pointer" : "auto",
 				}}
@@ -247,7 +247,7 @@ const Poll: React.FC<{
 								)}
 
 							<div
-								className="h-full grow cursor-text font-medium text-foreground"
+								className="h-full w-max max-w-[100%] grow cursor-text font-medium text-foreground"
 								// style={{ fontSize: pollTextFontSize(poll.text) }}
 								style={{
 									fontSize:
@@ -340,7 +340,7 @@ const Poll: React.FC<{
 							/>
 						</div>
 						<div
-							className="bg-blac absolute bottom-[8px] left-[calc(-20px-50vw)] flex h-max w-[160vw] shrink-0 cursor-default flex-row overflow-x-scroll pl-8 pt-0 pb-0 "
+							className="absolute bottom-[8px] left-[calc(-20px-75vw)] flex h-max w-[150vw] shrink-0 cursor-default flex-row overflow-x-scroll pl-8 pt-0 pb-0 "
 							// onMouseDown={(e) => {
 							// 	e.stopPropagation()
 							// 	// e.preventDefault()

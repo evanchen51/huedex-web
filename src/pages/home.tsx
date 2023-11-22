@@ -85,7 +85,7 @@ const Home: React.FC<{}> = ({}) => {
 			<Header home={true} />
 			{/* <ImageFullView control={imageFullViewControl} /> */}
 			<Sidebar />
-			<div className="sm:ml-[calc((100vw_-_560px)/4) flex max-w-full flex-col items-center sm:ml-[9.6vw]">
+			<div className="sm:ml-[calc((100vw_-_560px)/4) flex max-w-full flex-col items-center sm:ml-[calc(8vw+22.5px)]">
 				<div className="mb-36 mt-20 w-full max-w-[560px] sm:mt-24">
 					{feedFetching && (
 						<div className="ml-[240px] mt-[25vh]">

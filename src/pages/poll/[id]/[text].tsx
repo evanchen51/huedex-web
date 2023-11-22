@@ -40,7 +40,7 @@ const PollPage: React.FC<{}> = ({}) => {
 			</Head>
 			<LoginPrompt control={loginPromptControl} />
 			<Header visitor={!loginData?.getCurrentUser && !loginFetching} />
-			<div className="flex h-full max-w-full flex-col items-center overflow-x-hidden overflow-y-scroll">
+			<div className="flex h-full max-w-full flex-col items-center overflow-y-scroll">
 				<div className="mb-36 mt-24 w-full max-w-[560px]">
 					{console.log("poll:", pollData?.getSinglePoll)}
 					<Poll

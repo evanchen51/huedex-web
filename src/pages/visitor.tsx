@@ -48,7 +48,7 @@ const Visitor: React.FC<{}> = ({}) => {
 			<LoginPrompt control={loginPromptControl} />
 			<Header home={true} visitor={true} />
 			<Sidebar />
-			<div className="sm:ml-[calc((100vw_-_560px)/4) flex max-w-full flex-col items-center overflow-x-hidden text-foreground sm:ml-[9.6vw]">
+			<div className="sm:ml-[calc((100vw_-_560px)/4) flex max-w-full flex-col items-center text-foreground sm:ml-[calc(8vw+22.5px)]">
 				<div className="mb-36 mt-[136px] w-full max-w-[560px] shrink-0 sm:mt-[108px] ">
 					<div className="z-[-1] mx-6 text-[40px] font-thin uppercase leading-[46px] tracking-wider sm:mx-0 sm:text-[80px] sm:leading-[84px]">
 						{d(L, "See and Share")}
