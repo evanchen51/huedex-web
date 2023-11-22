@@ -72,7 +72,7 @@ const Options: React.FC<{
 
 	return (
 		<div
-			className="pointer-events-none ml-[75vw] mr-[10vw] flex flex-col sm:mr-[calc((100vw_-_560px)_/_2_+_48px)]"
+			className="pointer-events-none ml-[75vw] mr-9 flex flex-col sm:mr-[calc((100vw_-_560px)_/_2_+_48px)]"
 			style={{
 				cursor: link ? "pointer" : "default",
 				// opacity: scroller ? "0" : "1",

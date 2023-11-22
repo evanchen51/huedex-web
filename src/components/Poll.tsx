@@ -340,7 +340,7 @@ const Poll: React.FC<{
 							/>
 						</div>
 						<div
-							className="absolute bottom-[8px] left-[calc(-20px-75vw)] flex h-max w-[150vw] shrink-0 cursor-default flex-row overflow-x-scroll pl-8 pt-0 pb-0 "
+							className="absolute bottom-[8px] left-[calc(-20px-75vw)] flex h-max sm:w-[150vw] w-[200vw] shrink-0 cursor-default flex-row overflow-x-scroll pl-8 pt-0 pb-0 "
 							// onMouseDown={(e) => {
 							// 	e.stopPropagation()
 							// 	// e.preventDefault()
