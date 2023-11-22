@@ -110,19 +110,19 @@ const TopicPage: React.FC<{}> = ({}) => {
 			<Head>
 				<title>Huedex | {(router.query.id as string).replace("-", " ")}</title>
 			</Head>
-			<LoginPrompt message={"Login/Join to vote"} control={loginPromptControl} />
+			<LoginPrompt control={loginPromptControl} />
 			<Header />
 			<Sidebar />
 			<div className="pointer-events-none h-20 w-1" />
 			<div className="flex w-full flex-row items-center justify-center">
-				<div className="flex w-full max-w-[560px] flex-row items-center justify-center pt-7 font-normal">
+				<div className="flex w-full max-w-[560px] flex-row items-center justify-center pt-7 font-normal sm:ml-[9.6vw]">
 					{/* <div className="tracking-wider text-foreground">topic:</div> */}
 					<div className="relative flex h-9 items-center rounded-full bg-foreground px-4 py-1.5 text-sm text-background">
 						{(router.query.id as string).replace("-", " ")}
 					</div>
 				</div>
 			</div>
-			<div className="mx-auto mt-9 flex w-[240px] max-w-[75vw] flex-row items-center justify-center tracking-wider text-foreground">
+			<div className="mx-auto mt-9 flex w-[240px] max-w-[75vw] flex-row items-center justify-center whitespace-nowrap tracking-wider text-foreground sm:pl-[9.6vw]">
 				<div
 					className="mr-32 flex cursor-pointer flex-col items-center"
 					style={{ color: tabToggle === "top" ? colors["foreground"] : colors["secondary"] }}
@@ -170,8 +170,8 @@ const TopicPage: React.FC<{}> = ({}) => {
 					/>
 				</div>
 			</div>
-			<div className="flex h-max max-w-full flex-col items-center overflow-x-hidden">
-				<div className="mb-36 mt-6 w-full max-w-[560px]">
+			<div className="sm:ml-[calc((100vw_-_560px)/4) flex h-max max-w-full flex-col items-center overflow-x-hidden sm:ml-[9.6vw]">
+				<div className="mb-36 mt-9 w-full max-w-[560px]">
 					{!feed[tabToggle] || feed[tabToggle].length === 0 ? (
 						<div className="mt-20 flex w-full flex-col items-center">
 							{(tabToggle === "top" && topFetching) ||

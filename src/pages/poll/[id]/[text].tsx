@@ -1,16 +1,20 @@
 import { withUrqlClient } from "next-urql"
+import Head from "next/head"
 import { useRouter } from "next/router"
 import Header from "../../../components/Header"
 import { LoginPrompt } from "../../../components/LoginPrompt"
 import Poll from "../../../components/Poll"
+import { d } from "../../../displayTexts"
 import { Poll as PollType, useGetCurrentUserQuery, useGetSinglePollQuery } from "../../../generated/graphql"
-import { urqlClientOptions } from "../../../utils/urqlClient"
-import { useVoteHandler } from "../../../utils/useVoteHandler"
 import { noBrowser } from "../../../utils/noBrowser"
+import { urqlClientOptions } from "../../../utils/urqlClient"
+import { useGetDisplayLanguage } from "../../../utils/useGetDisplayLanguage"
+import { useVoteHandler } from "../../../utils/useVoteHandler"
 
-const PollPage: React.FC<{}> = ({}) => {
+const PollPage: React.FC<{}> = ({ }) => {
+	const L = useGetDisplayLanguage()
 	const router = useRouter()
-	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
+	const [{ data: loginData, fetching: loginFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
 	})
 
@@ -22,12 +26,15 @@ const PollPage: React.FC<{}> = ({}) => {
 	const { loginPromptControl } = useVoteHandler()
 
 	// if (noBrowser() || userFetching) return <LoadingScreen />
-	if (!pollFetching && !pollData?.getSinglePoll) return <>error</>
+	if (!pollFetching && !pollData?.getSinglePoll) return <div className="mx-auto mt-[40vh]">error</div>
 
 	return (
 		<div>
-			<LoginPrompt message={"Login/Join to vote"} control={loginPromptControl} />
-			<Header visitor={!userData?.getCurrentUser && !userFetching} />
+			<Head>
+				<title>Huedex | {(router.query.text as string).replace("-", " ").substring(0,24)}</title>
+			</Head>
+			<LoginPrompt control={loginPromptControl} />
+			<Header visitor={!loginData?.getCurrentUser && !loginFetching} />
 			<div className="flex h-full max-w-full flex-col items-center overflow-x-hidden overflow-y-scroll">
 				<div className="mb-36 mt-24 w-full max-w-[560px]">
 					{console.log("poll:", pollData?.getSinglePoll)}

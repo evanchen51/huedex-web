@@ -9,15 +9,15 @@ import { urqlClientOptions } from "../../utils/urqlClient"
 
 const LoginSuccessRedirect: React.FC<{}> = ({}) => {
 	const router = useRouter()
-	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
+	const [{ data: loginData, fetching: loginFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
 	})
 	// const [{ data: settingsData, fetching: settingsFetching }] =
 	// 	useGetCurrentUserPersonalSettingsQuery({ pause: noBrowser() || userFetching })
 	// let req = ""
 	// if (noBrowser() || userFetching || settingsFetching) return <Loading />
-	if (noBrowser() || userFetching) return <LoadingScreen />
-	if (!userData?.getCurrentUser) return <>error</>
+	if (noBrowser() || loginFetching) return <LoadingScreen />
+	if (!loginData?.getCurrentUser) return <div className="mx-auto mt-[40vh]">error</div>
 	// if (!userData.getCurrentUser.displayName) req += ":displayname"
 	// if (settingsData?.getCurrentUserPersonalSettings?.displayLanguageCode === "un")
 	// 	req += ":langpref"

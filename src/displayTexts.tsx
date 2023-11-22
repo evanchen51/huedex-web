@@ -21,7 +21,11 @@ const D: Record<string, Record<string, any>> = {
 		[EN]: "Login/Join with Google",
 		[ZH_TW]: "透過 Google 登入/加入",
 	},
-	"to": {
+	"Login/Join to Vote": {
+		[EN]: "Login/Join to Vote",
+		[ZH_TW]: "登入/加入即可投票！",
+	},
+	to: {
 		[EN]: "to",
 		[ZH_TW]: "即可",
 	},
@@ -32,6 +36,10 @@ const D: Record<string, Record<string, any>> = {
 	"Change Display Language?": {
 		[EN]: "Change Display Language?",
 		[ZH_TW]: "要更換界面語言嗎？",
+	},
+	"Display Language": {
+		[EN]: "Display Language",
+		[ZH_TW]: "界面語言",
 	},
 	"make a poll": {
 		[EN]: "make a poll",
@@ -53,19 +61,17 @@ const D: Record<string, Record<string, any>> = {
 		[EN]: "FEATURED",
 		[ZH_TW]: "精選",
 	},
-	"More Options Coming Soon!": {
-		[EN]: "More Options Coming Soon!",
+	"More options coming soon!": {
+		[EN]: "More options coming soon!",
 		[ZH_TW]: "更多登入方式即將推出！",
 	},
-	"See and Share Opinions & Tastes": {
-		[EN]: "See and Share Opinions & Tastes",
-		[ZH_TW]: (
-			<span style={{}}>
-				看見、分享
-				<br />
-				<span className=""></span>觀點和品味！
-			</span>
-		),
+	"See and Share": {
+		[EN]: "See and Share",
+		[ZH_TW]: "看見、分享",
+	},
+	"Opinions & Tastes": {
+		[EN]: "Opinions & Tastes",
+		[ZH_TW]: "觀點和品味！",
 	},
 	"posted ": {
 		[EN]: "posted ",
@@ -90,6 +96,38 @@ const D: Record<string, Record<string, any>> = {
 	s: {
 		[EN]: "s",
 		[ZH_TW]: "",
+	},
+	vote_Sidebar: {
+		[EN]: "vote",
+		[ZH_TW]: "投票",
+	},
+	", ": {
+		[EN]: ", ",
+		[ZH_TW]: "、",
+	},
+	make: {
+		[EN]: "make",
+		[ZH_TW]: "發佈",
+	},
+	polls_Sidebar: {
+		[EN]: "polls",
+		[ZH_TW]: "新問題",
+	},
+	"and discover": {
+		[EN]: "and discover",
+		[ZH_TW]: "然後發現",
+	},
+	people: {
+		[EN]: "people",
+		[ZH_TW]: "觀點和品味",
+	},
+	with: {
+		[EN]: "with",
+		[ZH_TW]: "",
+	},
+	"similar opinions & tastes!": {
+		[EN]: "similar opinions & tastes!",
+		[ZH_TW]: "與你相似的新朋友！",
 	},
 	options: {
 		[EN]: "options",
@@ -249,21 +287,49 @@ const D: Record<string, Record<string, any>> = {
 		[EN]: "Select:",
 		[ZH_TW]: "選取：",
 	},
-	"voted": {
+	voted: {
 		[EN]: "voted",
 		[ZH_TW]: "投過",
 	},
-	"posted": {
+	posted: {
 		[EN]: "posted",
 		[ZH_TW]: "發佈過",
 	},
-	"top": {
+	top: {
 		[EN]: "top",
 		[ZH_TW]: "熱門",
 	},
-	"new": {
+	new: {
 		[EN]: "new",
 		[ZH_TW]: "最新",
+	},
+	"voting anonymously": {
+		[EN]: (
+			<span>
+				voting
+				<br />
+				anonymously
+			</span>
+		),
+		[ZH_TW]: <span>匿名投票</span>,
+	},
+	"voting publicly": {
+		[EN]: (
+			<span>
+				voting
+				<br />
+				publicly
+			</span>
+		),
+		[ZH_TW]: <span>記名投票</span>,
+	},
+	Settings: {
+		[EN]: "Settings",
+		[ZH_TW]: "設定",
+	},
+	settings: {
+		[EN]: "settings",
+		[ZH_TW]: "設定",
 	},
 }
 export const d = (L: string, s: string) => (!D[s] ? "" : typeof D[s][L] === "undefined" ? D[s][DEFAULT_LANGUAGE] : D[s][L])

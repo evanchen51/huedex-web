@@ -10,7 +10,7 @@ const CreatePollCheck: React.FC<{}> = ({}) => {
 	const router = useRouter()
 	const [{ data: data, fetching: fetching }] = useCreatePollCheckQuery({ pause: noBrowser() })
 	if (noBrowser() || fetching) return <LoadingScreen />
-	if (!data) return <>error</>
+	if (!data) return <div className="mt-[40vh] mx-auto">error</div>
 	else router.replace("/create-poll")
 	return <LoadingScreen />
 }

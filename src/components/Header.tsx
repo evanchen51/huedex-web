@@ -12,12 +12,15 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 	const L = useGetDisplayLanguage()
 	const router = useRouter()
 	const [menuToggle, setMenuToggle] = useState("closed")
-	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
+	const [{ data: loginData, fetching: loginFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
 	})
 
 	const scrollRef = useRef<number>()
 	const [headerToggle, setHeaderToggle] = useState(true)
+
+	// const [windowWidth, setWindowWidth] = useState(0)
+
 	const scrollChecker = setInterval(() => {
 		if (noBrowser()) return
 		// console.log(window.scrollY, scrollRef.current)
@@ -28,7 +31,12 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 		if (Math.abs(window.scrollY - scrollRef.current) < 50) {
 			return
 		}
-		if (window.scrollY > scrollRef.current && window.scrollY > 100 && menuToggle === "close") {
+		if (
+			window.scrollY > scrollRef.current &&
+			window.scrollY > 100 &&
+			menuToggle === "closed" &&
+			window.innerWidth <= 640
+		) {
 			setHeaderToggle(false)
 		} else if (window.scrollY < scrollRef.current || window.scrollY <= 100) {
 			setHeaderToggle(true)
@@ -36,6 +44,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 		scrollRef.current = window.scrollY
 	}, 250)
 	useEffect(() => {
+		// setWindowWidth(window.innerWidth)
 		return () => {
 			clearInterval(scrollChecker)
 		}
@@ -43,9 +52,14 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 
 	return (
 		<div
-			className="fixed flex w-full flex-row items-center justify-between bg-background bg-opacity-50 pl-6 pr-6 pb-3 pt-3.5 font-bold tracking-wider text-foreground backdrop-blur-lg transition sm:pl-9 sm:pr-3"
+			className="fixed flex w-full flex-row items-center justify-between bg-background bg-opacity-50 pl-6 pr-6 pb-3 pt-3.5 font-bold tracking-wider text-foreground backdrop-blur-lg transition sm:pl-9 sm:pr-3 sm:backdrop-blur-sm"
 			style={{
-				zIndex: menuToggle === "closed" ? 50 : 70,
+				zIndex:
+					menuToggle === "closed"
+						? typeof window !== "undefined" && window.innerWidth > 640
+							? 20
+							: 50
+						: 70,
 				// paddingTop: visitor ? "24px" : "24px",
 				transform: headerToggle ? "translateY(0%)" : "translateY(-100%)",
 				// boxShadow:"inset 0px -4px 6px 2px rgba(255,255,255,0.5)"
@@ -53,7 +67,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 		>
 			<Link href="/" as={`/`}>
 				<div
-					className="flex w-[36vw] flex-col items-baseline text-lg sm:flex-row"
+					className="flex w-[36vw] flex-col items-baseline text-lg tracking-wider sm:flex-row"
 					onClick={() => {
 						if (router.asPath === "/") {
 							router.reload()
@@ -75,7 +89,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 			{home && (
 				<Link href="/" as={`/`}>
 					<svg
-						className="h-5 fill-foreground"
+						className="h-5 fill-foreground sm:ml-[8vw]"
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 576 512"
 						onClick={() => {
@@ -88,17 +102,28 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 					</svg>
 				</Link>
 			)}
-			<div className="hidden w-[36vw] flex-row items-center justify-end font-normal sm:flex">
-				{!noBrowser() && !userFetching && userData?.getCurrentUser && (
+			<div className="hidden w-[36vw] flex-row items-center justify-end font-normal tracking-wider sm:flex">
+				{!noBrowser() && !loginFetching && loginData?.getCurrentUser && (
 					<>
 						<Link href="/create-poll-check">
 							<div
 								className="flex flex-row items-center rounded-full py-3 px-6"
+								style={{
+									cursor: router.asPath === "/create-poll" ? "default" : "pointer",
+									backgroundColor:
+										router.asPath === "/create-poll"
+											? `hsl(${HextoHSL(colors["background"]).h},${
+													HextoHSL(colors["background"]).s
+											  }%,${HextoHSL(colors["background"]).l - 2}%)`
+											: colors["background"],
+								}}
 								onMouseEnter={(e) => {
+									if (router.asPath === "/create-poll") return
 									const { h, s, l } = HextoHSL(colors["background"])
 									e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 2}%)`
 								}}
 								onMouseLeave={(e) => {
+									if (router.asPath === "/create-poll") return
 									e.currentTarget.style.backgroundColor = colors["background"]
 								}}
 							>
@@ -107,10 +132,10 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 									<div className="mx-[2.5px] h-3 w-[2.5px] rounded-[1px] bg-foreground" />
 									<div className="h-1.5 w-[2.5px] rounded-[1px] bg-foreground" />
 								</div>
-								<div className="ml-3 text-foreground">{d(L, "make a poll")}</div>
+								<div className="ml-3 text-foreground ">{d(L, "make a poll")}</div>
 							</div>
 						</Link>
-						<Link href="/user/[id]" as={`/user/${userData?.getCurrentUser.id}`}>
+						<Link href="/user/[id]" as={`/user/${loginData?.getCurrentUser.id}`}>
 							<div
 								className="ml-0 flex flex-row items-center rounded-full py-3 px-6"
 								onMouseEnter={(e) => {
@@ -131,9 +156,40 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 								<div className="ml-3">{d(L, "my profile")}</div>
 							</div>
 						</Link>
+						<Link href="/settings">
+							<div
+								className="ml-0 mr-3 flex flex-row items-center rounded-full py-4 px-4"
+								style={{
+									cursor: router.asPath === "/settings" ? "default" : "pointer",
+									backgroundColor:
+										router.asPath === "/settings"
+											? `hsl(${HextoHSL(colors["background"]).h},${
+													HextoHSL(colors["background"]).s
+											  }%,${HextoHSL(colors["background"]).l - 2}%)`
+											: colors["background"],
+								}}
+								onMouseEnter={(e) => {
+									if (router.asPath === "/settings") return
+									const { h, s, l } = HextoHSL(colors["background"])
+									e.currentTarget.style.backgroundColor = `hsl(${h},${s}%,${l - 2}%)`
+								}}
+								onMouseLeave={(e) => {
+									if (router.asPath === "/settings") return
+									e.currentTarget.style.backgroundColor = colors["background"]
+								}}
+							>
+								<svg
+									className="h-3.5 fill-foreground"
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 512 512"
+								>
+									<path d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z" />
+								</svg>
+							</div>
+						</Link>
 					</>
 				)}
-				{!noBrowser() && !userFetching && !userData?.getCurrentUser && (
+				{!noBrowser() && !loginFetching && !loginData?.getCurrentUser && (
 					<>
 						<button
 							className="mb-1 mr-3 flex w-fit cursor-pointer flex-row items-center justify-center self-center rounded-full border-[0.5px] border-foreground bg-background px-5 py-3.5"
@@ -156,7 +212,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 							>
 								<path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" />
 							</svg>
-							<div className="text-sm font-light text-foreground">
+							<div className="font- text-sm tracking-wider text-foreground">
 								{d(L, "Login/Join with Google")}
 							</div>
 						</button>
@@ -189,7 +245,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 				</svg>
 			</div>
 			<div
-				className="absolute top-[2vw] right-[2vw] z-10 flex h-max w-max flex-col items-end text-background transition "
+				className="absolute top-[2vw] right-[2vw] z-10 flex h-max w-max flex-col items-end tracking-wider text-background transition"
 				style={{
 					visibility: menuToggle === "closed" ? "hidden" : "visible",
 					opacity: menuToggle === "open" ? "1" : "0",
@@ -197,15 +253,15 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 			>
 				<div className="pointer-events-none absolute top-[-24px] right-[-24px] h-[120vh] w-[120vw] bg-foreground opacity-20" />
 				<div className="z-10 flex h-max w-[96vw] flex-col rounded-xl bg-foreground px-7 py-5 text-sm font-normal tracking-wider">
-					{!noBrowser() && !userFetching && userData?.getCurrentUser && (
+					{!noBrowser() && !loginFetching && loginData?.getCurrentUser && (
 						<>
-							<Link href="/user/[id]" as={`/user/${userData?.getCurrentUser.id}`}>
+							<Link href="/user/[id]" as={`/user/${loginData?.getCurrentUser.id}`}>
 								<div className="mb-6 mt-0 ml-1 flex flex-row items-center">
-									<div className="font-light">{userData.getCurrentUser.displayName}</div>
+									<div className="font-light">{loginData.getCurrentUser.displayName}</div>
 								</div>
 								{/* <div className="mt-4 h-[0.5px] w-full bg-secondary opacity-30" /> */}
 							</Link>
-							<Link href="/user/[id]" as={`/user/${userData?.getCurrentUser.id}`}>
+							<Link href="/user/[id]" as={`/user/${loginData?.getCurrentUser.id}`}>
 								<div className="ml-1 flex flex-row items-center">
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
@@ -227,10 +283,23 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 									</div>
 									<div className="ml-4 text-background">{d(L, "make a poll")}</div>
 								</div>
+								<div className="mt-5 h-[0.5px] w-full bg-secondary opacity-30" />
+							</Link>
+							<Link href="/settings">
+								<div className="mt-5 mb-1 ml-1 flex flex-row items-center">
+									<svg
+										className="h-3.5 fill-background"
+										xmlns="http://www.w3.org/2000/svg"
+										viewBox="0 0 512 512"
+									>
+										<path d="M495.9 166.6c3.2 8.7 .5 18.4-6.4 24.6l-43.3 39.4c1.1 8.3 1.7 16.8 1.7 25.4s-.6 17.1-1.7 25.4l43.3 39.4c6.9 6.2 9.6 15.9 6.4 24.6c-4.4 11.9-9.7 23.3-15.8 34.3l-4.7 8.1c-6.6 11-14 21.4-22.1 31.2c-5.9 7.2-15.7 9.6-24.5 6.8l-55.7-17.7c-13.4 10.3-28.2 18.9-44 25.4l-12.5 57.1c-2 9.1-9 16.3-18.2 17.8c-13.8 2.3-28 3.5-42.5 3.5s-28.7-1.2-42.5-3.5c-9.2-1.5-16.2-8.7-18.2-17.8l-12.5-57.1c-15.8-6.5-30.6-15.1-44-25.4L83.1 425.9c-8.8 2.8-18.6 .3-24.5-6.8c-8.1-9.8-15.5-20.2-22.1-31.2l-4.7-8.1c-6.1-11-11.4-22.4-15.8-34.3c-3.2-8.7-.5-18.4 6.4-24.6l43.3-39.4C64.6 273.1 64 264.6 64 256s.6-17.1 1.7-25.4L22.4 191.2c-6.9-6.2-9.6-15.9-6.4-24.6c4.4-11.9 9.7-23.3 15.8-34.3l4.7-8.1c6.6-11 14-21.4 22.1-31.2c5.9-7.2 15.7-9.6 24.5-6.8l55.7 17.7c13.4-10.3 28.2-18.9 44-25.4l12.5-57.1c2-9.1 9-16.3 18.2-17.8C227.3 1.2 241.5 0 256 0s28.7 1.2 42.5 3.5c9.2 1.5 16.2 8.7 18.2 17.8l12.5 57.1c15.8 6.5 30.6 15.1 44 25.4l55.7-17.7c8.8-2.8 18.6-.3 24.5 6.8c8.1 9.8 15.5 20.2 22.1 31.2l4.7 8.1c6.1 11 11.4 22.4 15.8 34.3zM256 336a80 80 0 1 0 0-160 80 80 0 1 0 0 160z" />
+									</svg>
+									<div className="ml-4 text-background">{d(L, "settings")}</div>
+								</div>
 							</Link>
 						</>
 					)}
-					{!noBrowser() && !userFetching && !userData?.getCurrentUser && (
+					{!noBrowser() && !loginFetching && !loginData?.getCurrentUser && (
 						<>
 							<button
 								className="mb-1 mr-auto flex w-fit cursor-pointer flex-row items-center justify-center self-center rounded-full border-[0.5px] border-background bg-foreground px-5 py-3.5"
@@ -253,7 +322,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 								>
 									<path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z" />
 								</svg>
-								<div className="text-sm font-light text-background">
+								<div className="text-sm font-light tracking-wider text-background">
 									{d(L, "Continue with Google")}
 								</div>
 							</button>
@@ -264,7 +333,7 @@ const Header: React.FC<{ home?: boolean; visitor?: boolean }> = ({ home }) => {
 									<div className="mx-[2.5px] h-3 w-[2.5px] rounded-[1px] bg-secondary" />
 									<div className="h-1.5 w-[2.5px] rounded-[1px] bg-secondary" />
 								</div>
-								<div className="ml-3 text-secondary">{d(L, "make a poll")}</div>
+								<div className="ml-3 text-secondary ">{d(L, "make a poll")}</div>
 							</div>
 						</>
 					)}

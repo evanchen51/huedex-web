@@ -5,12 +5,20 @@ import { d } from "../displayTexts"
 import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 
 export const LoginPrompt: React.FC<{
-	message: string
+	// message: string
 	control: {
-		state: string | boolean
-		toggle: React.Dispatch<React.SetStateAction<boolean | string>>
+		state: {
+			state: boolean | string
+			message?: string | undefined
+		}
+		toggle: React.Dispatch<
+			React.SetStateAction<{
+				state: boolean | string
+				message?: string | undefined
+			}>
+		>
 	}
-}> = ({ message, control: { state, toggle } }) => {
+}> = ({ control: { state:{state,message}, toggle } }) => {
 	const L = useGetDisplayLanguage()
 	const router = useRouter()
 	useEffect(() => console.log(state), [state])
@@ -18,9 +26,9 @@ export const LoginPrompt: React.FC<{
 		<div
 			className="absolute z-50 h-screen w-screen"
 			onClick={() => {
-				toggle("exit")
+				toggle({ state: "exit" })
 				setTimeout(() => {
-					toggle(false)
+					toggle({ state: false })
 				}, 500)
 			}}
 			style={{ visibility: state ? "visible" : "hidden" }}
@@ -38,9 +46,9 @@ export const LoginPrompt: React.FC<{
 					<button
 						className="mb-2 self-start"
 						onClick={() => {
-							toggle("exit")
+							toggle({ state: "exit" })
 							setTimeout(() => {
-								toggle(false)
+								toggle({ state: false })
 							}, 500)
 						}}
 					>
@@ -53,7 +61,9 @@ export const LoginPrompt: React.FC<{
 						</svg>
 					</button>
 					<div className="mb-6 flex w-full flex-row items-start justify-center self-center">
-						<div className="px-4 font-bold tracking-wider text-background">{message}</div>
+						<div className="px-4 font-bold tracking-wider text-background">
+							{message ?? d(L, "Login/Join to Vote")}
+						</div>
 					</div>
 					<div className="flex flex-col items-center">
 						<button
@@ -85,7 +95,7 @@ export const LoginPrompt: React.FC<{
 							</div>
 						</button>
 						<div className="mb-2 text-sm font-light text-secondary opacity-30">
-							{d(L, "More Options Coming Soon!")}
+							{d(L, "More options coming soon!")}
 						</div>
 					</div>
 				</div>

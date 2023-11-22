@@ -15,7 +15,7 @@ const PollPage: React.FC<{}> = ({}) => {
 
 	if (!noBrowser() && pollData?.getSinglePoll)
 		router.replace(`/poll/${router.query.id}/${pollData.getSinglePoll.text.replace(" ", "-")}`)
-	if (!pollFetching && !pollData?.getSinglePoll) return <>error</>
+	if (!pollFetching && !pollData?.getSinglePoll) return <div className="mx-auto mt-[40vh]">error</div>
 
 	return <LoadingScreen />
 }

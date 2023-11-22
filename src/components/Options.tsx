@@ -7,20 +7,21 @@ import { d } from "../displayTexts"
 import { Option as OptionType, Poll as PollType } from "../generated/graphql"
 import { colors } from "../utils/colors"
 import { urqlClientOptions } from "../utils/urqlClient"
+import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 import { useImageFullViewer } from "../utils/useImageFullViewer"
 import { useVoteHandler } from "../utils/useVoteHandler"
 import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
 import LoadingSpinner from "./LoadingSpinner"
-import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 
 const Options: React.FC<{
 	poll: PollType
 	allOptionsToggle: boolean
 	setAllOptionsToggle: React.Dispatch<React.SetStateAction<boolean>>
 	displayMode?: boolean
+	scroller?: HTMLDivElement | null
 	pollHovering?: boolean
 	link?: boolean | string
-}> = ({ poll, allOptionsToggle, setAllOptionsToggle, displayMode, link }) => {
+}> = ({ poll, allOptionsToggle, setAllOptionsToggle, displayMode, scroller, link }) => {
 	const L = useGetDisplayLanguage()
 	const router = useRouter()
 
@@ -71,11 +72,14 @@ const Options: React.FC<{
 
 	return (
 		<div
-			className="pointer-events-none ml-[50vw] mr-[10vw] flex flex-col sm:mr-[70vw]"
+			className="pointer-events-none flex flex-col"
 			style={{
 				cursor: link ? "pointer" : "default",
+				// opacity: scroller ? "0" : "1",
+				paddingRight: poll.options?.length === 2 ? "108px" : "48px",
 			}}
 			onClick={(e) => {
+				// if (scroller) return
 				e.stopPropagation()
 				if (!link) return
 				if (link === "new-tab") {
@@ -87,7 +91,7 @@ const Options: React.FC<{
 		>
 			<div
 				className="pointer-events-auto flex w-max flex-row pt-5 pb-5 pl-1"
-				style={{ paddingRight: poll.options?.length === 2 ? "108px" : "48px" }}
+				// style={{ paddingRight: poll.options?.length === 2 ? "108px" : "48px" }}
 			>
 				{poll.options
 					?.sort((a, b) => {
@@ -122,6 +126,7 @@ const Options: React.FC<{
 								// onMouseLeave={(e)=>{e.currentTarget.style.backgroundColor = colors["background"]}}
 							>
 								<div
+									id={`${option.id}`}
 									className="z-20 mr-2 flex w-[196px] cursor-pointer flex-col rounded-b-[44px] rounded-t-[44px] border-2 border-[rgb(252,252,252)] px-4 pt-5 pb-2 backdrop-blur-lg transition"
 									style={{
 										// backgroundColor: pollHovering
@@ -129,17 +134,22 @@ const Options: React.FC<{
 										// 			HextoHSL(colors["background"]).s
 										// 	  }%,${HextoHSL(colors["background"]).l - 2}%)`
 										// 	: colors["background"],
-										boxShadow:
-											"0px 2px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)",
+										backdropFilter: scroller ? "blur(0px)" : "blur(16px)",
+										borderColor: scroller ? "transparent" : "rgb(252,252,252)",
+										// backgroundColor: scroller ? colors["background"] : "transparent",
+										boxShadow: scroller
+											? ""
+											: "0px 2px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)",
 									}}
 									onMouseEnter={(e) => {
 										e.stopPropagation()
+										let e_1 = scroller
+											? (scroller.querySelector(`#${option.id}`) as HTMLDivElement)
+											: e.currentTarget
 										// e.currentTarget.style.borderColor = colors["secondary"] + "60"
-										e.currentTarget.style.boxShadow =
+										e_1.style.boxShadow =
 											"0px 8px 16px -8px rgb(0 0 0 / 0.1), 0px 6px 8px -6px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)"
-										const button = e.currentTarget.querySelector(
-											"#vote-button"
-										) as HTMLElement
+										const button = e_1.querySelector("#vote-button") as HTMLElement
 										button.style.boxShadow = voted
 											? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(212, 212, 212), inset 2px 2px 8px 2px rgb(212, 212, 212)"
 											: "-6px -6px 8px 2px rgb(252, 252, 252), inset 4px 4px 6px 0px rgb(252, 252, 252), 6px 6px 8px 2px rgb(233, 233, 233), inset -2px -2px 6px 0px rgb(233, 233, 233)"
@@ -147,47 +157,58 @@ const Options: React.FC<{
 									}}
 									onMouseDown={(e) => {
 										if (displayMode) return
-										e.currentTarget.style.boxShadow =
+										let e_1 = scroller
+											? (scroller.querySelector(`#${option.id}`) as HTMLDivElement)
+											: e.currentTarget
+										e_1.style.boxShadow =
 											"0px 0px 12px -6px rgb(0 0 0 / 0.1), 0px 0px 6px -6px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)"
-										const button = e.currentTarget.querySelector(
-											"#vote-button"
-										) as HTMLElement
+										const button = e_1.querySelector("#vote-button") as HTMLElement
 										button.style.boxShadow =
 											"6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(200, 200, 200), inset 2px 2px 6px 0px rgb(200, 200, 200)"
 										button.style.transform = "scale(0.96)"
 									}}
 									onMouseLeave={(e) => {
 										e.stopPropagation()
+										let e_1 = scroller
+											? (scroller.querySelector(`#${option.id}`) as HTMLDivElement)
+											: e.currentTarget
 										// e.currentTarget.style.borderColor = colors["secondary"] + "80"
-										e.currentTarget.style.boxShadow =
+										e_1.style.boxShadow =
 											"0px 2px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)"
-										const button = e.currentTarget.querySelector(
-											"#vote-button"
-										) as HTMLElement
+										const button = e_1.querySelector("#vote-button") as HTMLElement
 										button.style.boxShadow = voted
 											? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
 											: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
 										button.style.transform = "scale(1)"
 									}}
 									onMouseUp={(e) => {
+										// if (scroller) return
 										if (displayMode) return
-										e.currentTarget.style.boxShadow =
+										let e_1 = scroller
+											? (scroller.querySelector(`#${option.id}`) as HTMLDivElement)
+											: e.currentTarget
+										e_1.style.boxShadow =
 											"0px 2px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(250 250 250 / 0.75)"
-										const button = e.currentTarget.querySelector(
-											"#vote-button"
-										) as HTMLElement
+										const button = e_1.querySelector("#vote-button") as HTMLElement
 										button.style.boxShadow = voted
 											? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
 											: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
 										button.style.transform = "scale(1)"
 									}}
-									onClick={(e) => {
+									onClick={async (e) => {
+										// if (scroller) return
 										e.stopPropagation()
 										e.nativeEvent.stopImmediatePropagation()
-										const button = e.currentTarget.querySelector(
-											"#vote-button"
-										) as HTMLElement
-										button.click()
+										// const button = e.currentTarget.querySelector(
+										// 	"#vote-button"
+										// ) as HTMLElement
+										// button.click()
+										if (displayMode) return
+										e.preventDefault()
+										e.stopPropagation()
+										e.nativeEvent.stopImmediatePropagation()
+										voteHandler(poll.id, option.id)
+										if (!startedVoting) setStartedVoting(true)
 									}}
 								>
 									<div
@@ -196,43 +217,49 @@ const Options: React.FC<{
 											"relative z-20 flex w-full cursor-pointer flex-col rounded-full bg-background px-5 py-4 font-normal text-foreground transition"
 										}
 										style={{
+											opacity: scroller ? "0" : "1",
 											boxShadow: voted
 												? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
 												: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)",
 										}}
-										onClick={async (e) => {
-											if (displayMode) return
-											e.preventDefault()
-											e.stopPropagation()
-											e.nativeEvent.stopImmediatePropagation()
-											voteHandler(poll.id, option.id)
-											if (!startedVoting) setStartedVoting(true)
-										}}
-										onMouseEnter={() => {
-											// e.currentTarget.style.boxShadow = voted
-											// 	? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(212, 212, 212), inset 2px 2px 8px 2px rgb(212, 212, 212)"
-											// 	: "-6px -6px 8px 2px rgb(252, 252, 252), inset 4px 4px 6px 0px rgb(252, 252, 252), 6px 6px 8px 2px rgb(233, 233, 233), inset -2px -2px 6px 0px rgb(233, 233, 233)"
-											// e.currentTarget.style.transform = "scale(0.98)"
-										}}
-										onMouseDown={(e) => {
-											if (displayMode) return
-											e.currentTarget.style.boxShadow =
-												"6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(200, 200, 200), inset 2px 2px 6px 0px rgb(200, 200, 200)"
-											e.currentTarget.style.transform = "scale(0.96)"
-										}}
-										onMouseLeave={() => {
-											// e.currentTarget.style.boxShadow = voted
-											// 	? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
-											// 	: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
-											// e.currentTarget.style.transform = "scale(1)"
-										}}
-										onMouseUp={(e) => {
-											if (displayMode) return
-											e.currentTarget.style.boxShadow = voted
-												? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
-												: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
-											e.currentTarget.style.transform = "scale(1)"
-										}}
+										// onClick={async (e) => {
+										// 	if (scroller) return
+										// 	if (displayMode) return
+										// 	e.preventDefault()
+										// 	e.stopPropagation()
+										// 	e.nativeEvent.stopImmediatePropagation()
+										// 	voteHandler(poll.id, option.id)
+										// 	if (!startedVoting) setStartedVoting(true)
+										// }}
+										// onMouseEnter={() => {
+										// if (scroller) return
+										// e.currentTarget.style.boxShadow = voted
+										// 	? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(212, 212, 212), inset 2px 2px 8px 2px rgb(212, 212, 212)"
+										// 	: "-6px -6px 8px 2px rgb(252, 252, 252), inset 4px 4px 6px 0px rgb(252, 252, 252), 6px 6px 8px 2px rgb(233, 233, 233), inset -2px -2px 6px 0px rgb(233, 233, 233)"
+										// e.currentTarget.style.transform = "scale(0.98)"
+										// }}
+										// onMouseDown={(e) => {
+										// if (scroller) return
+										// 	if (displayMode) return
+										// 	e.currentTarget.style.boxShadow =
+										// 		"6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(200, 200, 200), inset 2px 2px 6px 0px rgb(200, 200, 200)"
+										// 	e.currentTarget.style.transform = "scale(0.96)"
+										// }}
+										// onMouseLeave={() => {
+										// 	if (scroller) return
+										// e.currentTarget.style.boxShadow = voted
+										// 	? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
+										// 	: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
+										// e.currentTarget.style.transform = "scale(1)"
+										// }}
+										// onMouseUp={(e) => {
+										// 	if (scroller) return
+										// 	if (displayMode) return
+										// 	e.currentTarget.style.boxShadow = voted
+										// 		? "6px 6px 8px 2px rgb(256, 256, 256), inset -4px -4px 6px 0px rgb(256, 256, 256), 0px -6px 8px 2px rgb(216, 216, 216), inset 2px 2px 6px 0px rgb(216, 216, 216)"
+										// 		: "-6px -6px 8px 2px rgb(256, 256, 256), inset 4px 4px 6px 0px rgb(256, 256, 256), 6px 6px 8px 2px rgb(216, 216, 216), inset -2px -2px 6px 0px rgb(216, 216, 216)"
+										// 	e.currentTarget.style.transform = "scale(1)"
+										// }}
 									>
 										<div className="mx-2">
 											<div className="mt-0 flex w-full flex-row items-center justify-between text-xs tracking-wider">
@@ -317,6 +344,7 @@ const Options: React.FC<{
 												<div
 													className="relative h-[156px] w-[156px] cursor-pointer overflow-hidden rounded-lg"
 													onClick={(e) => {
+														// if (scroller) return
 														e.stopPropagation()
 														if (imageLoader[option.id].URL)
 															onImageFullView(
@@ -324,6 +352,7 @@ const Options: React.FC<{
 															)
 													}}
 													onMouseDown={(e) => {
+														// if (scroller) return
 														e.stopPropagation()
 														// e.preventDefault()
 														// e.nativeEvent.stopImmediatePropagation()
@@ -390,26 +419,28 @@ const Options: React.FC<{
 										)}
 									<div
 										className="mx-3.5 mt-7 mb-5 flex w-max max-w-[90%] cursor-text items-center justify-center self-center text-sm text-foreground"
-										style={
-											{
-												// height:
-												// 	a.find((e) => e.mediaTypeCode && e.mediaTypeCode === IMAGE) &&
-												// 	!option.mediaURL
-												// 		? "156px"
-												// 		: "100%",
-											}
-										}
+										style={{
+											// height:
+											// 	a.find((e) => e.mediaTypeCode && e.mediaTypeCode === IMAGE) &&
+											// 	!option.mediaURL
+											// 		? "156px"
+											// 		: "100%",
+											backgroundColor: scroller ? colors["background"] : "transparent",
+										}}
 										onMouseDown={(e) => {
+											// if (scroller) return
 											e.stopPropagation()
 											// e.preventDefault()
 											// e.nativeEvent.stopImmediatePropagation()
 										}}
 										onMouseUp={(e) => {
+											// if (scroller) return
 											e.stopPropagation()
 											// e.preventDefault()
 											// e.nativeEvent.stopImmediatePropagation()
 										}}
 										onClick={(e) => {
+											// if (scroller) return
 											e.stopPropagation()
 											// e.preventDefault()
 											// e.nativeEvent.stopImmediatePropagation()
@@ -429,8 +460,9 @@ const Options: React.FC<{
 					})}
 				{poll.numOfOptions && poll.options && poll.numOfOptions > poll.options?.length && (
 					<div
-						className="mt-2 flex w-[168px] cursor-pointer flex-row pl-3 text-sm tracking-wider text-foreground"
+						className="mt-0 ml-0 flex w-[168px] cursor-pointer flex-row text-sm tracking-wider text-foreground"
 						onClick={(e) => {
+							// if (scroller) return
 							e.preventDefault()
 							e.stopPropagation()
 							e.nativeEvent.stopImmediatePropagation()
@@ -441,10 +473,45 @@ const Options: React.FC<{
 						{allOptionsToggle ? (
 							<LoadingSpinner />
 						) : (
-							<div className="ml-1 flex flex-row pr-9">
-								<div className="">
+							<div className="ml-0 flex flex-row pr-0">
+								<div
+									className="h-max rounded-[44px] border-2 border-white bg-transparent px-6 pt-4 pb-4 backdrop-blur-lg transition"
+									style={{
+										backdropFilter: scroller ? "blur(0px)" : "blur(16px)",
+										// backgroundColor: scroller ? colors["background"] : "transparent",
+										borderColor: scroller ? "transparent" : "rgb(252,252,252)",
+										color: scroller ? "transparent" : colors["foreground"],
+										boxShadow: scroller
+											? ""
+											: "0px 4px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -3px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(252 252 252 / 0.75)",
+									}}
+									id={poll.id + "-see-all"}
+									onMouseEnter={(e) => {
+										e.stopPropagation()
+										let e_1 = scroller
+											? (scroller.querySelector(`#${poll.id}-see-all`) as HTMLDivElement)
+											: e.currentTarget
+										e_1.style.boxShadow =
+											"0px 4px 12px -8px rgb(0 0 0 / 0.1), 0px 0px 6px -4px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(252 252 252 / 0.75)"
+									}}
+									onMouseDown={(e) => {
+										let e_1 = scroller
+											? (scroller.querySelector(`#${poll.id}-see-all`) as HTMLDivElement)
+											: e.currentTarget
+										e_1.style.boxShadow =
+											"0px 2px 12px -12px rgb(0 0 0 / 0.1), 0px 0px 6px -6px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(252 252 252 / 0.75)"
+									}}
+									onMouseLeave={(e) => {
+										e.stopPropagation()
+										let e_1 = scroller
+											? (scroller.querySelector(`#${poll.id}-see-all`) as HTMLDivElement)
+											: e.currentTarget
+										e_1.style.boxShadow =
+											"0px 4px 12px -4px rgb(0 0 0 / 0.1), 0px 0px 6px -3px rgb(0 0 0 / 0.1), inset 0px 0px 8px 2px rgb(252 252 252 / 0.75)"
+									}}
+								>
 									{d(L, "See All ")}({poll.numOfOptions})
-									<p className="mt-1 flex flex-row border-b-[0.5px] border-secondary pb-2.5">
+									<p className="mt-1 flex flex-row">
 										{d(L, "Options")}
 										<svg
 											className="ml-1.5 mt-[5px] h-3 fill-foreground"

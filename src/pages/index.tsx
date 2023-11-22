@@ -1,20 +1,25 @@
 import { withUrqlClient } from "next-urql"
-import React, { useEffect } from "react"
+import { useRouter } from "next/router"
+import React from "react"
 import { useGetCurrentUserQuery } from "../generated/graphql"
 import { noBrowser } from "../utils/noBrowser"
 import { urqlClientOptions } from "../utils/urqlClient"
-import Home from "./home"
 import Visitor from "./visitor"
+import LoadingScreen from "../components/LoadingScreen"
 
 const Index: React.FC<{}> = ({}) => {
-	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
+	const router = useRouter()
+	const [{ data: loginData, fetching: loginFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
 	})
-	useEffect(() => {
-		console.log(userData, userFetching, noBrowser())
-	}, [userData, userFetching, noBrowser()])
-	// if (noBrowser() || userFetching) return <LoadingScreen />
-	if (userData?.getCurrentUser && !userFetching) return <Home />
+	// useEffect(() => {
+	// 	console.log(userData, userFetching, noBrowser())
+	// }, [userData, userFetching, noBrowser()])
+	if (noBrowser() || loginFetching) return <LoadingScreen />
+
+	// if (userData?.getCurrentUser && !userFetching) return <Home />
+	if (loginData?.getCurrentUser && !loginFetching) router.replace("/home")
+	
 	// else if (!userData?.getCurrentUser && !userFetching) return <Visitor />
 	// return <LoadingScreen />
 	return <Visitor />

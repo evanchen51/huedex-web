@@ -50,7 +50,7 @@ const CreatePoll: React.FC<{}> = ({}) => {
 	const [topicOptions, setTopicOptions] = useState<{ id: string }[]>([])
 	const [topicInput, setTopicInput] = useState("")
 	const [previewToggle, setPreviewToggle] = useState(false)
-	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
+	const [{ data: loginData, fetching: loginFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
 	})
 
@@ -72,8 +72,8 @@ const CreatePoll: React.FC<{}> = ({}) => {
 	}, [pollImageInput.URL])
 
 	// if (noBrowser()) return <Loading />
-	if (noBrowser() || checkFetching || userFetching) return <LoadingScreen />
-	if (!checkData || !userData?.getCurrentUser) return <>error</>
+	if (noBrowser() || checkFetching || loginFetching) return <LoadingScreen />
+	if (!checkData || !loginData?.getCurrentUser) return <div className="mx-auto mt-[40vh]">error</div>
 
 	return (
 		<div className="relative">
@@ -1042,12 +1042,12 @@ const CreatePoll: React.FC<{}> = ({}) => {
 										}),
 									})),
 									...(!createPollInput.anonymous && {
-										posterId: userData.getCurrentUser.id,
+										posterId: loginData.getCurrentUser.id,
 									}),
 									...(!createPollInput.anonymous && {
 										poster: {
-											id: userData.getCurrentUser.id,
-											displayName: userData.getCurrentUser.displayName,
+											id: loginData.getCurrentUser.id,
+											displayName: loginData.getCurrentUser.displayName,
 										},
 									}),
 									...(pollImageInput.URL && {

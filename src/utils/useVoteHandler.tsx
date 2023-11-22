@@ -6,6 +6,8 @@ import {
 	useSendVoteReqMutation,
 } from "../generated/graphql"
 import { noBrowser } from "./noBrowser"
+import { d } from "../displayTexts"
+import { useGetDisplayLanguage } from "./useGetDisplayLanguage"
 
 const VoteContext = React.createContext<any>(null)
 
@@ -19,26 +21,26 @@ type sessionStateType = Record<
 >
 
 export const VoteContextProvider = ({ children }: { children: ReactNode }) => {
-	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
+	const [{ data: loginData, fetching: loginFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
 	})
 	const [{ data: historyData, fetching: historyFetching }] = useGetVoteHistoryQuery({
-		pause: noBrowser() || userFetching || !userData || !userData?.getCurrentUser,
+		pause: noBrowser() || loginFetching || !loginData || !loginData?.getCurrentUser,
 		// requestPolicy: "cache-and-network",
 	})
 
 	const [initState, setInitState] = useState<Record<string, boolean>>({})
 	const [sessionState, setSessionState] = useState<sessionStateType>({})
 	const [loggedIn, setLoggedIn] = useState(false)
-	const [loginPromptToggle, setLoginPromptToggle] = useState<boolean | string>(false)
+	const [loginPromptToggle, setLoginPromptToggle] = useState<{state:boolean | string,message?:string}>({state:false})
 
 	useEffect(() => {
 		if (noBrowser()) return
-		if (userFetching) return
-		if (!userData) return
-		if (!userData.getCurrentUser) return
+		if (loginFetching) return
+		if (!loginData) return
+		if (!loginData.getCurrentUser) return
 		setLoggedIn(true)
-	}, [noBrowser(), userFetching, userData, userData?.getCurrentUser])
+	}, [noBrowser(), loginFetching, loginData, loginData?.getCurrentUser])
 
 	useEffect(() => {
 		if (historyFetching) return
@@ -87,6 +89,7 @@ export const VoteContextProvider = ({ children }: { children: ReactNode }) => {
 }
 
 export const useVoteHandler = () => {
+	const L = useGetDisplayLanguage()
 	const {
 		loggedIn,
 		loginPromptControl,
@@ -96,8 +99,16 @@ export const useVoteHandler = () => {
 	}: {
 		loggedIn: boolean
 		loginPromptControl: {
-			state: string | boolean
-			toggle: React.Dispatch<React.SetStateAction<string | boolean>>
+			state: {
+				state: boolean | string
+				message?: string | undefined
+			}
+			toggle: React.Dispatch<
+				React.SetStateAction<{
+					state: boolean | string
+					message?: string | undefined
+				}>
+			>
 		}
 		initState: Record<string, boolean>
 		sessionState: sessionStateType
@@ -148,7 +159,7 @@ export const useVoteHandler = () => {
 
 	const voteHandler = (pollId: string, optionId: string) => {
 		if (!loggedIn) {
-			loginPromptControl.toggle(pollId)
+			loginPromptControl.toggle({ state: pollId, message: d(L, "Login/Join to Vote") })
 			return
 		}
 		let state: sessionStateType

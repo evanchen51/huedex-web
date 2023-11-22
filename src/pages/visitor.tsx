@@ -11,9 +11,9 @@ import { useGetCurrentUserQuery, useGetVisitorFeedQuery } from "../generated/gra
 import { convertBrowserLanguage } from "../utils/convertBrowserLanguage"
 import { noBrowser } from "../utils/noBrowser"
 import { urqlClientOptions } from "../utils/urqlClient"
+import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 import { useVoteHandler } from "../utils/useVoteHandler"
 import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
-import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 
 const Visitor: React.FC<{}> = ({}) => {
 	const L = useGetDisplayLanguage()
@@ -21,12 +21,12 @@ const Visitor: React.FC<{}> = ({}) => {
 
 	const { loginPromptControl } = useVoteHandler()
 
-	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
+	const [{ data: loginData, fetching: loginFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
 	})
 
 	const [feedVariable, setFeedVariable] = useState([EN])
-	const [{ data: feedData }] = useGetVisitorFeedQuery({
+	const [{ data: feedData, fetching: feedFetching }] = useGetVisitorFeedQuery({
 		variables: { languageCodes: feedVariable || [EN] },
 		// pause: !feedVariable,
 		// pause: noBrowser() || !feedVariable,
@@ -37,24 +37,26 @@ const Visitor: React.FC<{}> = ({}) => {
 		setFeedVariable(convertBrowserLanguage(navigator.languages))
 	}, [noBrowser()])
 
-	if (noBrowser() || userFetching) return <LoadingScreen />
-	if (userData?.getCurrentUser && !userFetching) router.replace("/home")
+	if (noBrowser() || loginFetching) return <LoadingScreen />
+	if (loginData?.getCurrentUser && !loginFetching) router.replace("/home")
 
 	return (
 		<div className="relative">
 			<Head>
 				<title>Huedex | {d(L, "Home")}</title>
 			</Head>
-			<LoginPrompt message={d(L, "Login/Join with Google")} control={loginPromptControl} />
+			<LoginPrompt control={loginPromptControl} />
 			<Header home={true} visitor={true} />
 			<Sidebar />
-			<div className="flex max-w-full flex-col items-center overflow-x-hidden">
-				<div className="mb-36 mt-16 w-full max-w-[560px] shrink-0">
-					<div className="mx-6 mt-6 text-[64px] font-thin sm:mx-0 sm:text-[80px]">
-						{d(L, "See and Share Opinions & Tastes")}
+			<div className="sm:ml-[calc((100vw_-_560px)/4) flex max-w-full flex-col items-center overflow-x-hidden text-foreground sm:ml-[9.6vw]">
+				<div className="mb-36 mt-[136px] w-full max-w-[560px] shrink-0 sm:mt-[108px] ">
+					<div className="z-[-1] mx-6 text-[40px] font-thin uppercase leading-[46px] tracking-wider sm:mx-0 sm:text-[80px] sm:leading-[84px]">
+						{d(L, "See and Share")}
+						<br />
+						{d(L, "Opinions & Tastes")}
 					</div>
 					<div
-						className="mx-auto mt-12 h-24 w-24 cursor-pointer fill-foreground"
+						className="mx-auto mt-16 mb-12 h-12 w-12 cursor-pointer fill-foreground sm:mt-16 sm:mb-9 sm:h-20 sm:w-20"
 						onClick={(e) => {
 							e.currentTarget.scrollIntoView({
 								behavior: "smooth",
@@ -67,6 +69,11 @@ const Visitor: React.FC<{}> = ({}) => {
 							<path d="m18.294 16.793-5.293 5.293V1h-1v21.086l-5.295-5.294-.707.707L12.501 24l6.5-6.5-.707-.707z" />
 						</svg>
 					</div>
+					{feedFetching && (
+						<div className="ml-[240px] mt-[25vh]">
+							<LoadingScreen />
+						</div>
+					)}
 					{feedData?.getVisitorFeed.map(
 						(e) =>
 							e.item && (

@@ -6,6 +6,7 @@ import Header from "../../components/Header"
 import LoadingSpinner from "../../components/LoadingSpinner"
 import { LoginPrompt } from "../../components/LoginPrompt"
 import Poll from "../../components/Poll"
+import Sidebar from "../../components/Sidebar"
 import { d } from "../../displayTexts"
 import {
 	FeedItem,
@@ -15,9 +16,8 @@ import {
 } from "../../generated/graphql"
 import { colors } from "../../utils/colors"
 import { urqlClientOptions } from "../../utils/urqlClient"
-import { useVoteHandler } from "../../utils/useVoteHandler"
 import { useGetDisplayLanguage } from "../../utils/useGetDisplayLanguage"
-import Sidebar from "../../components/Sidebar"
+import { useVoteHandler } from "../../utils/useVoteHandler"
 
 const UserPage: React.FC<{}> = ({}) => {
 	const L = useGetDisplayLanguage()
@@ -29,10 +29,6 @@ const UserPage: React.FC<{}> = ({}) => {
 
 	const { loginPromptControl } = useVoteHandler()
 
-	const [{ data: userData }] = useGetUserQuery({
-		variables: { id: router.query.id as string },
-	})
-
 	const [feed, setFeed] = useState<Record<string, FeedItem[]>>({ voted: [], posted: [] })
 	const [feedDeduper, setFeedDeduper] = useState<Record<string, Record<string, boolean>>>({
 		voted: {},
@@ -41,6 +37,10 @@ const UserPage: React.FC<{}> = ({}) => {
 	const [cursorId, setCursorId] = useState<string | null>(null)
 
 	const [tabToggle, setTabToggle] = useState<string>("voted")
+
+	const [{ data: userData }] = useGetUserQuery({
+		variables: { id: router.query.id as string },
+	})
 
 	// const [{ data: feedData, fetching: feedFetching, operation: feedOperation }] =
 	const [{ data: votedData, fetching: votedFetching }] = useGetUserVotedPollsQuery({
@@ -125,20 +125,21 @@ const UserPage: React.FC<{}> = ({}) => {
 		<div className="h-screen">
 			<Head>
 				<title>Huedex | {userData?.getUser?.displayName || "..."}</title>
+				{/* TODO <!-- --> flash bug, Hydration bug */}
 			</Head>
-			<LoginPrompt message={"Login/Join to vote"} control={loginPromptControl} />
+			<LoginPrompt control={loginPromptControl} />
 			<Header />
 			<Sidebar />
-			<div className="pointer-events-none h-16 w-full" />
-			<div className="flex w-full flex-row items-center justify-center">
-				<div className="flex w-full max-w-[560px] flex-row items-center justify-center pt-9 font-normal">
+			<div className="pointer-events-none h-16 w-1" />
+			<div className="flex w-full flex-row items-center justify-center ">
+				<div className="flex w-full max-w-[560px] flex-row items-center justify-center pt-9 font-normal sm:ml-[9.6vw]">
 					{/* <div className="tracking-wider text-foreground">topic:</div> */}
 					<div className="text-md ml-2 text-foreground">
 						<div className="">{userData?.getUser?.displayName || "..."}</div>
 					</div>
 				</div>
 			</div>
-			<div className="mx-auto mt-9 flex w-[240px] max-w-[75vw] flex-row items-center justify-center tracking-wider text-foreground">
+			<div className="mx-auto mt-9 flex w-[240px] max-w-[75vw] flex-row items-center justify-center tracking-wider text-foreground whitespace-nowrap sm:pl-[9.6vw]">
 				<div
 					className="mr-32 flex cursor-pointer flex-col items-center"
 					style={{ color: tabToggle === "voted" ? colors["foreground"] : colors["secondary"] }}
@@ -188,8 +189,8 @@ const UserPage: React.FC<{}> = ({}) => {
 					/>
 				</div>
 			</div>
-			<div className="flex h-max max-w-full flex-col items-center overflow-x-hidden">
-				<div className="mb-36 mt-6 w-full max-w-[560px]">
+			<div className="sm:ml-[calc((100vw_-_560px)/4) flex h-max max-w-full flex-col items-center overflow-x-hidden sm:ml-[9.6vw]">
+				<div className="mb-36 mt-9 w-full max-w-[560px]">
 					{!feed[tabToggle] || feed[tabToggle].length === 0 ? (
 						<div className="mt-20 flex w-full flex-col items-center">
 							{(tabToggle === "voted" && votedFetching) ||

@@ -5,6 +5,7 @@ import { DisplayLanguagePrompt } from "../components/DisplayLanguagePrompt"
 import Header from "../components/Header"
 import LoadingScreen from "../components/LoadingScreen"
 import Poll from "../components/Poll"
+import Sidebar from "../components/Sidebar"
 import { d } from "../displayTexts"
 import { FeedItem, useGetCurrentUserQuery, useGetHomeFeedQuery } from "../generated/graphql"
 import { noBrowser } from "../utils/noBrowser"
@@ -12,12 +13,12 @@ import { urqlClientOptions } from "../utils/urqlClient"
 import { useGetDisplayLanguage } from "../utils/useGetDisplayLanguage"
 import { usePreserveScroll } from "../utils/usePreserveScroll"
 import { withUrqlClientForComponent } from "../utils/withUrqlClientForComponent"
-import Sidebar from "../components/Sidebar"
 
 const Home: React.FC<{}> = ({}) => {
 	const L = useGetDisplayLanguage()
+	// const { sidebarScroller } = useSidebarScroller()
 	const router = useRouter()
-	const [{ data: userData, fetching: userFetching }] = useGetCurrentUserQuery({
+	const [{ data: loginData, fetching: loginFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
 	})
 	const [feed, setFeed] = useState<FeedItem[]>([])
@@ -26,7 +27,7 @@ const Home: React.FC<{}> = ({}) => {
 	const isBack = usePreserveScroll()
 	const [{ data: feedData, fetching: feedFetching }] = useGetHomeFeedQuery({
 		variables: { seen },
-		pause: noBrowser() || !userData?.getCurrentUser || isBack,
+		pause: noBrowser() || !loginData?.getCurrentUser || isBack,
 		requestPolicy: "network-only",
 	})
 
@@ -63,11 +64,17 @@ const Home: React.FC<{}> = ({}) => {
 		[feed, feedData?.getHomeFeed.length, feedFetching]
 	)
 
-	if (noBrowser() || userFetching) return <LoadingScreen />
-	if (!userData?.getCurrentUser && !userFetching) router.replace("/visitor")
+	if (noBrowser() || loginFetching) return <LoadingScreen />
+	if (!loginData?.getCurrentUser && !loginFetching) router.replace("/visitor")
 
 	return (
-		<div>
+		<div
+		// className="relative h-screen w-screen "
+		// className="h-screen overflow-y-scroll w-screen"
+		// onScroll={(e) => {
+		// 	sidebarScroller(e)
+		// }}
+		>
 			<Head>
 				<title>Huedex | {d(L, "Home")}</title>
 			</Head>
@@ -78,8 +85,13 @@ const Home: React.FC<{}> = ({}) => {
 			<Header home={true} />
 			{/* <ImageFullView control={imageFullViewControl} /> */}
 			<Sidebar />
-			<div className="flex max-w-full flex-col items-center overflow-x-hidden">
-				<div className="mb-36 mt-24 w-full max-w-[560px]">
+			<div className="sm:ml-[calc((100vw_-_560px)/4) flex max-w-full flex-col items-center sm:ml-[9.6vw]">
+				<div className="mb-36 mt-20 w-full max-w-[560px] sm:mt-24">
+					{feedFetching && (
+						<div className="ml-[240px] mt-[25vh]">
+							<LoadingScreen />
+						</div>
+					)}
 					{feed.map(
 						(e, i, a) =>
 							e.item &&
