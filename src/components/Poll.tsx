@@ -41,8 +41,6 @@ const Poll: React.FC<{
 		requestPolicy: "network-only",
 	})
 
-	const optionDisplayRef = useRef<HTMLDivElement|null>(null)
-
 	useEffect(() => {
 		// if (displayMode) return
 		sessionStateUpdater(poll)
@@ -58,7 +56,7 @@ const Poll: React.FC<{
 	return (
 		<>
 			<div
-				className="pointer-events-auto relative z-30 flex flex-col rounded-[44px] border-[2px] border-white bg-background"
+				className="pointer-events-auto relative flex flex-col rounded-[44px] border-[1.5px] border-white bg-background"
 				style={{
 					cursor: link ? "pointer" : "auto",
 				}}
@@ -249,7 +247,7 @@ const Poll: React.FC<{
 								)}
 
 							<div
-								className="h-full w-max max-w-[100%] grow cursor-text font-medium text-foreground"
+								className="h-full grow cursor-text font-medium text-foreground"
 								// style={{ fontSize: pollTextFontSize(poll.text) }}
 								style={{
 									fontSize:
@@ -330,7 +328,7 @@ const Poll: React.FC<{
 								{poll.numOfOptions} {d(L, "options")}
 							</div>
 						</div>
-						<div className="pointer-events-none ml-[-4px] h-max w-full shrink-0 overflow-x-hidden pt-0 pb-0 opacity-0">
+						<div className="pointer-events-none h-max w-full shrink-0 overflow-x-scroll pt-0 pb-0 opacity-0">
 							<Options
 								poll={
 									!allOptionsToggle || allOptionsFetching
@@ -339,32 +337,10 @@ const Poll: React.FC<{
 								}
 								allOptionsToggle={allOptionsToggle}
 								setAllOptionsToggle={setAllOptionsToggle}
-								displayMode={true}
 							/>
 						</div>
 						<div
-							className="absolute bottom-[8px] left-[-16px] z-10 h-max w-[calc(100%_+_32px)] shrink-0 overflow-x-scroll pl-8 pt-0 pb-0 opacity-100"
-							onScroll={(e) => {
-								;(e.currentTarget.nextElementSibling as HTMLElement).style.left = `${
-									-16 - e.currentTarget.scrollLeft
-								}px`
-							}}
-						>
-							{/* <div> */}
-							<Options
-								poll={
-									!allOptionsToggle || allOptionsFetching
-										? poll
-										: { ...poll, options: allOptionsData?.getSinglePoll?.options }
-								}
-								allOptionsToggle={allOptionsToggle}
-								setAllOptionsToggle={setAllOptionsToggle}
-								scroller={optionDisplayRef.current}
-							/>
-							{/* </div> */}
-						</div>
-						<div
-							className="absolute bottom-[8px] left-[-16px] z-0 flex h-max shrink-0 cursor-default flex-row overflow-x-scroll pl-8 pt-0 pb-0 "
+							className="bg-blac absolute bottom-[8px] left-[calc(-20px-50vw)] flex h-max w-[160vw] shrink-0 cursor-default flex-row overflow-x-scroll pl-8 pt-0 pb-0 "
 							// onMouseDown={(e) => {
 							// 	e.stopPropagation()
 							// 	// e.preventDefault()
@@ -375,7 +351,6 @@ const Poll: React.FC<{
 							// 	// e.preventDefault()
 							// 	// e.nativeEvent.stopImmediatePropagation()
 							// }}
-							ref={optionDisplayRef}
 						>
 							{/* <div
 							className="pointer-events-none w-[50vw] shrink-0 bg-black"
