@@ -4,15 +4,17 @@ import { useRouter } from "next/router"
 import Header from "../../../components/Header"
 import { LoginPrompt } from "../../../components/LoginPrompt"
 import Poll from "../../../components/Poll"
-import { d } from "../../../displayTexts"
-import { Poll as PollType, useGetCurrentUserQuery, useGetSinglePollQuery } from "../../../generated/graphql"
+import {
+	Poll as PollType,
+	useGetCurrentUserQuery,
+	useGetSinglePollQuery,
+} from "../../../generated/graphql"
 import { noBrowser } from "../../../utils/noBrowser"
 import { urqlClientOptions } from "../../../utils/urqlClient"
-import { useGetDisplayLanguage } from "../../../utils/useGetDisplayLanguage"
 import { useVoteHandler } from "../../../utils/useVoteHandler"
 
-const PollPage: React.FC<{}> = ({ }) => {
-	const L = useGetDisplayLanguage()
+const PollPage: React.FC<{}> = ({}) => {
+	// const L = useGetDisplayLanguage()
 	const router = useRouter()
 	const [{ data: loginData, fetching: loginFetching }] = useGetCurrentUserQuery({
 		pause: noBrowser(),
@@ -26,12 +28,15 @@ const PollPage: React.FC<{}> = ({ }) => {
 	const { loginPromptControl } = useVoteHandler()
 
 	// if (noBrowser() || userFetching) return <LoadingScreen />
-	if (!pollFetching && !pollData?.getSinglePoll) return <div className="mx-auto mt-[40vh]">error</div>
+	if (!pollFetching && !pollData?.getSinglePoll)
+		return <div className="mx-auto mt-[40vh]">error</div>
 
 	return (
 		<div>
 			<Head>
-				<title>Huedex | {(router.query.text as string).replace("-", " ").substring(0,24)}</title>
+				<title>
+					Huedex | {(router.query.text as string).replace("-", " ").substring(0, 24)}
+				</title>
 			</Head>
 			<LoginPrompt control={loginPromptControl} />
 			<Header visitor={!loginData?.getCurrentUser && !loginFetching} />
