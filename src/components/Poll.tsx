@@ -56,7 +56,7 @@ const Poll: React.FC<{
 	return (
 		<>
 			<div
-				className="pointer-events-auto relative flex flex-col rounded-[44px] border-[2px] border-white bg-background"
+				className="pointer-events-auto relative flex flex-col rounded-[44px] border-[3px] border-white bg-background"
 				style={{
 					cursor: link ? "pointer" : "auto",
 				}}

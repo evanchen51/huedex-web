@@ -18,7 +18,7 @@ const Index: React.FC<{}> = ({}) => {
 	if (noBrowser() || loginFetching) return <LoadingScreen />
 
 	// if (userData?.getCurrentUser && !userFetching) return <Home />
-	if (loginData?.getCurrentUser && !loginFetching) router.replace("/home")
+	if (!loginFetching && loginData?.getCurrentUser) router.replace("/home")
 	
 	// else if (!userData?.getCurrentUser && !userFetching) return <Visitor />
 	// return <LoadingScreen />
